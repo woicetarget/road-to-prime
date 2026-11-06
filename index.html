@@ -1264,7 +1264,7 @@ const el = {
 };
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.3';
+const APP_VERSION = '2026-11-07.4';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -1648,7 +1648,7 @@ function ctxLine() {
 function curMood() {
   const s = activeSay(); if (s && s.mood) return s.mood;
   if (S.timer) return S.timer.finished ? 'happy' : (S.timer.phase === 'focus' ? 'focus' : 'idle');
-  if (isNight()) return 'sleepy';
+  /* по его просьбе Шагыч не засыпает ночью: всегда живой, улыбается и меняет позы */
   const t = byDate.get(todayStr()) || [];
   if (t.length && t.every(x => x.done)) return 'happy';
   return 'idle';
