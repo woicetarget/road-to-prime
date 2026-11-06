@@ -1241,6 +1241,24 @@ function bgSVG(kind, P, uid) {
   return '<defs><clipPath id="' + uid + 'c"><rect x="1.5" y="1.5" width="157" height="197" rx="22"/></clipPath></defs><g clip-path="url(#' + uid + 'c)">' + b + '</g>';
 }
 
+/* ---------- брендовые вещи: CP Company (линза-гоггл) и Stone Island (компас на рукаве), нарисованы в духе, без точных логотипов ---------- */
+const SI_PATCH = (cx, cy, k) => '<g transform="translate(' + cx + ' ' + cy + ') scale(' + (k || 1) + ')"><rect x="-8" y="-6.5" width="16" height="13" rx="2" fill="#0F0F10" stroke="#C9CCD1" stroke-width="1.2"/><path d="M0 -4.6 L1.5 0 L0 4.6 L-1.5 0Z M-4.6 0 L0 1.5 L4.6 0 L0 -1.5Z" fill="#fff"/><circle r="1.1" fill="#0F0F10"/></g>';
+const CP_LENS = (cx, cy, r, c) => C(cx, cy, r + 2.6, '#1A1A1C') + C(cx, cy, r, c, 'n') + '<path d="M' + (cx - r * .6) + ' ' + (cy - r * .55) + ' Q' + (cx - r * .1) + ' ' + (cy - r * 1.05) + ' ' + (cx + r * .55) + ' ' + (cy - r * .7) + '" fill="none" stroke="#fff" stroke-width="' + Math.max(1.4, r * .26) + '" stroke-linecap="round" opacity=".75"/>';
+HEADS.goggleHood = {n: 'худи с гогглами CP Company', f: P => '<path fill-rule="evenodd" d="M26 82 Q26 22 80 22 Q134 22 134 82 L134 112 Q134 130 112 130 L48 130 Q26 130 26 112 Z M40 54 Q40 46 52 46 L108 46 Q120 46 120 54 L120 108 Q120 116 108 116 L52 116 Q40 116 40 108 Z" fill="' + P.c1 + '" class="o"/>' +
+  R(40, 41, 80, 9, 4, dark(P.c1, .38), 'o2') + CP_LENS(80, 46, 8.2, P.lens) + Ln(60, 126, 58, 142, light(P.c1, .2), 2.4) + C(58, 144, 2.4, light(P.c1, .2), 'n')};
+HEADS.cpCap = {n: 'кепка CP Company', f: P => Pth('M38 56 Q38 24 80 24 Q122 24 122 56 Z', P.c3) + '<ellipse cx="80" cy="55" rx="50" ry="8" fill="' + dark(P.c3, .2) + '" class="o"/>' + CP_LENS(80, 40, 6.6, P.lens)};
+HEADS.siBeanie = {n: 'шапка Stone Island', f: P => HEADS.beanie.f(P) + SI_PATCH(101, 48, 1)};
+HEADS.siBucket = {n: 'панама Stone Island', f: P => HEADS.bucket.f(P) + SI_PATCH(80, 36, 1.15)};
+EYES.goggles = P => Ln(48, 66, 35, 62, '#1A1A1C', 3.4) + Ln(112, 66, 125, 62, '#1A1A1C', 3.4) + CP_LENS(62, 70, 10.2, P.lens) + CP_LENS(98, 70, 10.2, P.lens) + '<path d="M75 69 Q80 64 85 69" fill="none" stroke="#1A1A1C" stroke-width="3.6" stroke-linecap="round"/>';
+TOPS.cpJacket = {name: 'куртка с линзой CP Company', sl: P => P.c1, cuff: P => dark(P.c1, .22),
+  body: P => R(44, 106, 72, 56, 22, P.c1) + Pth('M62 104 L80 116 L98 104 L98 110 Q80 124 62 110Z', dark(P.c1, .25), 'o2') + Ln(80, 118, 80, 160, P.metal, 2.2) + R(52, 140, 18, 13, 3, dark(P.c1, .12), 'o2') + R(90, 140, 18, 13, 3, dark(P.c1, .12), 'o2') + CP_LENS(62, 127, 5.4, P.lens)};
+TOPS.siJacket = {name: 'куртка Stone Island', sl: P => P.c1, cuff: P => dark(P.c1, .28), arm: (P, cx) => cx < 80 ? SI_PATCH(cx, 131, 1.05) : '',
+  body: P => R(44, 106, 72, 56, 22, P.c1) + Pth('M62 104 L80 115 L98 104 L98 110 Q80 123 62 110Z', dark(P.c1, .3), 'o2') + Ln(80, 117, 80, 160, P.metal, 2.2) + Ln(52, 148, 68, 136, P.metal, 2) + Ln(108, 148, 92, 136, P.metal, 2) + Ln(63, 124, 60, 158, dark(P.c1, .32), 1.8) + Ln(97, 124, 100, 158, dark(P.c1, .32), 1.8)};
+TOPS.siSweat = {name: 'свитшот Stone Island', sl: P => P.c1, cuff: P => P.c2, arm: (P, cx) => cx < 80 ? SI_PATCH(cx, 130, 1.05) : '',
+  body: P => R(42, 106, 76, 56, 24, P.c1) + '<path d="M64 108 Q80 121 96 108" fill="none" stroke="' + P.c2 + '" stroke-width="6" stroke-linecap="round"/>' + R(46, 151, 68, 10, 5, P.c2, 'o2')};
+BOTTOMS.cargo = P => BOTTOMS.baggy(P) + R(45, 160, 14, 16, 3, dark(P.pants, .16), 'o2') + R(101, 160, 14, 16, 3, dark(P.pants, .16), 'o2') + Ln(46, 164, 58, 164, dark(P.pants, .4), 1.6) + Ln(102, 164, 114, 164, dark(P.pants, .4), 1.6);
+SHOES.siSneak = P => SHOES.chunky(P) + SI_PATCH(48, 184, .5) + SI_PATCH(112, 184, .5);
+
 /* ---------- гардероб: элементы по слотам, открываются за достижения («Респект улиц») ---------- */
 const SHIRTS = {
   bare: {bare: true, body: P => '<rect x="46" y="106" width="68" height="45" rx="20" class="dog o"/><ellipse cx="80" cy="130" rx="9" ry="13" fill="#F6D9A8" class="n" opacity=".55"/><path d="M77.5 138 Q80 141.5 82.5 138" fill="none" stroke="' + INK + '" stroke-width="1.8" stroke-linecap="round"/>' +
@@ -1249,6 +1267,8 @@ const SHIRTS = {
   tee: TOPS.tee,
   jersey: TOPS.jersey
 };
+SHIRTS.cpTee = {sl: P => P.c1, short: true, body: P => R(46, 106, 68, 54, 22, P.c1) + CP_LENS(80, 133, 6.6, P.lens)};
+SHIRTS.siTee = {sl: P => P.c1, short: true, body: P => R(46, 106, 68, 54, 22, P.c1) + SI_PATCH(80, 132, 1.7)};
 const SLOTS = [
   {id: 'head', name: 'Головные уборы'}, {id: 'eyes', name: 'Очки'}, {id: 'grill', name: 'Грилзы'}, {id: 'shirt', name: 'Футболки'},
   {id: 'outer', name: 'Верхняя одежда'}, {id: 'bottom', name: 'Штаны'}, {id: 'shoes', name: 'Ботинки'}, {id: 'bg', name: 'Фон'}
@@ -1260,15 +1280,11 @@ const ITEMS = [
   mk('head', 'h_none', 'Без головного убора', 'none'),
   mk('head', 'h_provod', 'Чёрная ушанка', 'provodHat', {c3: '#1B1517', hair: '#E2C48E'}),
   mk('head', 'h_fur', 'Меховая ушанка', 'furHat', {c3: '#9A8874', strap: '#7E8794'}),
-  mk('head', 'h_snap', 'Кепка', 'snapback', {c3: '#E02A4F', c2: '#FFFFFF'}, 'first'),
-  mk('head', 'h_beanie', 'Шапка с помпоном', 'beanie', {c3: '#6AD6FF', c2: '#FFFFFF'}, 'done10'),
   mk('head', 'h_crown', 'Корона', 'crown', {metal: '#FFC83D', gem: '#FF4D6D'}, 'boar5'),
   mk('head', 'h_bandana', 'Бандана', 'bandana', {c3: '#FF3D63', c2: '#FFFFFF'}, 'rat5'),
   mk('head', 'h_phones', 'Большие наушники', 'headphones', {c3: '#FF8A3D', metal: '#D5DAE6'}, 'streak3'),
   mk('head', 'h_durag', 'Дюраг', 'durag', {c3: '#33364F'}, 'plan1'),
   mk('head', 'h_spikes', 'Платиновый ёжик', 'spikes', {c3: '#F2F5FF'}, 'focus60'),
-  mk('head', 'h_curls', 'Кудряшки', 'curls', {c3: '#E8EDFF'}, 'sphere100'),
-  mk('head', 'h_bucket', 'Панама', 'bucket', {c3: '#FFC83D', c2: '#FFFFFF'}, 'cat1'),
   mk('head', 'h_bala', 'Балаклава', 'balaclava', {c3: '#262633'}, 'poke10'),
   mk('head', 'h_ushdrill', 'Ушанка-дрилл', 'ushanka', {c3: '#6E7F95', c2: '#EFE9DE'}, 'wake'),
   mk('eyes', 'e_none', 'Без очков', 'none'),
@@ -1277,42 +1293,46 @@ const ITEMS = [
   mk('eyes', 'e_shield_red', 'Красный щиток', 'shield', {lens: '#FF4D6D'}, 'rat20'),
   mk('eyes', 'e_shield_blue', 'Голубой щиток', 'shield', {lens: '#5CB6FF'}, 'pomo4'),
   mk('eyes', 'e_round_gold', 'Круглые, золотые линзы', 'round', {lens: '#B8861B'}, 'streak7'),
-  mk('eyes', 'e_rect_pink', 'Розовые очки', 'rect', {lens: '#FF3D8F'}, 'early'),
   mk('grill', 'g_none', 'Без грилзов', 'none'),
   mk('grill', 'g_gems', 'С камнями', 'gems', {metal: '#D5DAE6'}),
   mk('grill', 'g_gold', 'Золотые', 'plain', {metal: '#FFC83D'}, 'done100'),
   mk('grill', 'g_silver', 'Серебряные', 'plain', {metal: '#E4ECF8'}, 'clean'),
   mk('grill', 'g_rose', 'Розовое золото', 'plain', {metal: '#F4B6A6'}, 'cat1'),
-  mk('grill', 'g_black', 'Чёрные', 'plain', {metal: '#4A4A5C'}, 'boar5'),
+  mk('grill', 'g_black', 'Чёрные', 'plain', {metal: '#4A4A5C'}, 'done10'),
   mk('grill', 'g_gems_gold', 'Золото с камнями', 'gems', {metal: '#FFC83D'}, 'streak30'),
   mk('shirt', 's_bare', 'Без футболки', 'bare'),
   mk('shirt', 's_white', 'Белая рубашка с галстуком', 'white', {shirt: '#FFFFFF', tie: '#14111A'}),
   mk('shirt', 's_tee_white', 'Белая футболка «ШАГ»', 'tee', {c1: '#FFFFFF', c2: '#2A2A3A'}, 'first'),
   mk('shirt', 's_tee_black', 'Чёрная футболка «ШАГ»', 'tee', {c1: '#1F1F2B', c2: '#FFD23F'}, 'clean'),
-  mk('shirt', 's_tee_red', 'Красная футболка «ШАГ»', 'tee', {c1: '#E63946', c2: '#FFFFFF'}, 'slice'),
-  mk('shirt', 's_tee_lime', 'Лаймовая футболка «ШАГ»', 'tee', {c1: '#B8F35B', c2: '#17142E'}, 'pomo1'),
   mk('shirt', 's_jersey_blue', 'Синяя майка-джерси', 'jersey', {c1: '#2F6BFF', c2: '#FFFFFF'}, 'rep10'),
   mk('shirt', 's_jersey_red', 'Красная майка-джерси', 'jersey', {c1: '#E63946', c2: '#FFFFFF'}, 'rep30'),
   mk('outer', 'o_none', 'Без верхней одежды', 'none'),
   mk('outer', 'o_furcoat', 'Пальто с меховым воротником', 'furcoat', {c1: '#1D2A47', c2: '#A58D78', metal: '#D5DAE6'}),
   mk('outer', 'o_foxcoat', 'Длинная шуба', 'foxcoat', {c1: '#8B7B69', c2: '#CFC0A6', c3: '#9A8874', pants: '#15121A'}),
   mk('outer', 'o_leather', 'Косуха', 'leather', {c1: '#262633', c2: '#C9CEDD', metal: '#D5DAE6'}, 'boar1'),
-  mk('outer', 'o_hoodie', 'Худи', 'hoodie', {c1: '#2A2A3A', c2: '#FF3D63'}, 'rat20'),
-  mk('outer', 'o_track', 'Олимпийка', 'track', {c1: '#2F6BFF', c2: '#FFFFFF'}, 'triple'),
   mk('outer', 'o_puffer', 'Пуховый жилет', 'puffer', {c1: '#F2F5FF', c2: '#8FB0FF'}, 'done100'),
   mk('outer', 'o_fur', 'Короткая шуба', 'fur', {c1: '#E8DDF4', c2: '#C9B8E0'}, 'sphere100'),
-  mk('outer', 'o_sweat', 'Свитшот', 'sweat', {c1: '#5A4A8F', c2: '#CDBBFF'}, 'focus60'),
   mk('bottom', 'b_baggy', 'Чёрные штаны', 'baggy', {pants: '#15121A'}),
   mk('bottom', 'b_baggy_blue', 'Синие штаны', 'baggy', {pants: '#3B4A7A'}, 'rep10'),
-  mk('bottom', 'b_track_blue', 'Спортивки синие', 'track', {pants: '#2F6BFF', c2: '#FFFFFF'}, 'done10'),
-  mk('bottom', 'b_track_red', 'Спортивки красные', 'track', {pants: '#E63946', c2: '#FFFFFF'}, 'triple'),
-  mk('bottom', 'b_shorts_pink', 'Розовые шорты', 'shorts', {pants: '#FF5AA5', c2: '#FFFFFF'}, 'repweek'),
   mk('shoes', 'sh_dress', 'Чёрные туфли', 'dress'),
   mk('shoes', 'sh_chunky_white', 'Белые кроссовки', 'chunky', {shoe: '#FFFFFF'}, 'boar1'),
-  mk('shoes', 'sh_chunky_red', 'Красные кроссовки', 'chunky', {shoe: '#FF3D63'}, 'streak3'),
   mk('shoes', 'sh_hightop_black', 'Чёрные высокие', 'hightop', {shoe: '#2A2A3A', c2: '#FF3D63'}, 'rat5'),
   mk('shoes', 'sh_hightop_white', 'Белые высокие', 'hightop', {shoe: '#FFFFFF', c2: '#2F6BFF'}, 'deadline'),
-  mk('shoes', 'sh_slides', 'Тапки с носками', 'slides', {shoe: '#2F6BFF', c2: '#FFFFFF'}, 'repweek'),
+  mk('head', 'cp_hood', 'CP Company: худи с гогглами', 'goggleHood', {c1: '#3A4636', lens: '#E8A23A'}, 'streak30'),
+  mk('head', 'si_beanie', 'Stone Island: шапка с компасом', 'siBeanie', {c3: '#2B2F2A', c2: '#3E443C'}, 'boar5'),
+  mk('head', 'si_bucket', 'Stone Island: панама', 'siBucket', {c3: '#4B5A3A', c2: '#2B2F2A'}, 'deadline'),
+  mk('head', 'cp_cap', 'CP Company: кепка с линзой', 'cpCap', {c3: '#3E4A36', lens: '#E8A23A'}, 'sphere100'),
+  mk('eyes', 'cp_goggles', 'CP Company: гогглы', 'goggles', {lens: '#E8A23A'}, 'early'),
+  mk('shirt', 'cp_tee', 'CP Company: футболка с линзой', 'cpTee', {c1: '#1F1F2B', lens: '#E8A23A'}, 'pomo1'),
+  mk('shirt', 'si_tee', 'Stone Island: футболка с компасом', 'siTee', {c1: '#E9E5DA'}, 'slice'),
+  mk('outer', 'cp_jacket', 'CP Company: куртка с линзой', 'cpJacket', {c1: '#3D4A35', lens: '#E8A23A', metal: '#D5DAE6'}, 'rat20'),
+  mk('outer', 'si_jacket', 'Stone Island: куртка с компасом', 'siJacket', {c1: '#33373D', metal: '#C9CCD1'}, 'triple'),
+  mk('outer', 'si_sweat', 'Stone Island: свитшот', 'siSweat', {c1: '#3C4A3F', c2: '#2A332C'}, 'focus60'),
+  mk('bottom', 'si_cargo', 'Stone Island: карго', 'cargo', {pants: '#47503C'}, 'done100'),
+  mk('bottom', 'cp_cargo', 'CP Company: карго', 'cargo', {pants: '#7A735A'}, 'triple'),
+  mk('bottom', 'si_joggers', 'Stone Island: джоггеры', 'track', {pants: '#2A2F2B', c2: '#8A9A5B'}, 'repweek'),
+  mk('shoes', 'si_sneak', 'Stone Island: кроссовки', 'siSneak', {shoe: '#232830'}, 'streak3'),
+  mk('shoes', 'cp_boots', 'CP Company: ботинки', 'hightop', {shoe: '#6B6A4F', c2: '#E8A23A'}, 'repweek'),
   mk('bg', 'bg_red', 'Красная комната', 'redroom'),
   mk('bg', 'bg_black', 'Чёрная пустота', 'blackroom'),
   mk('bg', 'bg_wall', 'Стена с граффити', 'wall', {bg1: '#3A1230', bg2: '#FF3D63'}, 'pomo1'),
@@ -1523,7 +1543,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.9';
+const APP_VERSION = '2026-11-07.10';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
