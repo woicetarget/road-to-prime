@@ -495,8 +495,23 @@ html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding
 .has-grill .m-smile,.has-grill .m-flat,.has-grill .m-wavy,.has-grill .m-o,.has-grill .tongue{display:none!important}
 .panel,.opts,.add,.fields,.hunt,.next{grid-template-columns:minmax(0,1fr)}
 .fields{grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))}
-.prow{grid-template-columns:repeat(auto-fit,minmax(min(118px,100%),1fr))}
+.prow{grid-template-columns:repeat(auto-fit,minmax(min(128px,100%),1fr))}
 .tact{grid-template-columns:repeat(auto-fit,minmax(min(132px,100%),1fr))}
+
+/* стейки с характеристиками, задачи без даты */
+.steps li{display:block}
+.srow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.srow .st-t{flex:1 1 130px;min-width:0;overflow-wrap:anywhere}
+.steps li.sd .tag,.steps li.sd .star{text-decoration:none;color:inherit}
+.sopts{margin:8px 0 6px 30px;display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
+.ib{width:34px;height:34px;flex:none;border:0;background:transparent;border-radius:10px;display:grid;place-items:center;color:var(--ink2)}
+.ib:hover,.ib[aria-expanded=true]{background:var(--surface2);color:var(--ink)}
+.ib svg{width:18px;height:18px}
+.und{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 6px;border-bottom:1.5px solid var(--line)}
+.und .ttl{font-size:16px;font-weight:500}
+.und .ab{min-height:36px;padding:6px 12px;white-space:nowrap}
+.dtrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.tag .dot{display:inline-block;width:8px;height:8px;border:0;background:var(--c,var(--ink2));margin-right:5px}
 </style>
 </head>
 <body>
@@ -1013,7 +1028,7 @@ const S = {
   timer: null, say: null, try: null, spheres: new Map(), sphCol: null, tab: 'cal', selSphere: null, sphereSel: ls.get(KEYS.sphere, ''), guide: ls.get(KEYS.guide, true) !== false
 };
 if (!CATS[S.cat]) S.cat = 'proj';
-S.sCat = S.cat; S.sStar = false; S.sBig = false; S.sRat = false; S.sDate = todayStr();
+S.sCat = S.cat; S.sStar = false; S.sBig = false; S.sRat = false; S.sDate = '';
 let byDate = new Map();
 const Q = new Map();
 
@@ -1150,7 +1165,7 @@ function stats() {
   let weekCount = 0;
   S.tasks.forEach(t => {
     if (!t.done) return;
-    const d = doneDay(t); days.add(d);
+    const d = doneDay(t); if (!d) return; days.add(d);
     const i = diffDays(d, monday);
     if (i >= 0 && i < 7) { wk[i]++; weekCount++; }
   });
@@ -1211,17 +1226,45 @@ function renderLegend() {
   el.cats.innerHTML = Object.keys(CATS).map(k => '<button type="button" class="cat-b c-' + k + '" data-act="cat" data-cat="' + k + '" aria-pressed="' + (S.cat === k) + '"><i class="dot"></i>' + CATS[k] + '</button>').join('');
 }
 
+function stepHTML(t, s, i, ctx) {
+  const key = t.id + ':' + i, open = S.openStep === key, uid = ctx + '-' + t.id + '-' + i;
+  let h = '<li class="' + (s.d ? 'sd' : '') + (s.cat ? ' c-' + s.cat : '') + '"><div class="srow">' +
+    '<button type="button" class="sk" role="checkbox" aria-checked="' + !!s.d + '" aria-label="Стейк: ' + esc(s.t) + '" data-act="step" data-i="' + i + '">' + ICON.check + '</button>' +
+    '<span class="st-t">' + (s.main ? '<span class="star" title="Главное">' + ICON.star + '</span>' : '') + esc(s.t) + '</span>' +
+    (s.rat ? '<span class="tag rat" title="Мелкая и неприятная">' + ICON.rat + 'крыса</span>' : '') +
+    (s.cat ? '<span class="tag"><i class="dot"></i>' + CATS[s.cat] + '</span>' : '') +
+    (s.date ? '<span class="tag">' + shortDate(s.date) + '</span>' : '') +
+    '<button type="button" class="ib" data-act="sopen" data-i="' + i + '" aria-expanded="' + open + '" aria-label="Характеристики стейка">' + ICON.dots + '</button></div>';
+  if (open) {
+    h += '<div class="sopts"><div class="prow">' +
+      '<button type="button" class="pill' + (s.main ? ' on' : '') + '" data-act="step-main" data-i="' + i + '">' + ICON.star + (s.main ? 'Не главное' : 'Главное') + '</button>' +
+      '<button type="button" class="pill' + (s.rat ? ' on' : '') + '" data-act="step-rat" data-i="' + i + '">' + ICON.rat + (s.rat ? 'Не крыса' : 'Это крыса') + '</button></div>' +
+      '<div class="fields"><div class="fld"><label class="ol" for="sc-' + uid + '">Категория</label><select class="sel" id="sc-' + uid + '" data-step-cat data-i="' + i + '"><option value="">Как у задачи</option>' + Object.keys(CATS).map(k => '<option value="' + k + '"' + (k === s.cat ? ' selected' : '') + '>' + CATS[k] + '</option>').join('') + '</select></div>' +
+      '<div class="fld"><label class="ol" for="sd-' + uid + '">Дата</label><input type="date" class="sel" id="sd-' + uid + '" data-step-date data-i="' + i + '" value="' + esc(s.date || '') + '"></div></div></div>';
+  }
+  return h + '</li>';
+}
+function undatedHTML() {
+  const list = Array.from(S.tasks.values()).filter(t => !t.done && !t.date).sort((a, b) => (a.created || 0) - (b.created || 0));
+  if (!list.length) return '';
+  const lbl = S.sel === todayStr() ? 'На сегодня' : 'На ' + shortDate(S.sel);
+  return '<li class="grp">Без даты<small>' + list.length + ', привяжи к выбранному дню</small></li>' + list.map(t =>
+    '<li class="und c-' + t.cat + '" data-id="' + t.id + '"><div class="und-t"><div class="ttl">' + (t.main ? '<span class="star">' + ICON.star + '</span>' : '') + esc(t.title) + '</div><div class="meta"><span class="cat"><i class="dot"></i>' + (CATS[t.cat] || CATS.proj) + '</span>' + sphChip(t) +
+    (t.big ? '<span class="tag boar">' + ICON.boar + 'кабан</span>' : '') + (t.rat ? '<span class="tag rat">' + ICON.rat + 'крыса</span>' : '') + '</div></div>' +
+    '<button type="button" class="ab go" data-act="mv" data-to="' + S.sel + '">' + lbl + '</button></li>').join('');
+}
 function rowHTML(t, ctx) {
   ctx = ctx || 'd';
   const steps = t.steps || [], sd = steps.filter(s => s.d).length, open = S.open === t.id, busy = S.busy === t.id, today = todayStr(), tomorrow = addDays(today, 1);
   let h = '<li class="task c-' + t.cat + (t.done ? ' done' : '') + (S.hot === t.id ? ' hot' : '') + '" data-id="' + t.id + '">' +
     '<button type="button" class="chk" role="checkbox" aria-checked="' + !!t.done + '" aria-label="Готово: ' + esc(t.title) + '" data-act="toggle">' + ICON.check + '</button>' +
     '<div class="tb"><div class="ttl">' + (t.main ? '<span class="star" title="Главное">' + ICON.star + '</span>' : '') + esc(t.title) + (t.example ? '<span class="tag">пример</span>' : '') + '</div>' +
-    '<div class="meta"><span class="cat"><i class="dot"></i>' + (CATS[t.cat] || CATS.proj) + '</span>' + sphChip(t) + (t.big ? '<span class="tag boar" title="Большая задача, режем на стейки">' + ICON.boar + 'кабан</span>' : '') + (t.rat ? '<span class="tag rat" title="Мелкая и неприятная задача">' + ICON.rat + 'крыса</span>' : '') + (steps.length ? '<span>стейки ' + sd + '/' + steps.length + '</span>' : '') + '</div></div>' +
+    '<div class="meta"><span class="cat"><i class="dot"></i>' + (CATS[t.cat] || CATS.proj) + '</span>' + sphChip(t) + (!t.date ? '<span class="tag">без даты</span>' : '') + (t.big ? '<span class="tag boar" title="Большая задача, режем на стейки">' + ICON.boar + 'кабан</span>' : '') + (t.rat ? '<span class="tag rat" title="Мелкая и неприятная задача">' + ICON.rat + 'крыса</span>' : '') + (steps.length ? '<span>стейки ' + sd + '/' + steps.length + '</span>' : '') + '</div></div>' +
     '<div class="tact">' + (t.done ? '' : '<button type="button" class="ab go" data-act="start">' + ICON.play + 'Начать · 5 мин</button>') +
+    (!t.date && !t.done ? '<button type="button" class="ab go" data-act="mv" data-to="' + S.sel + '">' + (S.sel === today ? 'На сегодня' : 'На ' + shortDate(S.sel)) + '</button>' : '') +
     (t.big && !steps.length && !t.done ? '<button type="button" class="ab" data-act="more">Добавить стейки</button>' : '') +
     '<button type="button" class="ab" data-act="more" aria-expanded="' + open + '">' + ICON.dots + (open ? 'Свернуть' : 'Ещё') + '</button></div>';
-  if (steps.length) h += '<div class="st-lbl">Стейки · ' + sd + ' из ' + steps.length + '</div><ul class="steps">' + steps.map((s, i) => '<li class="' + (s.d ? 'sd' : '') + '"><button type="button" class="sk" role="checkbox" aria-checked="' + !!s.d + '" aria-label="Стейк: ' + esc(s.t) + '" data-act="step" data-i="' + i + '">' + ICON.check + '</button><span>' + esc(s.t) + '</span></li>').join('') + '</ul>';
+  if (steps.length) h += '<div class="st-lbl">Стейки · ' + sd + ' из ' + steps.length + '</div><ul class="steps">' + steps.map((s, i) => stepHTML(t, s, i, ctx)).join('') + '</ul>';
   if (busy) h += '<div class="busy">Шагыч режет кабана на стейки…</div>';
   if (open) {
     h += '<div class="panel"><div class="prow">' +
@@ -1231,6 +1274,8 @@ function rowHTML(t, ctx) {
       '<button type="button" class="pill' + (t.rat ? ' on' : '') + '" data-act="rattoggle">' + ICON.rat + (t.rat ? 'Не крыса' : 'Это крыса') + '</button>' +
       (t.date !== today ? '<button type="button" class="pill" data-act="mv" data-to="' + today + '">На сегодня</button>' : '') +
       (t.date !== tomorrow ? '<button type="button" class="pill" data-act="mv" data-to="' + tomorrow + '">На завтра</button>' : '') +
+      (S.sel && S.sel !== today && S.sel !== tomorrow && t.date !== S.sel ? '<button type="button" class="pill" data-act="mv" data-to="' + S.sel + '">На ' + shortDate(S.sel) + '</button>' : '') +
+      (t.date ? '<button type="button" class="pill" data-act="mv" data-to="">Без даты</button>' : '') +
       '<button type="button" class="pill" data-act="del">Удалить</button></div>' +
       '<div class="fields">' +
       '<div class="fld"><label class="ol" for="cat-' + ctx + '-' + t.id + '">Категория</label><select class="sel" id="cat-' + ctx + '-' + t.id + '" data-task-cat aria-label="Категория">' + Object.keys(CATS).map(k => '<option value="' + k + '"' + (k === t.cat ? ' selected' : '') + '>' + CATS[k] + '</option>').join('') + '</select></div>' +
@@ -1258,15 +1303,15 @@ function renderDay() {
   el.rat.setAttribute('aria-pressed', String(S.rat));
   if (S.loading) { el.list.innerHTML = '<li class="empty">Загружаю задачи…</li>'; return; }
   if (!list.length) {
-    el.list.innerHTML = '<li class="empty">' + (diff === 0 ? 'На сегодня пока пусто. Достаточно одного дела, лучше совсем маленького. Впиши его выше и нажми «Добавить».' : diff < 0 ? 'В этот день задач не было.' : 'Пока ничего не запланировано. Можно добавить первое дело выше.') + '</li>';
+    el.list.innerHTML = '<li class="empty">' + (diff === 0 ? 'На сегодня пока пусто. Достаточно одного дела, лучше совсем маленького. Впиши его выше и нажми «Добавить».' : diff < 0 ? 'В этот день задач не было.' : 'Пока ничего не запланировано. Можно добавить первое дело выше.') + '</li>' + undatedHTML();
     return;
   }
   const mains = list.filter(t => t.main), rest = list.filter(t => !t.main);
   el.list.innerHTML = (mains.length ? '<li class="grp">Главное<small>до ' + MAX_MAIN + ' в день</small></li>' + mains.map(x => rowHTML(x, 'd')).join('') : '') +
-    (rest.length ? (mains.length ? '<li class="grp">Остальное</li>' : '') + rest.map(x => rowHTML(x, 'd')).join('') : '');
+    (rest.length ? (mains.length ? '<li class="grp">Остальное</li>' : '') + rest.map(x => rowHTML(x, 'd')).join('') : '') + undatedHTML();
 }
 
-function overdue() { const today = todayStr(); return Array.from(S.tasks.values()).filter(t => !t.done && t.date < today).sort((a, b) => b.date.localeCompare(a.date) || a.created - b.created); }
+function overdue() { const today = todayStr(); return Array.from(S.tasks.values()).filter(t => !t.done && t.date && t.date < today).sort((a, b) => b.date.localeCompare(a.date) || a.created - b.created); }
 function renderTails() {
   const list = overdue(); el.tails.hidden = !list.length; if (!list.length) return;
   el.tailsCount.textContent = list.length;
@@ -1344,11 +1389,19 @@ function curMood() {
   return 'idle';
 }
 
-function openRats() { const today = todayStr(); return Array.from(S.tasks.values()).filter(t => t.rat && !t.done && t.date <= today).sort((a, b) => (a.created || 0) - (b.created || 0)); }
+function openRats() {
+  const today = todayStr(), out = [];
+  S.tasks.forEach(t => {
+    if (t.done) return;
+    if (t.rat && t.date && t.date <= today) out.push({id: t.id, title: t.title, created: t.created || 0});
+    (t.steps || []).forEach((s, i) => { const d = s.date || t.date; if (s.rat && !s.d && d && d <= today) out.push({id: t.id, i, title: s.t, created: (t.created || 0) + i / 100}); });
+  });
+  return out.sort((a, b) => a.created - b.created);
+}
 function candidates() {
   const today = todayStr();
   const score = t => (t.main ? 0 : 10) + (t.date === today ? 0 : 6) + Math.min(8, Math.floor(t.title.length / 12)) - ((t.steps || []).some(s => !s.d) ? 2 : 0);
-  return Array.from(S.tasks.values()).filter(t => !t.done && t.date <= today).sort((a, b) => score(a) - score(b) || a.created - b.created);
+  return Array.from(S.tasks.values()).filter(t => !t.done && t.date && t.date <= today).sort((a, b) => score(a) - score(b) || a.created - b.created);
 }
 
 const C_RING = 2 * Math.PI * 50;
@@ -1374,7 +1427,7 @@ function timerHTML() {
   const brk = T.phase !== 'focus', left = T.finished ? 0 : T.paused ? T.left : Math.max(0, T.endAt - Date.now());
   const name = brk ? (T.phase === 'long' ? 'Длинный перерыв, ты заслужил' : 'Короткий перерыв') : (T.hunt ? 'Охота на крыс' : (t ? t.title : 'Просто начать, без цели'));
   const huntRats = T.hunt && !brk && !T.finished ? openRats() : null;
-  const ratsHTML = huntRats ? (huntRats.length ? '<div class="rats">' + huntRats.map(r => '<button type="button" class="rat-b" data-act="rat-done" data-id="' + r.id + '">' + ICON.rat + esc(r.title) + '</button>').join('') + '</div>' : '<div class="ns" style="margin:0 0 10px">Все крысы пойманы.</div>') : '';
+  const ratsHTML = huntRats ? (huntRats.length ? '<div class="rats">' + huntRats.map(r => '<button type="button" class="rat-b" data-act="rat-done" data-id="' + r.id + '"' + (r.i !== undefined ? ' data-i="' + r.i + '"' : '') + '>' + ICON.rat + esc(r.title) + '</button>').join('') + '</div>' : '<div class="ns" style="margin:0 0 10px">Все крысы пойманы.</div>') : '';
   const lbl = T.finished ? (brk ? 'Перерыв закончился' : 'Время вышло') : T.paused ? 'Пауза' : brk ? 'Перерыв' : (T.kind === 'pomo' ? 'Помодоро, фокус' : 'Фокус');
   let dots = '';
   if (T.kind === 'pomo') {
@@ -1471,7 +1524,7 @@ function chime(n) {
   } catch (e) {}
 }
 function focusTask(t) {
-  if (!t) return;
+  if (!t || !t.date) return;
   S.sel = t.date; S.view = {y: parse(t.date).getFullYear(), m: parse(t.date).getMonth()};
   S.hot = t.id; setTimeout(() => { S.hot = null; renderDay(); }, 4200);
   renderAll();
@@ -1506,8 +1559,9 @@ function sphereStats(id) {
     if (t.big && st.length) { units += st.length; done += t.done ? st.length : st.filter(s => s.d).length; } else { units++; if (t.done) done++; }
     if (!t.done && t.big) boars++;
     if (!t.done && t.rat) rats++;
+    if (!t.done) st.forEach(s => { if (s.rat && !s.d) rats++; });
   });
-  const open = list.filter(t => !t.done).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0) || ((b.main ? 1 : 0) - (a.main ? 1 : 0)) || ((a.created || 0) - (b.created || 0)));
+  const open = list.filter(t => !t.done).sort((a, b) => ((a.date || '9999') < (b.date || '9999') ? -1 : (a.date || '9999') > (b.date || '9999') ? 1 : 0) || ((b.main ? 1 : 0) - (a.main ? 1 : 0)) || ((a.created || 0) - (b.created || 0)));
   return {list, open, units, done, boars, rats, pct: units ? Math.round(done / units * 100) : 0, next: open[0] || null};
 }
 function persistSphere(sp) {
@@ -1550,7 +1604,7 @@ function sphereFormHTML() {
     '<div class="add-line"><input type="text" id="sphereQuickTitle" maxlength="160" placeholder="Что сделать? Начни с глагола"><button type="submit" class="btn primary">Добавить</button></div>' +
     '<div class="opts"><span class="ol">Категория</span><div class="cats" role="group" aria-label="Категория">' +
     Object.keys(CATS).map(k => '<button type="button" class="cat-b c-' + k + '" data-act="scat" data-cat="' + k + '" aria-pressed="' + (S.sCat === k) + '"><i class="dot"></i>' + CATS[k] + '</button>').join('') + '</div>' +
-    '<span class="ol">Дата</span><input type="date" class="sel" id="sphereDate" value="' + esc(S.sDate) + '">' +
+    '<span class="ol">Дата, можно не указывать</span><div class="dtrow"><input type="date" class="sel" id="sphereDate" value="' + esc(S.sDate) + '"><button type="button" class="pill" data-act="sdate-clear">Без даты</button></div>' +
     '<div class="flags">' +
     '<button type="button" class="star-b" data-act="sstar" aria-pressed="' + S.sStar + '"' + (mc >= MAX_MAIN && !S.sStar ? ' disabled' : '') + ' title="Главное дело дня, их не больше трёх">' + ICON.star + 'Главное</button>' +
     '<button type="button" class="star-b" data-act="sbig" aria-pressed="' + S.sBig + '" title="Большая задача, которую нарежем на стейки">' + ICON.boar + 'Кабан</button>' +
@@ -1562,11 +1616,14 @@ function renderSphereDetail() {
   const sp = S.spheres.get(S.selSphere);
   if (!sp) { el.sdetail.innerHTML = '<div class="empty">Выбери сферу слева, и здесь появятся её дела.</div>'; return; }
   const st = sphereStats(sp.id), done = st.list.filter(t => t.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+  const dated = st.open.filter(t => t.date), undated = st.open.filter(t => !t.date);
   el.sdetail.innerHTML =
     '<div class="day-head"><div><span class="rel">Сфера</span><h2>' + esc(sp.name) + '</h2></div><div class="prog">' + st.pct + '%</div></div>' +
     '<div class="bar" aria-hidden="true"><i style="--p:' + (st.pct / 100).toFixed(3) + '"></i></div>' +
     sphereFormHTML() +
-    '<ul class="list">' + (st.open.length ? '<li class="grp">В работе</li>' + st.open.map(x => rowHTML(x, 's')).join('') : '<li class="empty">Открытых дел нет.</li>') + (done.length ? '<li class="grp">Готово</li>' + done.map(x => rowHTML(x, 's')).join('') : '') + '</ul>' +
+    '<ul class="list">' + (dated.length ? '<li class="grp">В работе</li>' + dated.map(x => rowHTML(x, 's')).join('') : (undated.length ? '' : '<li class="empty">Открытых дел нет.</li>')) +
+    (undated.length ? '<li class="grp">Без даты<small>привяжи к дню кнопкой справа внизу</small></li>' + undated.map(x => rowHTML(x, 's')).join('') : '') +
+    (done.length ? '<li class="grp">Готово</li>' + done.map(x => rowHTML(x, 's')).join('') : '') + '</ul>' +
     '<div class="sd-foot"><button type="button" class="chip" data-act="sphere-del" data-id="' + sp.id + '">Удалить сферу</button></div>';
   const inp = document.getElementById('sphereQuickTitle');
   if (inp && keep) { inp.value = keep; if (hadFocus) inp.focus(); }
@@ -1584,6 +1641,10 @@ document.addEventListener('click', e => {
       break;
     case 'sphere': S.selSphere = id; renderSpheres(); if (innerWidth < 980) el.sdetail.scrollIntoView({block: 'start'}); break;
     case 'sphere-del': removeSphere(id); break;
+    case 'sdate-clear': S.sDate = ''; renderSphereDetail(); break;
+    case 'sopen': { const key = id + ':' + b.dataset.i; S.openStep = S.openStep === key ? null : key; renderAll(); } break;
+    case 'step-main': { const si = +b.dataset.i; edit(id, t => { if (t.steps[si]) t.steps[si].main = !t.steps[si].main; }); } break;
+    case 'step-rat': { const si = +b.dataset.i; edit(id, t => { if (t.steps[si]) t.steps[si].rat = !t.steps[si].rat; }); } break;
     case 'scat': S.sCat = b.dataset.cat; renderSphereDetail(); break;
     case 'sstar': S.sStar = !S.sStar; renderSphereDetail(); break;
     case 'sbig': S.sBig = !S.sBig; if (S.sBig) S.sRat = false; renderSphereDetail(); break;
@@ -1610,7 +1671,15 @@ document.addEventListener('click', e => {
     case 'bigtoggle': edit(id, t => { t.big = !t.big; if (t.big) t.rat = false; }); break;
     case 'rattoggle': edit(id, t => { t.rat = !t.rat; if (t.rat) t.big = false; }); break;
     case 'hunt': startTimer({min: POMO.focus, kind: 'pomo', hunt: true}); break;
-    case 'rat-done': { edit(id, t => { t.done = true; t.doneAt = Date.now(); }); hop(); const left = openRats().length; say(left ? 'Крыса поймана! Осталось ' + left + ', лови следующую.' : 'Все крысы пойманы! Чисто, бро.', {mood: 'happy', ms: 5000}); } break;
+    case 'rat-done': {
+      const si = b.dataset.i !== undefined ? +b.dataset.i : -1; let eaten = false;
+      edit(id, t => {
+        if (si >= 0) { if (t.steps[si]) t.steps[si].d = true; if (t.big && t.steps.length && t.steps.every(s => s.d) && !t.done) { t.done = true; t.doneAt = Date.now(); eaten = true; } }
+        else { t.done = true; t.doneAt = Date.now(); }
+      });
+      hop(); const left = openRats().length;
+      say(eaten ? 'Крыса поймана, и кабан съеден!' : left ? 'Крыса поймана! Осталось ' + left + ', лови следующую.' : 'Все крысы пойманы! Чисто, бро.', {mood: 'happy', ms: 5000});
+    } break;
     case 'toggle': { const cur = S.tasks.get(id); if (!cur) break; const nowDone = !cur.done; edit(id, t => { t.done = nowDone; t.doneAt = nowDone ? Date.now() : null; }); if (nowDone) celebrate(); } break;
     case 'step': {
       const i = +b.dataset.i; let eaten = false;
@@ -1628,7 +1697,11 @@ document.addEventListener('click', e => {
       if (!cur.main && mc >= MAX_MAIN) { toast('Главных дел не больше трёх. Так проще не растеряться.'); break; }
       edit(id, t => { t.main = !t.main; });
     } break;
-    case 'mv': { const to = b.dataset.to; edit(id, t => { t.date = to; }); if (S.open === id) S.open = null; say(to === todayStr() ? 'Перенёс на сегодня. Без драмы.' : 'Перенёс на завтра. Сегодня на одно дело меньше.', {ms: 3500}); renderAll(); } break;
+    case 'mv': {
+      const to = b.dataset.to; edit(id, t => { t.date = to || ''; }); if (S.open === id) S.open = null;
+      const tm = addDays(todayStr(), 1);
+      say(!to ? 'Дело теперь без даты. Привяжешь к дню, когда решишь.' : to === todayStr() ? 'Перенёс на сегодня. Без драмы.' : to === tm ? 'Перенёс на завтра. Сегодня на одно дело меньше.' : 'Привязал ко дню: ' + shortDate(to) + '.', {ms: 3500}); renderAll();
+    } break;
     case 'del': removeTask(id); break;
     case 'tails-all': { const to = todayStr(); overdue().forEach(t => edit(t.id, x => { x.date = to; })); say('Перенёс всё на сегодня. Выбери из них самое маленькое.', {ms: 5000}); } break;
     case 'start': startTimer({min: 5, taskId: id, kind: 'quick'}); break;
@@ -1668,12 +1741,12 @@ document.addEventListener('submit', e => {
   } else if (f.id === 'sphereQuick') {
     e.preventDefault();
     const inp = $('#sphereQuickTitle'), v = inp.value.trim(); if (!v || !S.selSphere) return;
-    const dtEl = document.getElementById('sphereDate'), dt = (dtEl && /^\d{4}-\d{2}-\d{2}$/.test(dtEl.value)) ? dtEl.value : todayStr();
+    const dtEl = document.getElementById('sphereDate'), dt = (dtEl && /^\d{4}-\d{2}-\d{2}$/.test(dtEl.value)) ? dtEl.value : '';
     const mc = (byDate.get(dt) || []).filter(t => t.main).length, main = S.sStar && mc < MAX_MAIN, wasBig = S.sBig, wasRat = S.sRat;
     inp.value = '';
     addTask({title: v.slice(0, 160), date: dt, cat: S.sCat, main, big: wasBig, rat: wasRat, sphere: S.selSphere});
     S.sDate = dt; S.sStar = false; S.sBig = false; S.sRat = false; renderSphereDetail();
-    say(wasRat ? 'Крыса в сфере. Когда их станет несколько, устроим охоту.' : wasBig ? 'Кабан в сфере. Открой «Ещё» и добавь стейки.' : 'Закинул в сферу. Прогресс обновится, когда закроешь дело.', {ms: 4500});
+    say(!dt ? 'Закинул в сферу без даты. Привяжи к дню, когда решишь.' : wasRat ? 'Крыса в сфере. Когда их станет несколько, устроим охоту.' : wasBig ? 'Кабан в сфере. Открой «Ещё» и добавь стейки.' : 'Закинул в сферу. Прогресс обновится, когда закроешь дело.', {ms: 4500});
     const again = $('#sphereQuickTitle'); if (again) again.focus();
   } else if (f === el.add) {
     e.preventDefault();
@@ -1696,9 +1769,11 @@ document.addEventListener('submit', e => {
 document.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'sphereSel') { S.sphereSel = t.value; ls.set(KEYS.sphere, S.sphereSel); }
-  else if (t.id === 'sphereDate') { if (/^\d{4}-\d{2}-\d{2}$/.test(t.value)) { S.sDate = t.value; renderSphereDetail(); } }
+  else if (t.id === 'sphereDate') { if (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value)) { S.sDate = t.value; renderSphereDetail(); } }
+  else if (t.matches && t.matches('select[data-step-cat]')) { const li = t.closest('li[data-id]'); const si = +t.dataset.i; if (li) edit(li.dataset.id, x => { const s = x.steps[si]; if (s) { if (t.value && CATS[t.value]) s.cat = t.value; else delete s.cat; } }); }
+  else if (t.matches && t.matches('input[data-step-date]')) { const li = t.closest('li[data-id]'); const si = +t.dataset.i; if (li && (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value))) edit(li.dataset.id, x => { const s = x.steps[si]; if (s) { if (t.value) s.date = t.value; else delete s.date; } }); }
   else if (t.matches && t.matches('select[data-task-cat]')) { const li = t.closest('li[data-id]'); if (li && CATS[t.value]) edit(li.dataset.id, x => { x.cat = t.value; }); }
-  else if (t.matches && t.matches('input[data-task-date]')) { const li = t.closest('li[data-id]'); if (li && /^\d{4}-\d{2}-\d{2}$/.test(t.value)) edit(li.dataset.id, x => { x.date = t.value; }); }
+  else if (t.matches && t.matches('input[data-task-date]')) { const li = t.closest('li[data-id]'); if (li && (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value))) edit(li.dataset.id, x => { x.date = t.value; }); }
   else if (t.matches && t.matches('select[data-task-sphere]')) { const li = t.closest('li[data-id]'); if (li) edit(li.dataset.id, x => { if (t.value) x.sphere = t.value; else delete x.sphere; }); }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { const m = document.getElementById('syncModal'); if (m && !m.hidden) { m.hidden = true; return; } if (S.open) { S.open = null; renderAll(); } } });

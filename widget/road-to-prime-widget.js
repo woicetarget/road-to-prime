@@ -1,4 +1,4 @@
-// RTP-WIDGET v3.1: основной код виджета Road to Prime. Его подтягивает загрузчик loader.js.
+// RTP-WIDGET v3.2: основной код виджета Road to Prime. Его подтягивает загрузчик loader.js.
 // Слева квадрат с курящим псом (кадр меняется при каждом обновлении), справа дела на сегодня в стиле приложения.
 // Данные читаются из закрытого Gist road-to-prime.json, ничего не записывается.
 
@@ -17,7 +17,7 @@ function summarize(data, now) {
   const todays = tasks.filter(t => t.date === today);
   const done = todays.filter(t => t.done).length;
   const score = t => (t.main ? 0 : 10) + (t.date === today ? 0 : 6) + Math.min(8, Math.floor((t.title || '').length / 12)) - ((t.steps || []).some(s => !s.d) ? 2 : 0);
-  const open = tasks.filter(t => !t.done && t.date <= today).sort((a, b) => score(a) - score(b) || (a.created || 0) - (b.created || 0));
+  const open = tasks.filter(t => !t.done && t.date && t.date <= today).sort((a, b) => score(a) - score(b) || (a.created || 0) - (b.created || 0));
   const days = new Set(); tasks.forEach(t => { if (t.done) days.add(t.doneAt ? ymd(new Date(t.doneAt)) : t.date); });
   let cur = new Date(now); if (!days.has(ymd(cur))) cur.setDate(cur.getDate() - 1);
   let streak = 0; while (days.has(ymd(cur))) { streak++; cur.setDate(cur.getDate() - 1); }
