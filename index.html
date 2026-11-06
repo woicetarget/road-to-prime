@@ -688,6 +688,41 @@ html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding
 .dtl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;font-size:14px;font-weight:600;color:var(--ink2)}
 .dtl .sel{min-width:0}
 .dtadd{display:flex;gap:8px;align-items:center}
+/* лёгкость на телефоне: класс lite ставится только на сенсорных экранах и узких окнах, на компьютере анимации полные */
+@keyframes litEarL{0%,100%{transform:rotate(0)}40%{transform:rotate(-9deg)}}
+@keyframes litEarR{0%,100%{transform:rotate(0)}40%{transform:rotate(9deg)}}
+@keyframes litBlink{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.1)}}
+html.lite .b-tail,html.lite .dg-ear-l,html.lite .dg-ear-r,html.lite .b-blink{animation:none}
+html.lite .bot.smile .b-tail,html.lite .bot[data-pose=bounce] .b-tail,html.lite .bot[data-pose=handsup] .b-tail,html.lite .bot[data-pose=point] .b-tail,html.lite .bot[data-pose=swag] .b-tail{animation:wag .9s steps(5) infinite}
+html.lite .bot[data-mood=happy] .b-tail{animation:wag .5s steps(4) infinite}
+html.lite .bot.ew .dg-ear-l{animation:litEarL .55s steps(3) 1}
+html.lite .bot.ew .dg-ear-r{animation:litEarR .55s steps(3) 1}
+html.lite .bot.bl .b-blink{animation:litBlink .28s steps(2) 1}
+html.lite .bot .b-float,html.lite .bot .b-head{animation-timing-function:steps(5)!important}
+html.lite .bot .b-arm-l,html.lite .bot .b-arm-r{animation-timing-function:steps(4)!important}
+html.lite .bot .b-smoke{animation-timing-function:steps(9)!important}
+html.lite .bot .b-ember{animation-timing-function:steps(2)!important}
+html.lite .bot .pf{animation-timing-function:steps(8)!important}
+html.lite .bot .b-spark path,html.lite .bot .b-zs text{animation-timing-function:steps(6)!important}
+html.lite .bot .pf:nth-child(n+4){display:none}
+@media (max-width:980px){.cal,.tails{content-visibility:auto;contain-intrinsic-size:auto 640px}}
+html{touch-action:manipulation}
+html.lite.calm .bot,html.lite.calm .bot *{animation-play-state:paused!important}
+.sp-add{display:grid;gap:8px;margin-bottom:18px}
+.sp-add .add-line{display:flex;gap:8px}
+.dlrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr);gap:8px;align-items:center}
+.dlrow .ol{grid-column:1 / -1}
+.dlrow .sel,.dlrow2 .sel{min-height:44px}
+.dlrow2{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,.7fr) auto;gap:8px;align-items:center;margin:0 0 10px}
+.sp-dl{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink2)}
+.sp-dl svg{width:13px;height:13px;flex:none}
+.sp-dl.soon{color:var(--c-home)}
+.sp-dl.over{color:var(--sp1)}
+.sp-dl-note{display:flex;align-items:center;gap:6px;margin:0 0 12px;font-size:13.5px;font-weight:600;color:var(--ink2)}
+.sp-dl-note svg{width:14px;height:14px;flex:none}
+.sp-dl-note.soon{color:var(--c-home)}
+.sp-dl-note.over{color:var(--sp1)}
+@media (max-width:620px){.dlrow2{grid-template-columns:minmax(0,1fr) minmax(0,.8fr)}.dlrow2 .ol,.dlrow2 .pill{grid-column:1 / -1}}
 </style>
 </head>
 <body>
@@ -744,8 +779,8 @@ html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding
       </div>
       <form class="sp-add" id="sphereAdd" autocomplete="off">
         <label class="sr" for="sphereName">Новая сфера</label>
-        <input type="text" id="sphereName" maxlength="60" placeholder="Название сферы">
-        <button type="submit" class="btn primary">Добавить сферу</button>
+        <div class="add-line"><input type="text" id="sphereName" maxlength="60" placeholder="Название сферы"><button type="submit" class="btn primary">Добавить сферу</button></div>
+        <div class="dlrow"><span class="ol">Дедлайн сферы, можно не ставить</span><input type="date" class="sel" id="sphereDeadline" aria-label="Дедлайн сферы, дата"><input type="time" class="sel" id="sphereDeadlineTime" aria-label="Дедлайн сферы, время окончания"></div>
       </form>
       <div class="sp-grid" id="spGrid"></div>
     </section>
@@ -1316,7 +1351,7 @@ function ruleText(r) {
 const isDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
 function repPeriod() {
   const f = $('#repFromDate').value, u = $('#repUntil').value;
-  return {from: isDate(f) ? f : S.sel, until: isDate(u) ? u : ''};
+  return {from: (S.repFromTouched && isDate(f)) ? f : S.sel, until: isDate(u) ? u : ''};
 }
 const ruleHit = (r, from, d) => { if (r.k === 'dates') return (r.dates || []).indexOf(d) >= 0; const k = diffDays(d, from); return r.k === 'every' ? (k >= 0 && k % Math.max(1, r.n || 1) === 0) : (r.d || []).indexOf(dowMon(parse(d))) >= 0; };
 function countOcc(rule, from, until) {
@@ -1383,8 +1418,14 @@ const el = {
   add: $('#add'), title: $('#newTitle'), cats: $('#cats'), star: $('#starBtn'), big: $('#bigBtn'), rat: $('#ratBtn')
 };
 
+/* innerHTML этих блоков не трогает DOM, если строка не изменилась: нет лишней вёрстки и перерисовки, не теряются фокус и введённый текст */
+const nativeHTML = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML').set;
+const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable: true, get() { return node.__h || ''; }, set(v) { if (node.__h === v) return; node.__h = v; nativeHTML.call(node, v); }}); return node; };
+[el.stats, el.grid, el.legend, el.list, el.tailsList, el.spGrid, el.sdetail, el.aActions, el.cats, el.spherePills].forEach(cached);
+['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
+
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.6';
+const APP_VERSION = '2026-11-07.7';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -1413,7 +1454,11 @@ function snapshotData() {
   ['tasks', 'spheres', 'cats', 'series'].forEach(k => Object.keys(S.tomb[k]).forEach(id => { if (S.tomb[k][id] < old) delete S.tomb[k][id]; }));
   return {v: 1, tasks: Array.from(S.tasks.values()).sort(byId), spheres: Array.from(S.spheres.values()).sort(byId), cats: Array.from(S.cats.values()).sort(byId), series: Array.from(S.series.values()).sort(byId), tomb: S.tomb};
 }
-function saveAll(push) { ls.set(DATA_KEY, snapshotData()); if (push !== false) scheduleSync(); }
+let saveT = 0;
+function flushSave() { if (!saveT) return; clearTimeout(saveT); saveT = 0; ls.set(DATA_KEY, snapshotData()); }
+function saveAll(push) { if (!saveT) saveT = setTimeout(flushSave, 250); if (push !== false) scheduleSync(); }
+addEventListener('pagehide', flushSave);
+document.addEventListener('visibilitychange', () => { if (document.hidden) flushSave(); });
 function persist(t) { stamp(t); delete S.tomb.tasks[t.id]; S.tasks.set(t.id, t); saveAll(); renderAll(); }
 function edit(id, fn) {
   const cur = S.tasks.get(id); if (!cur) return null;
@@ -1614,8 +1659,8 @@ function timePickHTML(t) {
     '<p class="flag-hint">Время ставить не обязательно: дело можно просто отметить готовым. Чтобы время запоминалось за делом, поставь его в «⋯».</p></div>';
 }
 function renderAddForm() {
-  el.cats.innerHTML = catPillsHTML(S.cat, 'cat', {add: true, del: true});
-  renderSphereSelect(); renderMinsRep();
+  if (S.sphereSel && !S.spheres.has(S.sphereSel)) S.sphereSel = '';
+  if (S.addOpts) { el.cats.innerHTML = catPillsHTML(S.cat, 'cat', {add: true, del: true}); renderSphereSelect(); renderMinsRep(); }
   const sp = S.spheres.get(S.sphereSel), parts = [];
   if (S.cat !== 'proj') parts.push('<span class="' + catCls(S.cat) + '"><i class="dot"></i>' + esc(catName(S.cat)) + '</span>');
   if (sp) parts.push('<span><i class="dot" style="--c:var(--sp' + ((sp.hue || 0) % SPH_N) + ')"></i>' + esc(sp.name) + '</span>');
@@ -1797,6 +1842,8 @@ function ctxLine() {
   if (T && T.finished) return 'Время! Получилось сдвинуться? Решай, что дальше.';
   if (isNight()) return pick(['Хррр… Шагыч дремлет на стуле и пыхтит косяком. Дела подождут до утра, бро.', 'Тсс, он спит в дыму. До семи утра никто никуда не спешит.', 'Ночь. Шагыч на стуле, косяк тлеет. Остальное завтра, ну его.'], parse(today).getDate());
   if (overdue().length && !open) return 'Со вчера остались хвосты. Перенесём на сегодня или отпустим, без драмы.';
+  const nd = nearDeadline();
+  if (nd && seed % 3 === 0) return 'У сферы «' + nd.sp.name + '» срок ' + (nd.left === 0 ? 'сегодня' : 'через ' + nd.left + ' ' + plural(nd.left, ['день', 'дня', 'дней'])) + '. Возьмём одно дело оттуда, бро?';
   if (!t.length) return pick(['На сегодня пусто. Закинь одно дело, бро, и поехали.', 'Давай выберем одно дело на сегодня. Только одно.'], seed);
   if (!open) return 'Чётко. Всё закрыто, можно выдохнуть и ловить вайб.';
   if (!done) return pick(['Не надо всё сразу. Один шаг на пять минут, а дальше по кайфу.', 'Начать трудно, продолжать проще. Жми «Начать».', 'Выбери самое маленькое дело и дай ему 5 минут.'], seed);
@@ -1874,7 +1921,7 @@ function renderAgent() {
   el.sayAct.innerHTML = s && s.action ? '<button type="button" class="chip go" data-act="' + s.action.act + '" data-id="' + (s.action.id || '') + '">' + esc(s.action.label) + '</button>' : '';
   if (el.bot) { el.bot.dataset.mood = curMood(); if (el.bot.dataset.mood === 'sleepy') el.bot.classList.remove('smile'); }
   /* таймер живёт в окне «Синьор помидор», в углу видна только кнопка с обратным отсчётом */
-  if (!S.timer) { el.aActions.innerHTML = nextHTML(); renderFocusBtn(); return; }
+  if (!S.timer) { if (!$('#focusModal').hidden) el.aActions.innerHTML = nextHTML(); renderFocusBtn(); return; }
   el.aActions.innerHTML = timerHTML();
   updateRing(S.timer.finished ? 0 : S.timer.paused ? S.timer.left : Math.max(0, S.timer.endAt - Date.now()));
 }
@@ -1884,7 +1931,7 @@ function renderFocusBtn() {
   b.classList.toggle('run', !!T && !T.finished); b.classList.toggle('done', !!(T && T.finished));
   l.textContent = !T ? 'Синьор помидор' : T.finished ? 'Время!' : (T.paused ? 'Пауза ' : '') + fmt(T.paused ? T.left : Math.max(0, T.endAt - Date.now()));
 }
-function openFocus() { renderAgent(); const m = $('#focusModal'); m.hidden = false; const f = m.querySelector('.btn.primary,.chip.go'); if (f) f.focus({preventScroll: true}); }
+function openFocus() { const m = $('#focusModal'); m.hidden = false; renderAgent(); const f = m.querySelector('.btn.primary,.chip.go'); if (f) f.focus({preventScroll: true}); }
 function closeFocus() { const m = $('#focusModal'); if (m.hidden) return; m.hidden = true; const b = $('#focusBtn'); if (b) b.focus({preventScroll: true}); }
 function updateRing(left) {
   renderFocusBtn();
@@ -1979,6 +2026,26 @@ function celebrate() {
 }
 
 /* ---------- сферы ---------- */
+/* дедлайн сферы: дата и необязательное время окончания */
+function dlInfo(sp) {
+  if (!sp || !sp.deadline) return null;
+  const left = diffDays(sp.deadline, todayStr()), w = n => plural(n, ['день', 'дня', 'дней']);
+  return {
+    text: 'до ' + shortDate(sp.deadline) + (sp.dlTime ? ', ' + sp.dlTime : ''),
+    note: left === 0 ? 'сегодня' : left > 0 ? 'осталось ' + left + ' ' + w(left) : 'срок прошёл ' + (-left) + ' ' + w(-left) + ' назад',
+    cls: left < 0 ? 'over' : left <= 7 ? 'soon' : '', left
+  };
+}
+function nearDeadline() {
+  let best = null;
+  S.spheres.forEach(sp => { const i = dlInfo(sp); if (!i || i.left < 0 || i.left > 7) return; if (!sphereStats(sp.id).open.length) return; if (!best || i.left < best.left) best = {sp, left: i.left}; });
+  return best;
+}
+function setSphereDeadline(sp, date, time) {
+  const n = Object.assign({}, sp);
+  if (date) { n.deadline = date; if (time) n.dlTime = time; else delete n.dlTime; } else { delete n.deadline; delete n.dlTime; }
+  persistSphere(n);
+}
 function sphChip(t) { const sp = t.sphere && S.spheres.get(t.sphere); return sp ? '<span class="sph s' + ((sp.hue || 0) % SPH_N) + '"><i></i>' + esc(sp.name) + '</span>' : ''; }
 function sphereList() { return Array.from(S.spheres.values()).sort((a, b) => (a.created || 0) - (b.created || 0)); }
 function renderSphereSelect() { if (S.sphereSel && !S.spheres.has(S.sphereSel)) S.sphereSel = ''; el.spherePills.innerHTML = spherePillsHTML(S.sphereSel, 'pick-sphere'); }
@@ -2014,9 +2081,11 @@ function persistSphere(sp) {
   stamp(sp); delete S.tomb.spheres[sp.id]; S.spheres.set(sp.id, sp);
   saveAll(); renderAll();
 }
-function addSphere(name) {
+function addSphere(name, deadline, dlTime) {
   const id = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 4);
-  persistSphere({id, name: name.slice(0, 60), hue: S.spheres.size % SPH_N, created: Date.now()});
+  const sp = {id, name: name.slice(0, 60), hue: S.spheres.size % SPH_N, created: Date.now()};
+  if (isDate(deadline)) { sp.deadline = deadline; if (/^\d{2}:\d{2}$/.test(dlTime || '')) sp.dlTime = dlTime; }
+  persistSphere(sp);
   return id;
 }
 function removeSphere(id) {
@@ -2037,6 +2106,7 @@ function renderSpheres() {
     const st = sphereStats(sp.id);
     return '<button type="button" class="sp-card s' + ((sp.hue || 0) % SPH_N) + (S.selSphere === sp.id ? ' on' : '') + '" data-act="sphere" data-id="' + sp.id + '" aria-pressed="' + (S.selSphere === sp.id) + '">' +
       '<span class="sp-top"><i class="sp-dot"></i><b>' + esc(sp.name) + '</b></span>' +
+      (dlInfo(sp) ? '<span class="sp-dl ' + dlInfo(sp).cls + '">' + ICON.alarm + dlInfo(sp).text + ' · ' + dlInfo(sp).note + '</span>' : '') +
       '<span class="sp-pct">' + st.pct + '<small>%</small></span><span class="sp-bar"><i style="width:' + st.pct + '%"></i></span>' +
       '<span class="sp-meta">' + (st.units ? st.done + ' из ' + st.units + ' готово' : 'Дел пока нет') + (st.boars ? ' · кабанов ' + st.boars : '') + (st.rats ? ' · крыс ' + st.rats : '') + '</span>' +
       (st.next ? '<span class="sp-next">Дальше: ' + esc(st.next.title) + '</span>' : '') + '</button>';
@@ -2056,6 +2126,12 @@ function sphereFormHTML() {
     '<button type="button" class="star-b" data-act="srat" aria-pressed="' + S.sRat + '" title="Мелкая и неприятная задача">' + ICON.rat + 'Крыса</button></div>' +
     '<p class="flag-hint">Главное: до трёх на день. Кабан: большая задача со стейками. Крыса: мелкая и неприятная.</p></div></form>';
 }
+function sdDeadlineHTML(sp, st) {
+  const i = dlInfo(sp), late = sp.deadline ? st.open.filter(t => t.date && t.date > sp.deadline).length : 0;
+  return '<div class="dlrow2"><span class="ol">Дедлайн</span><input type="date" class="sel" id="sdDate" value="' + esc(sp.deadline || '') + '" aria-label="Дедлайн сферы, дата"><input type="time" class="sel" id="sdTime" value="' + esc(sp.dlTime || '') + '" aria-label="Дедлайн сферы, время окончания"' + (sp.deadline ? '' : ' disabled') + '>' +
+    (sp.deadline ? '<button type="button" class="pill" data-act="sd-clear">Убрать срок</button>' : '') + '</div>' +
+    (i ? '<p class="sp-dl-note ' + i.cls + '">' + ICON.alarm + i.text + ' · ' + i.note + (late ? '. Дел запланировано после срока: ' + late : '') + '</p>' : '');
+}
 function renderSphereDetail() {
   const old = document.getElementById('sphereQuickTitle'), keep = old ? old.value : '', hadFocus = old && document.activeElement === old;
   const sp = S.spheres.get(S.selSphere);
@@ -2065,6 +2141,7 @@ function renderSphereDetail() {
   el.sdetail.innerHTML =
     '<div class="day-head"><div><span class="rel">Сфера</span><h2>' + esc(sp.name) + '</h2></div><div class="prog">' + st.pct + '%</div></div>' +
     '<div class="bar" aria-hidden="true"><i style="--p:' + (st.pct / 100).toFixed(3) + '"></i></div>' +
+    sdDeadlineHTML(sp, st) +
     sphereFormHTML() +
     '<ul class="list">' + (dated.length ? '<li class="grp">В работе</li>' + dated.map(x => rowHTML(x, 's')).join('') : (undated.length ? '' : '<li class="empty">Открытых дел нет.</li>')) +
     (undated.length ? '<li class="grp">Без даты<small>привяжи к дню кнопкой справа внизу</small></li>' + undated.map(x => rowHTML(x, 's')).join('') : '') +
@@ -2087,6 +2164,7 @@ document.addEventListener('click', e => {
     case 'sphere': S.selSphere = id; renderSpheres(); if (innerWidth < 980) el.sdetail.scrollIntoView({block: 'start'}); break;
     case 'sphere-del': removeSphere(id); break;
     case 'sdate-clear': S.sDate = ''; renderSphereDetail(); break;
+    case 'sd-clear': { const sp = S.spheres.get(S.selSphere); if (sp) setSphereDeadline(sp, '', ''); } break;
     case 'sopen': { const key = id + ':' + b.dataset.i; S.openStep = S.openStep === key ? null : key; renderAll(); } break;
     case 'step-main': { const si = +b.dataset.i; edit(id, t => { if (t.steps[si]) t.steps[si].main = !t.steps[si].main; }); } break;
     case 'step-rat': { const si = +b.dataset.i; edit(id, t => { if (t.steps[si]) t.steps[si].rat = !t.steps[si].rat; }); } break;
@@ -2211,7 +2289,7 @@ document.addEventListener('submit', e => {
   if (f.id === 'sphereAdd') {
     e.preventDefault();
     const inp = $('#sphereName'), v = inp.value.trim(); if (!v) { inp.focus(); return; }
-    S.selSphere = addSphere(v); inp.value = '';
+    S.selSphere = addSphere(v, $('#sphereDeadline').value, $('#sphereDeadlineTime').value); inp.value = ''; $('#sphereDeadline').value = ''; $('#sphereDeadlineTime').value = '';
     say('Сфера «' + v + '» создана. Закидывай в неё дела, а я буду считать прогресс.', {ms: 5500});
   } else if (f.id === 'sphereQuick') {
     e.preventDefault();
@@ -2264,6 +2342,7 @@ document.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'sphereDate') { if (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value)) { S.sDate = t.value; renderSphereDetail(); } }
   else if (t.matches && t.matches('input[data-step-date]')) { const li = t.closest('li[data-id]'); const si = +t.dataset.i; if (li && (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value))) edit(li.dataset.id, x => { const s = x.steps[si]; if (s) { if (t.value) s.date = t.value; else delete s.date; } }); }
+  else if (t.id === 'sdDate' || t.id === 'sdTime') { const sp = S.spheres.get(S.selSphere), dEl = document.getElementById('sdDate'), tEl = document.getElementById('sdTime'); if (sp) setSphereDeadline(sp, isDate(dEl.value) ? dEl.value : '', tEl.value); }
   else if (t.id === 'repDateAdd') { addRepDate(t.value); t.value = ''; }
   else if (t.matches && t.matches('input[data-task-mins]')) { const li = t.closest('li[data-id]'); if (li) edit(li.dataset.id, x => { const m = clampMins(t.value); if (m) x.mins = m; else delete x.mins; }); }
   else if (t.matches && t.matches('input[data-task-date]')) { const li = t.closest('li[data-id]'); if (li && (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value))) edit(li.dataset.id, x => { x.date = t.value; }); }
@@ -2275,6 +2354,21 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkNewDay(); syncNow(); checkUpdate(); if (S.timer && !S.timer.paused && !S.timer.finished) { ensureTick(); tick(); } renderAll(); } });
 
+/* моргание и уши: короткие вспышки анимации раз в несколько секунд вместо бесконечных циклов */
+const mqTouch = matchMedia('(hover: none) and (pointer: coarse)'), mqNarrow = matchMedia('(max-width: 620px)');
+const isLite = () => mqTouch.matches || mqNarrow.matches;
+const syncLite = () => document.documentElement.classList.toggle('lite', isLite());
+syncLite();
+[mqTouch, mqNarrow].forEach(m => { try { m.addEventListener('change', syncLite); } catch (e) { try { m.addListener(syncLite); } catch (e2) {} } });
+function burst(cls, ms) {
+  const b = el.bot; if (!b || document.hidden || calmOn) return;
+  b.classList.add(cls); setTimeout(() => { if (el.bot) el.bot.classList.remove(cls); }, ms);
+}
+(function loopBlink() { setTimeout(() => { if (isLite() && el.bot && el.bot.dataset.mood !== 'sleepy') burst('bl', 320); loopBlink(); }, 3000 + Math.random() * 3500); })();
+(function loopEars() { setTimeout(() => { if (isLite() && el.bot && el.bot.dataset.mood === 'idle') burst('ew', 650); loopEars(); }, 6000 + Math.random() * 6000); })();
+let calmT = 0, calmOn = false;
+function calm() { if (!isLite()) return; if (!calmOn) { calmOn = true; document.documentElement.classList.add('calm'); } clearTimeout(calmT); calmT = setTimeout(() => { calmOn = false; document.documentElement.classList.remove('calm'); }, 650); }
+['pointerdown', 'touchstart', 'keydown', 'scroll'].forEach(ev => addEventListener(ev, calm, {passive: true, capture: true}));
 let raf = 0;
 addEventListener('pointermove', e => {
   if (raf || e.pointerType === 'touch' || !el.bot) return;
@@ -2303,7 +2397,7 @@ function noT9() {
   });
 }
 let t9Raf = 0;
-new MutationObserver(() => { if (!t9Raf) t9Raf = setTimeout(() => { t9Raf = 0; noT9(); }, 20); }).observe(document.body, {childList: true, subtree: true});
+new MutationObserver(ms => { if (t9Raf) return; for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) { t9Raf = setTimeout(() => { t9Raf = 0; noT9(); }, 20); return; } }).observe(document.body, {childList: true, subtree: true});
 /* обновления: приложение само сверяет версию с сайтом и один раз перезагружается, если вышла новая */
 async function checkUpdate() {
   if (!/^https?:$/.test(location.protocol)) return;
