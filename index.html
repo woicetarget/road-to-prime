@@ -468,6 +468,35 @@ html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding
 #syncToken:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
 .sy-note{margin:14px 0 0;font-size:14px;color:var(--ink2);line-height:1.5}
 @media (max-width:620px){.brand-row{gap:8px}.help{font-size:14px;padding:6px 12px 6px 7px}}
+
+/* ровные кнопки: одинаковая ширина и высота в рядах */
+.flags{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.star-b{justify-content:center;width:100%;padding:9px 8px;white-space:nowrap}
+.flag-hint{margin:0;font-size:13.5px;color:var(--ink2);line-height:1.4}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:6px}
+.cat-b{justify-content:center;padding:7px 8px}
+.tact{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:8px}
+.ab{justify-content:center;min-height:38px}
+.prow{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.pill{justify-content:center;min-height:36px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.fld{display:grid;gap:4px;min-width:0}
+.tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-width:380px}
+.tab{text-align:center}
+.next .a-row{display:grid;grid-template-columns:1.5fr 1fr;gap:8px}
+.free .a-row{display:grid;grid-template-columns:1fr 1fr 1.7fr;gap:8px}
+.free .chip{text-align:center;padding:9px 6px}
+.t-btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px}
+.t-btns .chip{text-align:center}
+.tl .ac{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tl .ac .chip{text-align:center}
+.sel[type=date]{min-height:44px}
+/* за грилзами не рисуем линию рта и язык, иначе из-под них торчит светлая «сопля» */
+.has-grill .m-smile,.has-grill .m-flat,.has-grill .m-wavy,.has-grill .m-o,.has-grill .tongue{display:none!important}
+.panel,.opts,.add,.fields,.hunt,.next{grid-template-columns:minmax(0,1fr)}
+.fields{grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))}
+.prow{grid-template-columns:repeat(auto-fit,minmax(min(118px,100%),1fr))}
+.tact{grid-template-columns:repeat(auto-fit,minmax(min(132px,100%),1fr))}
 </style>
 </head>
 <body>
@@ -567,10 +596,11 @@ html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding
           <span class="ol">Сфера</span>
           <select class="sel" id="sphereSel" aria-label="Сфера"><option value="">Без сферы</option></select>
           <div class="flags">
-            <button type="button" class="star-b" id="starBtn" data-act="star" aria-pressed="false"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2 6.3 20.3l1.2-6.4L2.8 9.5l6.4-.8z"/></svg>Главное дело дня (до 3)</button>
-            <button type="button" class="star-b" id="bigBtn" data-act="big" aria-pressed="false" title="Большая задача, которую нарежем на стейки"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 9 L5.6 3.2 L10.6 6.3 Q12 6 13.4 6.3 L18.4 3.2 L19 9 Q21 14 18 18 Q12 22 6 18 Q3 14 5 9Z"/><ellipse cx="12" cy="15.8" rx="4.2" ry="3" fill="var(--bg)"/><circle cx="10.6" cy="15.8" r=".9" fill="currentColor"/><circle cx="13.4" cy="15.8" r=".9" fill="currentColor"/><circle cx="8.6" cy="11.4" r="1.1" fill="var(--bg)"/><circle cx="15.4" cy="11.4" r="1.1" fill="var(--bg)"/><path fill="var(--bg)" d="M6.8 19 L5.8 15.4 L9 17.4Z M17.2 19 L18.2 15.4 L15 17.4Z"/></svg>Кабан: большая задача</button>
-            <button type="button" class="star-b" id="ratBtn" data-act="rat" aria-pressed="false" title="Мелкая и неприятная задача, их удобно ловить пачкой"><svg viewBox="0 0 24 24" aria-hidden="true"><circle fill="currentColor" cx="6.5" cy="7" r="3.6"/><circle fill="currentColor" cx="17.5" cy="7" r="3.6"/><path fill="currentColor" d="M12 6 Q18 6 18.5 12 Q18.5 17 12 21.5 Q5.5 17 5.5 12 Q6 6 12 6Z"/><circle cx="9.5" cy="12" r="1.1" fill="var(--bg)"/><circle cx="14.5" cy="12" r="1.1" fill="var(--bg)"/><circle cx="12" cy="19" r="1.3" fill="var(--bg)"/></svg>Крыса: мелкая и неприятная</button>
+            <button type="button" class="star-b" id="starBtn" data-act="star" aria-pressed="false"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2 6.3 20.3l1.2-6.4L2.8 9.5l6.4-.8z"/></svg>Главное</button>
+            <button type="button" class="star-b" id="bigBtn" data-act="big" aria-pressed="false" title="Большая задача, которую нарежем на стейки"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 9 L5.6 3.2 L10.6 6.3 Q12 6 13.4 6.3 L18.4 3.2 L19 9 Q21 14 18 18 Q12 22 6 18 Q3 14 5 9Z"/><ellipse cx="12" cy="15.8" rx="4.2" ry="3" fill="var(--bg)"/><circle cx="10.6" cy="15.8" r=".9" fill="currentColor"/><circle cx="13.4" cy="15.8" r=".9" fill="currentColor"/><circle cx="8.6" cy="11.4" r="1.1" fill="var(--bg)"/><circle cx="15.4" cy="11.4" r="1.1" fill="var(--bg)"/><path fill="var(--bg)" d="M6.8 19 L5.8 15.4 L9 17.4Z M17.2 19 L18.2 15.4 L15 17.4Z"/></svg>Кабан</button>
+            <button type="button" class="star-b" id="ratBtn" data-act="rat" aria-pressed="false" title="Мелкая и неприятная задача, их удобно ловить пачкой"><svg viewBox="0 0 24 24" aria-hidden="true"><circle fill="currentColor" cx="6.5" cy="7" r="3.6"/><circle fill="currentColor" cx="17.5" cy="7" r="3.6"/><path fill="currentColor" d="M12 6 Q18 6 18.5 12 Q18.5 17 12 21.5 Q5.5 17 5.5 12 Q6 6 12 6Z"/><circle cx="9.5" cy="12" r="1.1" fill="var(--bg)"/><circle cx="14.5" cy="12" r="1.1" fill="var(--bg)"/><circle cx="12" cy="19" r="1.3" fill="var(--bg)"/></svg>Крыса</button>
           </div>
+          <p class="flag-hint">Главное: до трёх на день. Кабан: большая задача со стейками. Крыса: мелкая и неприятная.</p>
         </div>
       </form>
       <ul class="list" id="list"></ul>
@@ -925,7 +955,7 @@ function lookItems(L) {
 /* --- сборка пса --- */
 function botSVG(L, cls, uid) {
   const P = L.pal, tp = TOPS[L.top];
-  let s = '<svg class="' + cls + '" viewBox="0 0 160 200" data-mood="idle" aria-hidden="true" focusable="false">';
+  let s = '<svg class="' + cls + (/^(grill|gems|jointGems)$/.test(L.mouth) ? ' has-grill' : '') + '" viewBox="0 0 160 200" data-mood="idle" aria-hidden="true" focusable="false">';
   s += bgSVG(L.bg, P, uid);
   s += '<ellipse cx="80" cy="195" rx="38" ry="4.5" class="b-shadow"/>';
   s += '<g class="b-float">';
@@ -983,6 +1013,7 @@ const S = {
   timer: null, say: null, try: null, spheres: new Map(), sphCol: null, tab: 'cal', selSphere: null, sphereSel: ls.get(KEYS.sphere, ''), guide: ls.get(KEYS.guide, true) !== false
 };
 if (!CATS[S.cat]) S.cat = 'proj';
+S.sCat = S.cat; S.sStar = false; S.sBig = false; S.sRat = false; S.sDate = todayStr();
 let byDate = new Map();
 const Q = new Map();
 
@@ -1180,7 +1211,8 @@ function renderLegend() {
   el.cats.innerHTML = Object.keys(CATS).map(k => '<button type="button" class="cat-b c-' + k + '" data-act="cat" data-cat="' + k + '" aria-pressed="' + (S.cat === k) + '"><i class="dot"></i>' + CATS[k] + '</button>').join('');
 }
 
-function rowHTML(t) {
+function rowHTML(t, ctx) {
+  ctx = ctx || 'd';
   const steps = t.steps || [], sd = steps.filter(s => s.d).length, open = S.open === t.id, busy = S.busy === t.id, today = todayStr(), tomorrow = addDays(today, 1);
   let h = '<li class="task c-' + t.cat + (t.done ? ' done' : '') + (S.hot === t.id ? ' hot' : '') + '" data-id="' + t.id + '">' +
     '<button type="button" class="chk" role="checkbox" aria-checked="' + !!t.done + '" aria-label="Готово: ' + esc(t.title) + '" data-act="toggle">' + ICON.check + '</button>' +
@@ -1193,15 +1225,18 @@ function rowHTML(t) {
   if (busy) h += '<div class="busy">Шагыч режет кабана на стейки…</div>';
   if (open) {
     h += '<div class="panel"><div class="prow">' +
-      (t.done ? '' : '<button type="button" class="pill" data-act="pomo">Помодоро · ' + POMO.focus + ' мин</button>') +
+      (t.done ? '' : '<button type="button" class="pill" data-act="pomo">Помодоро ' + POMO.focus + '</button>') +
       '<button type="button" class="pill' + (t.main ? ' on' : '') + '" data-act="main">' + ICON.star + (t.main ? 'Не главное' : 'Главное') + '</button>' +
       '<button type="button" class="pill' + (t.big ? ' on' : '') + '" data-act="bigtoggle">' + ICON.boar + (t.big ? 'Не кабан' : 'Это кабан') + '</button>' +
       '<button type="button" class="pill' + (t.rat ? ' on' : '') + '" data-act="rattoggle">' + ICON.rat + (t.rat ? 'Не крыса' : 'Это крыса') + '</button>' +
       (t.date !== today ? '<button type="button" class="pill" data-act="mv" data-to="' + today + '">На сегодня</button>' : '') +
       (t.date !== tomorrow ? '<button type="button" class="pill" data-act="mv" data-to="' + tomorrow + '">На завтра</button>' : '') +
       '<button type="button" class="pill" data-act="del">Удалить</button></div>' +
-      '<div class="prow"><label class="ol" for="sp-' + t.id + '">Сфера</label>' + sphereSelectHTML('sp-' + t.id, t.sphere || '', true) + '</div>' +
-      '<form class="stepform" autocomplete="off"><input type="text" id="step-' + t.id + '" maxlength="120" placeholder="Добавить свой стейк" aria-label="Новый стейк"><button type="submit" class="pill">Добавить</button></form></div>';
+      '<div class="fields">' +
+      '<div class="fld"><label class="ol" for="cat-' + ctx + '-' + t.id + '">Категория</label><select class="sel" id="cat-' + ctx + '-' + t.id + '" data-task-cat aria-label="Категория">' + Object.keys(CATS).map(k => '<option value="' + k + '"' + (k === t.cat ? ' selected' : '') + '>' + CATS[k] + '</option>').join('') + '</select></div>' +
+      '<div class="fld"><label class="ol" for="sp-' + ctx + '-' + t.id + '">Сфера</label>' + sphereSelectHTML('sp-' + ctx + '-' + t.id, t.sphere || '', true) + '</div>' +
+      '<div class="fld"><label class="ol" for="dt-' + ctx + '-' + t.id + '">Дата</label><input type="date" class="sel" id="dt-' + ctx + '-' + t.id + '" data-task-date value="' + esc(t.date || '') + '"></div></div>' +
+      '<form class="stepform" autocomplete="off"><input type="text" id="step-' + ctx + '-' + t.id + '" maxlength="120" placeholder="Добавить свой стейк" aria-label="Новый стейк"><button type="submit" class="pill">Добавить</button></form></div>';
   }
   return h + '</li>';
 }
@@ -1227,8 +1262,8 @@ function renderDay() {
     return;
   }
   const mains = list.filter(t => t.main), rest = list.filter(t => !t.main);
-  el.list.innerHTML = (mains.length ? '<li class="grp">Главное<small>до ' + MAX_MAIN + ' в день</small></li>' + mains.map(rowHTML).join('') : '') +
-    (rest.length ? (mains.length ? '<li class="grp">Остальное</li>' : '') + rest.map(rowHTML).join('') : '');
+  el.list.innerHTML = (mains.length ? '<li class="grp">Главное<small>до ' + MAX_MAIN + ' в день</small></li>' + mains.map(x => rowHTML(x, 'd')).join('') : '') +
+    (rest.length ? (mains.length ? '<li class="grp">Остальное</li>' : '') + rest.map(x => rowHTML(x, 'd')).join('') : '');
 }
 
 function overdue() { const today = todayStr(); return Array.from(S.tasks.values()).filter(t => !t.done && t.date < today).sort((a, b) => b.date.localeCompare(a.date) || a.created - b.created); }
@@ -1508,6 +1543,20 @@ function renderSpheres() {
   }).join('') : '<p class="empty">Пока нет ни одной сферы. Добавь первую выше, например «Продажа квартиры».</p>';
   renderSphereDetail();
 }
+function sphereFormHTML() {
+  const mc = (byDate.get(S.sDate) || []).filter(t => t.main).length;
+  if (mc >= MAX_MAIN) S.sStar = false;
+  return '<form class="add" id="sphereQuick" autocomplete="off"><label class="flabel" for="sphereQuickTitle">Новая задача в эту сферу</label>' +
+    '<div class="add-line"><input type="text" id="sphereQuickTitle" maxlength="160" placeholder="Что сделать? Начни с глагола"><button type="submit" class="btn primary">Добавить</button></div>' +
+    '<div class="opts"><span class="ol">Категория</span><div class="cats" role="group" aria-label="Категория">' +
+    Object.keys(CATS).map(k => '<button type="button" class="cat-b c-' + k + '" data-act="scat" data-cat="' + k + '" aria-pressed="' + (S.sCat === k) + '"><i class="dot"></i>' + CATS[k] + '</button>').join('') + '</div>' +
+    '<span class="ol">Дата</span><input type="date" class="sel" id="sphereDate" value="' + esc(S.sDate) + '">' +
+    '<div class="flags">' +
+    '<button type="button" class="star-b" data-act="sstar" aria-pressed="' + S.sStar + '"' + (mc >= MAX_MAIN && !S.sStar ? ' disabled' : '') + ' title="Главное дело дня, их не больше трёх">' + ICON.star + 'Главное</button>' +
+    '<button type="button" class="star-b" data-act="sbig" aria-pressed="' + S.sBig + '" title="Большая задача, которую нарежем на стейки">' + ICON.boar + 'Кабан</button>' +
+    '<button type="button" class="star-b" data-act="srat" aria-pressed="' + S.sRat + '" title="Мелкая и неприятная задача">' + ICON.rat + 'Крыса</button></div>' +
+    '<p class="flag-hint">Главное: до трёх на день. Кабан: большая задача со стейками. Крыса: мелкая и неприятная.</p></div></form>';
+}
 function renderSphereDetail() {
   const old = document.getElementById('sphereQuickTitle'), keep = old ? old.value : '', hadFocus = old && document.activeElement === old;
   const sp = S.spheres.get(S.selSphere);
@@ -1516,8 +1565,8 @@ function renderSphereDetail() {
   el.sdetail.innerHTML =
     '<div class="day-head"><div><span class="rel">Сфера</span><h2>' + esc(sp.name) + '</h2></div><div class="prog">' + st.pct + '%</div></div>' +
     '<div class="bar" aria-hidden="true"><i style="--p:' + (st.pct / 100).toFixed(3) + '"></i></div>' +
-    '<form class="add" id="sphereQuick" autocomplete="off"><label class="flabel" for="sphereQuickTitle">Новая задача в эту сферу <span>на сегодня</span></label><div class="add-line"><input type="text" id="sphereQuickTitle" maxlength="160" placeholder="Что сделать? Начни с глагола"><button type="submit" class="btn primary">Добавить</button></div></form>' +
-    '<ul class="list">' + (st.open.length ? '<li class="grp">В работе</li>' + st.open.map(rowHTML).join('') : '<li class="empty">Открытых дел нет.</li>') + (done.length ? '<li class="grp">Готово</li>' + done.map(rowHTML).join('') : '') + '</ul>' +
+    sphereFormHTML() +
+    '<ul class="list">' + (st.open.length ? '<li class="grp">В работе</li>' + st.open.map(x => rowHTML(x, 's')).join('') : '<li class="empty">Открытых дел нет.</li>') + (done.length ? '<li class="grp">Готово</li>' + done.map(x => rowHTML(x, 's')).join('') : '') + '</ul>' +
     '<div class="sd-foot"><button type="button" class="chip" data-act="sphere-del" data-id="' + sp.id + '">Удалить сферу</button></div>';
   const inp = document.getElementById('sphereQuickTitle');
   if (inp && keep) { inp.value = keep; if (hadFocus) inp.focus(); }
@@ -1535,6 +1584,10 @@ document.addEventListener('click', e => {
       break;
     case 'sphere': S.selSphere = id; renderSpheres(); if (innerWidth < 980) el.sdetail.scrollIntoView({block: 'start'}); break;
     case 'sphere-del': removeSphere(id); break;
+    case 'scat': S.sCat = b.dataset.cat; renderSphereDetail(); break;
+    case 'sstar': S.sStar = !S.sStar; renderSphereDetail(); break;
+    case 'sbig': S.sBig = !S.sBig; if (S.sBig) S.sRat = false; renderSphereDetail(); break;
+    case 'srat': S.sRat = !S.sRat; if (S.sRat) S.sBig = false; renderSphereDetail(); break;
     case 'sync-open': { const m = document.getElementById('syncModal'); m.hidden = false; renderSync(); const i = document.getElementById('syncToken'); if (i) i.focus({preventScroll: true}); } break;
     case 'sync-close': document.getElementById('syncModal').hidden = true; break;
     case 'sync-connect': {
@@ -1568,7 +1621,7 @@ document.addEventListener('click', e => {
       });
       if (eaten) { hop(); say('Кабан съеден! Все стейки позади, красава.', {mood: 'happy', ms: 8000}); }
     } break;
-    case 'more': S.open = S.open === id ? null : id; renderDay(); break;
+    case 'more': S.open = S.open === id ? null : id; renderAll(); break;
     case 'main': {
       const cur = S.tasks.get(id); if (!cur) break;
       const mc = (byDate.get(cur.date) || []).filter(t => t.main).length;
@@ -1615,8 +1668,12 @@ document.addEventListener('submit', e => {
   } else if (f.id === 'sphereQuick') {
     e.preventDefault();
     const inp = $('#sphereQuickTitle'), v = inp.value.trim(); if (!v || !S.selSphere) return;
-    addTask({title: v.slice(0, 160), date: todayStr(), cat: S.cat, sphere: S.selSphere});
-    say('Закинул в сферу. Прогресс обновится, когда закроешь дело.', {ms: 4000});
+    const dtEl = document.getElementById('sphereDate'), dt = (dtEl && /^\d{4}-\d{2}-\d{2}$/.test(dtEl.value)) ? dtEl.value : todayStr();
+    const mc = (byDate.get(dt) || []).filter(t => t.main).length, main = S.sStar && mc < MAX_MAIN, wasBig = S.sBig, wasRat = S.sRat;
+    inp.value = '';
+    addTask({title: v.slice(0, 160), date: dt, cat: S.sCat, main, big: wasBig, rat: wasRat, sphere: S.selSphere});
+    S.sDate = dt; S.sStar = false; S.sBig = false; S.sRat = false; renderSphereDetail();
+    say(wasRat ? 'Крыса в сфере. Когда их станет несколько, устроим охоту.' : wasBig ? 'Кабан в сфере. Открой «Ещё» и добавь стейки.' : 'Закинул в сферу. Прогресс обновится, когда закроешь дело.', {ms: 4500});
     const again = $('#sphereQuickTitle'); if (again) again.focus();
   } else if (f === el.add) {
     e.preventDefault();
@@ -1631,17 +1688,20 @@ document.addEventListener('submit', e => {
     e.preventDefault();
     const inp = f.querySelector('input'), v = inp.value.trim(), li = f.closest('li[data-id]');
     if (!v || !li) return;
-    const tid = li.dataset.id;
+    const tid = li.dataset.id, inputId = inp.id;
     edit(tid, t => { t.steps = (t.steps || []).concat([{t: v.slice(0, 120), d: false}]); t.big = true; t.rat = false; });
-    const again = document.getElementById('step-' + tid); if (again) again.focus();
+    const again = document.getElementById(inputId); if (again) again.focus();
   }
 });
 document.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'sphereSel') { S.sphereSel = t.value; ls.set(KEYS.sphere, S.sphereSel); }
+  else if (t.id === 'sphereDate') { if (/^\d{4}-\d{2}-\d{2}$/.test(t.value)) { S.sDate = t.value; renderSphereDetail(); } }
+  else if (t.matches && t.matches('select[data-task-cat]')) { const li = t.closest('li[data-id]'); if (li && CATS[t.value]) edit(li.dataset.id, x => { x.cat = t.value; }); }
+  else if (t.matches && t.matches('input[data-task-date]')) { const li = t.closest('li[data-id]'); if (li && /^\d{4}-\d{2}-\d{2}$/.test(t.value)) edit(li.dataset.id, x => { x.date = t.value; }); }
   else if (t.matches && t.matches('select[data-task-sphere]')) { const li = t.closest('li[data-id]'); if (li) edit(li.dataset.id, x => { if (t.value) x.sphere = t.value; else delete x.sphere; }); }
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { const m = document.getElementById('syncModal'); if (m && !m.hidden) { m.hidden = true; return; } if (S.open) { S.open = null; renderDay(); } } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { const m = document.getElementById('syncModal'); if (m && !m.hidden) { m.hidden = true; return; } if (S.open) { S.open = null; renderAll(); } } });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkNewDay(); syncNow(); if (S.timer && !S.timer.paused && !S.timer.finished) { ensureTick(); tick(); } renderAll(); } });
 
 let raf = 0;
@@ -1664,7 +1724,16 @@ function checkNewDay() {
 setInterval(checkNewDay, 60000);
 
 /* ---------- запуск ---------- */
+/* без Т9: у всех текстовых полей выключены автоисправление, подсказки слов и проверка орфографии */
+function noT9() {
+  document.querySelectorAll('input[type=text],input[type=password],input:not([type]),textarea').forEach(i => {
+    if (i.getAttribute('autocorrect') !== 'off') { i.setAttribute('autocorrect', 'off'); i.setAttribute('spellcheck', 'false'); i.setAttribute('autocomplete', 'off'); }
+  });
+}
+let t9Raf = 0;
+new MutationObserver(() => { if (!t9Raf) t9Raf = setTimeout(() => { t9Raf = 0; noT9(); }, 20); }).observe(document.body, {childList: true, subtree: true});
 function boot() {
+  noT9();
   restoreTimer(); loadAll(); renderLegend(); renderGuide(); mountBot(); renderWardrobe(); renderAll();
   say('Йоу! Я Шагыч, OG пёс. ' + curLook().line, {mood: isNight() ? null : 'happy', ms: 9000});
   syncNow();
