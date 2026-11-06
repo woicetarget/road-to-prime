@@ -684,6 +684,10 @@ html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding
 .sel.mini{width:auto;max-width:190px;min-width:0;flex:1}
 .repbox{display:grid;gap:10px;margin-top:8px}
 .repbox .cat-b.day{min-width:42px;justify-content:center;padding:5px 8px}
+.dtpair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.dtl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;font-size:14px;font-weight:600;color:var(--ink2)}
+.dtl .sel{min-width:0}
+.dtadd{display:flex;gap:8px;align-items:center}
 </style>
 </head>
 <body>
@@ -793,7 +797,13 @@ html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding
             <div class="repbox" id="repBox" hidden>
               <div class="pills" id="repDays" role="group" aria-label="Дни недели"></div>
               <div class="og" id="repEvBox" hidden><label class="ol" for="repEvery">Раз в сколько дней</label><input type="number" class="sel mini" id="repEvery" min="1" max="60" inputmode="numeric" value="2"></div>
-              <div class="og"><label class="ol" for="repUntil">Повторять до, можно не указывать</label><input type="date" class="sel" id="repUntil"></div>
+              <div class="og" id="repPerBox"><span class="ol">Период: с какого дня по какой</span>
+                <div class="dtpair"><label class="dtl"><span>С</span><input type="date" class="sel" id="repFromDate"></label><label class="dtl"><span>По</span><input type="date" class="sel" id="repUntil"></label></div>
+                <div class="pills"><button type="button" class="cat-b plain" data-act="rep-span" data-days="7">Неделя</button><button type="button" class="cat-b plain" data-act="rep-span" data-days="28">4 недели</button><button type="button" class="cat-b plain" data-act="rep-month">До конца месяца</button><button type="button" class="cat-b plain" data-act="rep-open">Без конца</button></div></div>
+              <div class="og" id="repDatesBox" hidden><span class="ol">Свои даты, любые</span>
+                <div class="pills" id="repDateChips"></div>
+                <div class="dtadd"><input type="date" class="sel mini" id="repDateAdd" aria-label="Выбрать дату"><button type="button" class="pill" data-act="rep-date-add">Добавить дату</button></div>
+                <div class="pills"><button type="button" class="cat-b plain" data-act="rep-date-sel">+ день, выбранный в календаре</button><button type="button" class="cat-b plain" data-act="rep-date-clear">Очистить</button></div></div>
               <p class="flag-hint" id="repFrom"></p>
             </div></div>
         </div>
@@ -1284,7 +1294,7 @@ const S = {
   view: {y: now0.getFullYear(), m: now0.getMonth()}, sel: todayStr(), day: todayStr(),
   cat: ls.get(KEYS.cat, 'proj'), star: false, big: false, rat: false,
   open: null, hot: null, busy: null, skip: 0,
-  timer: null, say: null, series: new Map(), rep: {k: 'none', d: [0, 2, 4]}, mins: 0, timeFor: null, cats: new Map(), stepsOpen: new Set(), addOpts: false, spheres: new Map(), sphCol: null, tab: 'cal', selSphere: null, sphereSel: ls.get(KEYS.sphere, ''), guide: ls.get(KEYS.guide, true) !== false
+  timer: null, say: null, series: new Map(), rep: {k: 'none', d: [0, 2, 4], dates: []}, mins: 0, timeFor: null, cats: new Map(), stepsOpen: new Set(), addOpts: false, spheres: new Map(), sphCol: null, tab: 'cal', selSphere: null, sphereSel: ls.get(KEYS.sphere, ''), guide: ls.get(KEYS.guide, true) !== false
 };
 /* категории: четыре базовые и свои (хранятся в данных и синхронизируются). Неизвестная, например удалённая «Поиск работы», показывается как «Проекты» */
 const customCats = () => Array.from(S.cats.values()).sort((a, b) => (a.created || 0) - (b.created || 0));
@@ -1298,24 +1308,37 @@ const minsLabel = m => m >= 60 ? Math.floor(m / 60) + ' ч' + (m % 60 ? ' ' + (m
 const clampMins = v => { v = Math.round(+v); return v >= 1 ? Math.min(480, v) : 0; };
 function ruleText(r) {
   if (!r) return 'повтор';
+  if (r.k === 'dates') { const n = (r.dates || []).length; return n === 1 ? shortDate(r.dates[0]) : 'свои даты, ' + n; }
   if (r.k === 'every') return 'каждые ' + r.n + ' ' + plural(r.n, ['день', 'дня', 'дней']);
   const d = (r.d || []).slice().sort((a, b) => a - b);
   return d.length === 7 ? 'каждый день' : d.map(i => WD_SHORT[i]).join(' ');
 }
+const isDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
+function repPeriod() {
+  const f = $('#repFromDate').value, u = $('#repUntil').value;
+  return {from: isDate(f) ? f : S.sel, until: isDate(u) ? u : ''};
+}
+const ruleHit = (r, from, d) => { if (r.k === 'dates') return (r.dates || []).indexOf(d) >= 0; const k = diffDays(d, from); return r.k === 'every' ? (k >= 0 && k % Math.max(1, r.n || 1) === 0) : (r.d || []).indexOf(dowMon(parse(d))) >= 0; };
+function countOcc(rule, from, until) {
+  const today = todayStr(); let n = 0, d = from < today ? today : from;
+  for (let i = 0; i < 800 && d <= until; i++, d = addDays(d, 1)) if (ruleHit(rule, from, d)) n++;
+  return n;
+}
+function addRepDate(v) { if (!isDate(v) || S.rep.dates.indexOf(v) >= 0) return; S.rep.dates.push(v); S.rep.dates.sort(); renderAddForm(); }
 function repRule() {
+  if (S.rep.k === 'dates') return S.rep.dates.length ? {k: 'dates', dates: S.rep.dates.slice().sort()} : null;
   if (S.rep.k === 'week') return {k: 'week', d: S.rep.d.slice().sort((a, b) => a - b)};
   if (S.rep.k === 'every') { const n = Math.round(+$('#repEvery').value) || 2; return {k: 'every', n: Math.min(60, Math.max(1, n))}; }
   return null;
 }
 function topUpSeries() {
-  const today = todayStr(), hor = addDays(today, 60), back = addDays(today, -14); let made = false;
+  const today = todayStr(), hor = addDays(today, 60); let made = false;
   S.series.forEach(ser => {
     if (!ser.rule) return;
-    const from = ser.from < back ? back : ser.from, end = ser.until && ser.until < hor ? ser.until : hor;
+    /* прошедшие дни не создаём, чтобы не плодить «хвостики» за дни, которых приложение не видело */
+    const from = ser.from < today ? today : ser.from, end = ser.until && ser.until < hor ? ser.until : hor;
     for (let d = from; d <= end; d = addDays(d, 1)) {
-      const k = diffDays(d, ser.from);
-      const hit = ser.rule.k === 'every' ? (k >= 0 && k % Math.max(1, ser.rule.n || 1) === 0) : (ser.rule.d || []).indexOf(dowMon(parse(d))) >= 0;
-      if (!hit) continue;
+      if (!ruleHit(ser.rule, ser.from, d)) continue;
       const id = 'r' + ser.id + '-' + d;
       if (S.tasks.has(id) || S.tomb.tasks[id]) continue;
       const t = {id, title: ser.title, date: d, cat: ser.cat, done: false, doneAt: null, main: false, big: false, rat: false, steps: [], series: ser.id, created: ser.created || 0, updatedAt: 1};
@@ -1328,9 +1351,9 @@ function topUpSeries() {
 }
 function addSeries(p) {
   const rule = repRule(); if (!rule) return null;
-  const un = $('#repUntil').value || '', until = (/^\d{4}-\d{2}-\d{2}$/.test(un) && un >= S.sel) ? un : '';
-  const id = 'q' + Date.now().toString(36) + Math.random().toString(36).slice(2, 4);
-  const ser = {id, title: p.title, cat: p.cat, rule, from: S.sel, until, created: Date.now()};
+  const per = rule.k === 'dates' ? {from: rule.dates[0], until: rule.dates[rule.dates.length - 1]} : repPeriod(), id = 'q' + Date.now().toString(36) + Math.random().toString(36).slice(2, 4);
+  if (per.until && per.until < per.from) return null;
+  const ser = {id, title: p.title, cat: p.cat, rule, from: per.from, until: per.until, created: Date.now()};
   if (p.sphere) ser.sphere = p.sphere;
   if (p.mins) ser.mins = p.mins;
   stamp(ser); S.series.set(id, ser); topUpSeries();
@@ -1345,6 +1368,7 @@ function removeSeries(id) {
   saveAll(); renderAll();
   toast('Повторы остановлены, будущих дел убрано: ' + n);
 }
+S.repFromTouched = false;
 S.sCat = S.cat; S.sStar = false; S.sBig = false; S.sRat = false; S.sDate = '';
 let byDate = new Map();
 const Q = new Map();
@@ -1360,7 +1384,7 @@ const el = {
 };
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.5';
+const APP_VERSION = '2026-11-07.6';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -1567,12 +1591,22 @@ function minsPillsHTML(sel, act) {
 }
 function renderMinsRep() {
   $('#minsPills').innerHTML = minsPillsHTML(S.mins, 'mins');
-  $('#repPills').innerHTML = [['none', 'Не повторять'], ['week', 'По дням недели'], ['every', 'Через N дней']].map(x => '<button type="button" class="cat-b plain" data-act="rep" data-k="' + x[0] + '" aria-pressed="' + (S.rep.k === x[0]) + '">' + x[1] + '</button>').join('');
+  const all7 = S.rep.k === 'week' && S.rep.d.length === 7;
+  $('#repPills').innerHTML = [['none', 'Не повторять', S.rep.k === 'none'], ['day', 'Каждый день', all7], ['week', 'По дням недели', S.rep.k === 'week' && !all7], ['every', 'Через N дней', S.rep.k === 'every'], ['dates', 'Свои даты', S.rep.k === 'dates']].map(x => '<button type="button" class="cat-b plain" data-act="rep" data-k="' + x[0] + '" aria-pressed="' + x[2] + '">' + x[1] + '</button>').join('');
   const week = S.rep.k === 'week';
+  const dts = S.rep.k === 'dates';
   $('#repBox').hidden = S.rep.k === 'none'; $('#repDays').hidden = !week; $('#repEvBox').hidden = S.rep.k !== 'every';
-  $('#repDays').innerHTML = WD_SHORT.map((n, i) => '<button type="button" class="cat-b plain day" data-act="rep-day" data-d="' + i + '" aria-pressed="' + (S.rep.d.indexOf(i) >= 0) + '">' + n + '</button>').join('') + '<button type="button" class="cat-b plain addc" data-act="rep-all">Каждый день</button>';
-  const un = $('#repUntil').value;
-  $('#repFrom').textContent = 'Начиная с ' + shortDate(S.sel) + (un ? ', до ' + shortDate(un) : '') + '. Дела появятся: ' + ruleText(repRule()) + '.';
+  $('#repPerBox').hidden = dts; $('#repDatesBox').hidden = !dts;
+  $('#repDateChips').innerHTML = S.rep.dates.length ? S.rep.dates.map(d => '<span class="cat-wrap"><span class="cat-b plain">' + shortDate(d) + (d < todayStr() ? ' (прошла)' : '') + '</span><button type="button" class="cat-x" data-act="rep-date-del" data-date="' + d + '" aria-label="Убрать дату ' + shortDate(d) + '">×</button></span>').join('') : '<span class="flag-hint">Пока ни одной даты. Выбери дату ниже, можно сколько угодно.</span>';
+  $('#repDays').innerHTML = WD_SHORT.map((n, i) => '<button type="button" class="cat-b plain day" data-act="rep-day" data-d="' + i + '" aria-pressed="' + (S.rep.d.indexOf(i) >= 0) + '">' + n + '</button>').join('');
+  if (!S.repFromTouched) $('#repFromDate').value = S.sel;
+  const per = repPeriod(), rule = repRule(); $('#repUntil').min = per.from;
+  let hint;
+  if (dts) { const up = S.rep.dates.filter(d => d >= todayStr()); hint = !S.rep.dates.length ? 'Добавь хотя бы одну дату.' : 'Дел будет: ' + up.length + (up.length ? ', ближайшее ' + shortDate(up[0]) : '') + '. Прошедшие даты не создаются.'; }
+  else if (per.until && per.until < per.from) hint = 'Дата «по» раньше даты «с». Поправь период.';
+  else if (!rule) hint = '';
+  else hint = 'С ' + shortDate(per.from) + (per.until ? ' по ' + shortDate(per.until) : ', без конца') + ': ' + ruleText(rule) + '. ' + (per.until ? 'Дел в календаре: ' + countOcc(rule, per.from, per.until) + '.' : 'Дела добавляются на 60 дней вперёд и пополняются сами.') + ' Прошедшие дни не создаются.';
+  $('#repFrom').textContent = hint;
 }
 function timePickHTML(t) {
   return '<div class="tpick"><span class="ol">Сколько минут на это дело?</span><div class="pills">' + [5, 10, 15, 25, 45, 60].map(m => '<button type="button" class="cat-b plain" data-act="time-go" data-min="' + m + '">' + minsLabel(m) + '</button>').join('') + '</div>' +
@@ -1589,7 +1623,8 @@ function renderAddForm() {
   if (S.big) parts.push('<span>' + ICON.boar + 'Кабан</span>');
   if (S.rat) parts.push('<span>' + ICON.rat + 'Крыса</span>');
   if (S.mins) parts.push('<span>' + ICON.alarm + minsLabel(S.mins) + '</span>');
-  if (S.rep.k !== 'none') parts.push('<span>' + ICON.repeat + ruleText(repRule()) + '</span>');
+  if (S.rep.k === 'dates') parts.push('<span>' + ICON.repeat + (S.rep.dates.length ? 'Свои даты: ' + S.rep.dates.length : 'Свои даты') + '</span>');
+  else if (S.rep.k !== 'none') { const per = repPeriod(); parts.push('<span>' + ICON.repeat + ruleText(repRule()) + (per.until ? ', ' + shortDate(per.from) + ' – ' + shortDate(per.until) : '') + '</span>'); }
   const sum = $('#addSum'), ob = $('#optBtn'), box = $('#addOpts');
   box.hidden = !S.addOpts; ob.setAttribute('aria-expanded', String(S.addOpts)); ob.classList.toggle('has', parts.length > 0 && !S.addOpts);
   sum.hidden = S.addOpts || !parts.length; sum.innerHTML = parts.join('');
@@ -2093,7 +2128,14 @@ document.addEventListener('click', e => {
     case 'time-go': startTimer({min: +b.dataset.min, taskId: id, kind: 'quick'}); S.timeFor = null; renderAll(); break;
     case 'mins': { S.mins = clampMins(b.dataset.min); const mc = $('#minsCustom'); if (mc) mc.value = ''; renderAddForm(); } break;
     case 'task-mins': { const m = clampMins(b.dataset.min); edit(id, x => { if (m) x.mins = m; else delete x.mins; }); } break;
-    case 'rep': S.rep.k = b.dataset.k; renderAddForm(); break;
+    case 'rep': if (b.dataset.k === 'day') { S.rep.k = 'week'; S.rep.d = [0, 1, 2, 3, 4, 5, 6]; } else { S.rep.k = b.dataset.k; if (S.rep.k === 'week' && S.rep.d.length === 7) S.rep.d = [0, 2, 4]; } renderAddForm(); break;
+    case 'rep-span': { const f = repPeriod().from; $('#repUntil').value = addDays(f, +b.dataset.days - 1); renderAddForm(); } break;
+    case 'rep-month': { const f = parse(repPeriod().from); $('#repUntil').value = ymd(new Date(f.getFullYear(), f.getMonth() + 1, 0)); renderAddForm(); } break;
+    case 'rep-open': $('#repUntil').value = ''; renderAddForm(); break;
+    case 'rep-date-add': { const inp = $('#repDateAdd'); if (inp.value) { addRepDate(inp.value); inp.value = ''; } else inp.focus(); } break;
+    case 'rep-date-sel': addRepDate(S.sel); break;
+    case 'rep-date-del': S.rep.dates = S.rep.dates.filter(d => d !== b.dataset.date); renderAddForm(); break;
+    case 'rep-date-clear': S.rep.dates = []; renderAddForm(); break;
     case 'rep-day': { const i = +b.dataset.d, a = S.rep.d, ix = a.indexOf(i); if (ix >= 0) { if (a.length > 1) a.splice(ix, 1); } else a.push(i); renderAddForm(); } break;
     case 'rep-all': S.rep.d = [0, 1, 2, 3, 4, 5, 6]; renderAddForm(); break;
     case 'series-stop': { const cur = S.tasks.get(id); if (cur && cur.series) removeSeries(cur.series); } break;
@@ -2189,8 +2231,8 @@ document.addEventListener('submit', e => {
     const mins = clampMins(S.mins) || undefined;
     if (S.rep.k !== 'none') {
       const ser = addSeries({title: v.slice(0, 160), cat: S.cat, sphere: S.sphereSel || undefined, mins});
-      if (ser) { el.title.value = ''; S.star = false; S.big = false; S.rat = false; S.mins = 0; S.rep.k = 'none'; $('#minsCustom').value = ''; $('#repUntil').value = ''; renderAll(); say('Регулярное дело поставил: ' + ruleText(ser.rule) + '. Ближайшие даты уже в календаре.', {ms: 6000}); }
-      else toast('Подходящих дат не нашлось. Проверь дни и дату «до».');
+      if (ser) { el.title.value = ''; S.star = false; S.big = false; S.rat = false; S.mins = 0; S.rep.k = 'none'; S.rep.dates = []; S.repFromTouched = false; $('#minsCustom').value = ''; $('#repUntil').value = ''; renderAll(); say('Регулярное дело поставил: ' + ruleText(ser.rule) + '. Ближайшие даты уже в календаре.', {ms: 6000}); }
+      else toast(S.rep.k === 'dates' ? 'Добавь хотя бы одну дату, которая ещё впереди.' : 'Подходящих дат не нашлось. Проверь дни и период.');
       el.title.focus(); return;
     }
     addTask({title: v.slice(0, 160), date: S.sel, cat: S.cat, main, big: wasBig, rat: wasRat, mins, sphere: S.sphereSel || undefined});
@@ -2215,16 +2257,19 @@ document.addEventListener('submit', e => {
 document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'minsCustom') { S.mins = clampMins(t.value); renderAddForm(); }
+  else if (t.id === 'repFromDate') { S.repFromTouched = isDate(t.value); renderAddForm(); }
   else if (t.id === 'repEvery' || t.id === 'repUntil') renderAddForm();
 });
 document.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'sphereDate') { if (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value)) { S.sDate = t.value; renderSphereDetail(); } }
   else if (t.matches && t.matches('input[data-step-date]')) { const li = t.closest('li[data-id]'); const si = +t.dataset.i; if (li && (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value))) edit(li.dataset.id, x => { const s = x.steps[si]; if (s) { if (t.value) s.date = t.value; else delete s.date; } }); }
+  else if (t.id === 'repDateAdd') { addRepDate(t.value); t.value = ''; }
   else if (t.matches && t.matches('input[data-task-mins]')) { const li = t.closest('li[data-id]'); if (li) edit(li.dataset.id, x => { const m = clampMins(t.value); if (m) x.mins = m; else delete x.mins; }); }
   else if (t.matches && t.matches('input[data-task-date]')) { const li = t.closest('li[data-id]'); if (li && (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value))) edit(li.dataset.id, x => { x.date = t.value; }); }
 });
 document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target && e.target.id === 'repDateAdd') { e.preventDefault(); const b = document.querySelector('[data-act=rep-date-add]'); if (b) b.click(); return; }
   if (e.key === 'Enter' && e.target && e.target.id === 'newCat') { e.preventDefault(); const b = document.querySelector('[data-act=cat-create]'); if (b) b.click(); return; }
   if (e.key === 'Escape') { const f = $('#focusModal'); if (f && !f.hidden) { closeFocus(); return; } const m = document.getElementById('syncModal'); if (m && !m.hidden) { m.hidden = true; return; } if (S.open) { S.open = null; renderAll(); } }
 });
