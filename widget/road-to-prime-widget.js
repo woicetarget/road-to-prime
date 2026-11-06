@@ -1,4 +1,4 @@
-// RTP-WIDGET v3: основной код виджета Road to Prime. Его подтягивает загрузчик loader.js.
+// RTP-WIDGET v3.1: основной код виджета Road to Prime. Его подтягивает загрузчик loader.js.
 // Слева квадрат с курящим псом (кадр меняется при каждом обновлении), справа дела на сегодня в стиле приложения.
 // Данные читаются из закрытого Gist road-to-prime.json, ничего не записывается.
 
@@ -111,6 +111,7 @@ async function getDog() {
   catch (e) { return fm.fileExists(dogPath) ? fm.readImage(dogPath) : null; }
 }
 
+const hhmm = ms => { const d = new Date(ms), p = n => String(n).padStart(2, '0'); return p(d.getHours()) + ':' + p(d.getMinutes()); };
 function font(size, kind) {
   if (kind === 'cond') return new Font('AvenirNextCondensed-Bold', size);
   if (kind === 'bold') return Font.boldSystemFont(size);
@@ -163,7 +164,7 @@ function build(s, dog, family) {
     const chip = row.addStack(); chip.layoutHorizontally(); chip.centerAlignContent();
     chip.setPadding(3, 8, 3, 8); chip.cornerRadius = 10; chip.backgroundColor = new Color(C.bg1, 0.74);
     label(chip, s.done + '/' + s.total, 16, C.ivory, 'cond');
-    if (s.stale) label(chip, ' офлайн', 8, C.mute);
+    label(chip, ' ' + (s.stale ? 'офлайн ' : '') + hhmm(s.at), 8, C.mute);
     row.addSpacer();
     w.addSpacer();
     const p = plate(w), n = s.next[0];
@@ -183,7 +184,7 @@ function build(s, dog, family) {
   const right = row.addStack(); right.layoutVertically();
 
   const head = right.addStack(); head.layoutHorizontally(); head.centerAlignContent();
-  label(head, 'СЕГОДНЯ' + (s.stale ? ' · ОФЛАЙН' : ''), 10, C.accent, 'cond');
+  label(head, 'СЕГОДНЯ · ' + (s.stale ? 'ОФЛАЙН ' : '') + hhmm(s.at), 10, C.accent, 'cond');
   head.addSpacer();
   if (s.streak) label(head, 'серия ' + s.streak + ' ' + plural(s.streak, ['день', 'дня', 'дней']), 9, C.mute);
   const num = right.addStack(); num.layoutHorizontally(); num.bottomAlignContent();
