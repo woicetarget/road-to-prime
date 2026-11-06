@@ -378,10 +378,16 @@ h1,h2,h3{margin:0;font-family:var(--f-head);font-weight:700;text-transform:upper
 .bot[data-mood=happy] .b-arm-r{transform:rotate(-124deg)}
 .bot[data-mood=happy] .b-tail{animation-duration:.4s}
 .bot[data-mood=focus] .e-focus,.bot[data-mood=focus] .m-flat{display:inline}
-.bot[data-mood=sleepy] .e-sleepy,.bot[data-mood=sleepy] .m-o{display:inline}
+.bot[data-mood=sleepy] .e-sleepy,.bot[data-mood=sleepy] .m-flat{display:inline}
 .bot[data-mood=sleepy] .b-zs{display:inline}
-.bot[data-mood=sleepy] .b-float{animation-duration:5.5s}
+.bot[data-mood=sleepy] .b-float{animation:breathe 3.4s ease-in-out infinite}
 .bot[data-mood=sleepy] .b-tail{animation-duration:6s}
+.bot[data-mood=sleepy] .b-smoke{animation-duration:1.5s}
+.bot[data-mood=sleepy] .b-ember{animation:ember .6s ease-in-out infinite alternate}
+.bot[data-mood=sleepy] .b-chair,.bot[data-mood=sleepy] .b-puffs{display:inline}
+.b-chair,.b-puffs{display:none}
+.b-ember{transform-box:fill-box;transform-origin:center}
+.pf{fill:#fff;opacity:0;transform-box:fill-box;transform-origin:center;animation:puff 2.3s ease-out infinite}
 .mini .b-float,.mini .dg-ear-l,.mini .dg-ear-r,.mini .b-tail,.mini .b-blink{animation:none}
 .mini .b-smoke{animation:none}
 .mini .b-spark,.mini .b-zs{display:none!important}
@@ -391,7 +397,7 @@ h1,h2,h3{margin:0;font-family:var(--f-head);font-weight:700;text-transform:upper
 .b-head{transform-box:view-box;transform-origin:80px 116px;transition:transform .45s cubic-bezier(.3,1.4,.5,1)}
 .b-float{transform-box:view-box;transform-origin:80px 190px}
 .bot[data-mood=idle] .b-head{animation:cool 7s ease-in-out infinite}
-.bot[data-mood=sleepy] .b-head{transform:rotate(7deg) translateY(3px)}
+.bot[data-mood=sleepy] .b-head{transform:rotate(7deg) translateY(3px);animation:nodoff 5s ease-in-out infinite}
 .bot[data-mood=idle][data-pose=cross] .b-arm-l{transform:rotate(-74deg)}
 .bot[data-mood=idle][data-pose=cross] .b-arm-r{transform:rotate(74deg)}
 .bot[data-mood=idle][data-pose=cross] .b-head{animation:none;transform:rotate(-3deg) translateY(-1px)}
@@ -410,6 +416,10 @@ h1,h2,h3{margin:0;font-family:var(--f-head);font-weight:700;text-transform:upper
 .bot[data-mood=idle][data-pose=point] .b-arm-r{transform:rotate(-96deg)}
 .bot[data-mood=idle][data-pose=point] .b-arm-l{transform:rotate(16deg)}
 .bot[data-mood=idle][data-pose=point] .b-head{animation:none;transform:rotate(-5deg)}
+@keyframes breathe{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(1px) scaleY(1.012)}}
+@keyframes nodoff{0%,100%{transform:rotate(6deg) translateY(2px)}45%{transform:rotate(10deg) translateY(4px)}62%{transform:rotate(3deg) translateY(1px)}}
+@keyframes ember{from{transform:scale(1);opacity:.8}to{transform:scale(1.45);opacity:1}}
+@keyframes puff{0%{opacity:0;transform:translate(0,0) scale(.3)}18%{opacity:.85}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(2.3)}}
 @keyframes cool{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg) translateY(-1px)}}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3.5px)}}
 @keyframes sway{0%,100%{transform:rotate(-2.2deg)}50%{transform:rotate(2.2deg)}}
@@ -663,6 +673,17 @@ html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding
   .task.main{padding-left:14px}
   .opts{padding:10px}
 }
+
+/* время на задачу и повторы */
+.cat-b.plain{--c:var(--accent)}
+.ib.play svg{width:19px;height:19px;margin-left:0}
+.meta .tag.time svg,.meta .tag.rep svg{width:12px;height:12px}
+.tpick{grid-column:1 / -1;margin-top:10px;padding:10px 12px;border:1.5px dashed var(--line);border-radius:14px;background:var(--surface2);display:grid;gap:8px}
+.tpick .flag-hint{margin:0}
+.tform{display:flex;gap:8px;align-items:center}
+.sel.mini{width:auto;max-width:190px;min-width:0;flex:1}
+.repbox{display:grid;gap:10px;margin-top:8px}
+.repbox .cat-b.day{min-width:42px;justify-content:center;padding:5px 8px}
 </style>
 </head>
 <body>
@@ -692,7 +713,7 @@ html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding
     <ol class="g-steps">
       <li><span class="gn">1</span><div><b>Выбери день</b><p>Дела на сегодня лежат сразу под Шагычем. Нажми на число в календаре, чтобы открыть другой день.</p></div></li>
       <li><span class="gn">2</span><div><b>Добавь дело</b><p>Большую задачу отметь «кабаном» и нарежь на «стейки», то есть на мелкие шаги. Мелкую и противную назови «крысой».</p></div></li>
-      <li><span class="gn">3</span><div><b>Запусти таймер</b><p>Нажми ▶ у дела, и Шагыч включит таймер на 5 минут. Для серьёзного фокуса открой «Синьор помидор» справа вверху: там помодоро 30 и 5.</p></div></li>
+      <li><span class="gn">3</span><div><b>Запусти таймер</b><p>Нажми ⏰ у дела: выбери, сколько минут, и Шагыч включит таймер. Для серьёзного фокуса открой «Синьор помидор» справа вверху: там помодоро 30 и 5.</p></div></li>
     </ol>
     <p class="g-note">Во вкладке «Сферы» виден прогресс по отдельным линиям дел, например «Продажа квартиры».</p>
   </section>
@@ -766,6 +787,15 @@ html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding
               <button type="button" class="star-b" id="ratBtn" data-act="rat" aria-pressed="false" title="Мелкая и неприятная задача, их удобно ловить пачкой"><svg viewBox="0 0 24 24" aria-hidden="true"><circle fill="currentColor" cx="6.5" cy="7" r="3.6"/><circle fill="currentColor" cx="17.5" cy="7" r="3.6"/><path fill="currentColor" d="M12 6 Q18 6 18.5 12 Q18.5 17 12 21.5 Q5.5 17 5.5 12 Q6 6 12 6Z"/><circle cx="9.5" cy="12" r="1.1" fill="var(--bg)"/><circle cx="14.5" cy="12" r="1.1" fill="var(--bg)"/><circle cx="12" cy="19" r="1.3" fill="var(--bg)"/></svg>Крыса</button>
             </div>
           </div>
+          <div class="og"><span class="ol">Время на задачу, можно не ставить</span><div class="pills" id="minsPills" role="group" aria-label="Время на задачу"></div>
+            <input type="number" class="sel mini" id="minsCustom" min="1" max="480" inputmode="numeric" placeholder="Своё, минут" aria-label="Своё время в минутах"></div>
+          <div class="og"><span class="ol">Повтор (например, тренировки)</span><div class="pills" id="repPills" role="group" aria-label="Повтор"></div>
+            <div class="repbox" id="repBox" hidden>
+              <div class="pills" id="repDays" role="group" aria-label="Дни недели"></div>
+              <div class="og" id="repEvBox" hidden><label class="ol" for="repEvery">Раз в сколько дней</label><input type="number" class="sel mini" id="repEvery" min="1" max="60" inputmode="numeric" value="2"></div>
+              <div class="og"><label class="ol" for="repUntil">Повторять до, можно не указывать</label><input type="date" class="sel" id="repUntil"></div>
+              <p class="flag-hint" id="repFrom"></p>
+            </div></div>
         </div>
       </form>
       <ul class="list" id="list"></ul>
@@ -830,6 +860,8 @@ const ICON = {
   boar:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 9 L5.6 3.2 L10.6 6.3 Q12 6 13.4 6.3 L18.4 3.2 L19 9 Q21 14 18 18 Q12 22 6 18 Q3 14 5 9Z"/><ellipse cx="12" cy="15.8" rx="4.2" ry="3" fill="var(--bg)"/><circle cx="10.6" cy="15.8" r=".9" fill="currentColor"/><circle cx="13.4" cy="15.8" r=".9" fill="currentColor"/><circle cx="8.6" cy="11.4" r="1.1" fill="var(--bg)"/><circle cx="15.4" cy="11.4" r="1.1" fill="var(--bg)"/><path fill="var(--bg)" d="M6.8 19 L5.8 15.4 L9 17.4Z M17.2 19 L18.2 15.4 L15 17.4Z"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
   play:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.6v12.8a.8.8 0 001.2.7l10.2-6.4a.8.8 0 000-1.4L9.2 4.9A.8.8 0 008 5.6z"/></svg>',
+  alarm:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="7.4"/><path d="M12 9v4.3l2.9 1.8"/><path d="M4.2 5.6L7.4 3M19.8 5.6L16.6 3"/></svg>',
+  repeat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l3 3-3 3"/><path d="M4 11V9a3 3 0 013-3h13"/><path d="M7 21l-3-3 3-3"/><path d="M20 13v2a3 3 0 01-3 3H4"/></svg>',
   chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
   dots:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.5" cy="12" r="1.9"/></svg>',
   star:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2 6.3 20.3l1.2-6.4L2.8 9.5l6.4-.8z"/></svg>',
@@ -1032,12 +1064,12 @@ const MOUTHS = {
     '<path d="M95 92 L97.5 99.6 M104.5 88 L107 96.8" fill="none" stroke="#6F4521" stroke-width="1.6" stroke-linecap="round"/>' +
     [[91, 97.5, '#5E7A2E'], [99, 94.2, '#7A9A3A'], [102.5, 98.6, '#5E7A2E'], [109, 90.5, '#7A9A3A'], [111.5, 94.8, '#5E7A2E'], [94.5, 99.8, '#7A9A3A']].map(f => '<circle cx="' + f[0] + '" cy="' + f[1] + '" r="1.25" fill="' + f[2] + '"/>').join('') +
     '<path d="M84 96 Q81.5 99 86 102" fill="none" stroke="' + INK + '" stroke-width="2" stroke-linecap="round"/>' +
-    '<ellipse cx="117.3" cy="89.4" rx="3.7" ry="6.4" transform="rotate(-18 117.3 89.4)" fill="#FF6A2B" class="o2"/><ellipse cx="117.6" cy="89.4" rx="1.6" ry="3.2" transform="rotate(-18 117.6 89.4)" fill="#FFD23F"/>' +
+    '<ellipse class="b-ember o2" cx="117.3" cy="89.4" rx="3.7" ry="6.4" transform="rotate(-18 117.3 89.4)" fill="#FF6A2B"/><ellipse cx="117.6" cy="89.4" rx="1.6" ry="3.2" transform="rotate(-18 117.6 89.4)" fill="#FFD23F"/>' +
     '<g class="b-smoke"><path d="M120 81 Q114 73 121 67 Q127 61 120 54" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" opacity=".8"/><path d="M125 79 Q133 71 127 63" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".55"/></g>',
   lollipop: P => Ln(88, 101, 112, 119, INK, 6.5) + Ln(88, 101, 112, 119, '#fff', 3.4) + C(116, 122, 10.5, P.c2 || '#FF6B87') + '<circle cx="116" cy="122" r="6" fill="none" stroke="#fff" stroke-width="2"/><circle cx="116" cy="122" r="1.8" fill="#fff"/>'
 };
 /* косяк рисуется поверх шапки, иначе клапан ушанки закрывает кончик и дым */
-const MOUTH_FRONT = {jointGems: P => MOUTHS.joint(P)};
+const MOUTH_FRONT = {jointGems: P => MOUTHS.joint(P) + PUFFS};
 const CHEEKS = {
   none: () => '',
   plaster: () => '<g transform="rotate(-32 50 92)">' + R(39, 88, 22, 8, 3, '#F3D5B5', 'o2') + '</g><g transform="rotate(32 50 92)">' + R(39, 88, 22, 8, 3, '#F3D5B5', 'o2') + '</g>',
@@ -1179,6 +1211,15 @@ function lookItems(L) {
   return [HEADS[L.head].n, TOPS[L.top].name, EYE_N[L.eye], MOUTH_N[L.mouth], NECK_N[L.neck], PROP_N[L.prop]].filter(Boolean).slice(0, 4).join(' · ');
 }
 
+/* кресло для ночного сна: спинка позади пса, подлокотники и сиденье перед ногами, видны только при mood sleepy */
+const CHAIR_BACK = '<g class="b-chair"><rect x="8" y="58" width="144" height="130" rx="28" fill="#6E1B28" class="o"/><rect x="21" y="71" width="118" height="106" rx="19" fill="#862536" class="o2"/>' +
+  [92, 114, 136, 158].map(y => '<path d="M38 ' + y + ' H122" fill="none" stroke="#6E1B28" stroke-width="2" stroke-linecap="round" opacity=".45"/>').join('') + '</g>';
+const CHAIR_FRONT = '<g class="b-chair"><rect x="13" y="126" width="27" height="52" rx="11" fill="#5A1420" class="o"/><rect x="120" y="126" width="27" height="52" rx="11" fill="#5A1420" class="o"/>' +
+  '<rect x="22" y="161" width="116" height="20" rx="10" fill="#A62E40" class="o"/><path d="M34 168 H126" fill="none" stroke="#C9475A" stroke-width="2" stroke-linecap="round" opacity=".6"/>' +
+  '<rect x="18" y="177" width="13" height="17" rx="4" fill="#3E2318" class="o"/><rect x="129" y="177" width="13" height="17" rx="4" fill="#3E2318" class="o"/></g>';
+/* клубы дыма изо рта: бурное курение во сне */
+const PUFFS = '<g class="b-puffs">' + [['-16px', '-36px', 0], ['10px', '-44px', .45], ['-4px', '-50px', .9], ['20px', '-34px', 1.35], ['-24px', '-28px', 1.8]].map(p => '<circle class="pf" cx="118" cy="83" r="5.5" style="--dx:' + p[0] + ';--dy:' + p[1] + ';animation-delay:' + p[2] + 's"/>').join('') + '</g>';
+
 /* --- сборка пса --- */
 function botSVG(L, cls, uid) {
   const P = L.pal, tp = TOPS[L.top];
@@ -1186,6 +1227,7 @@ function botSVG(L, cls, uid) {
   s += bgSVG(L.bg, P, uid);
   s += '<ellipse cx="80" cy="195" rx="38" ry="4.5" class="b-shadow"/>';
   s += '<g class="b-float">';
+  s += CHAIR_BACK;
   /* хвост виляет за туловищем */
   s += '<g class="b-tail"><path d="M110 152 Q142 150 138 116" fill="none" stroke="' + INK + '" stroke-width="13" stroke-linecap="round"/><path d="M110 152 Q142 150 138 116" fill="none" stroke="var(--dog)" stroke-width="7.5" stroke-linecap="round"/></g>';
   /* уши */
@@ -1195,6 +1237,7 @@ function botSVG(L, cls, uid) {
   if (tp.front && L.head !== 'hoodUp') s += tp.front(P);
   if (BAGS[L.prop]) s += BAGS[L.prop](P);
   if (HEADS[L.head].back) s += HEADS[L.head].back(P);
+  s += CHAIR_FRONT;
   s += armSVG('l', tp, P, L) + armSVG('r', tp, P, L);
   s += NECKS[L.neck](P);
   /* голова */
@@ -1241,7 +1284,7 @@ const S = {
   view: {y: now0.getFullYear(), m: now0.getMonth()}, sel: todayStr(), day: todayStr(),
   cat: ls.get(KEYS.cat, 'proj'), star: false, big: false, rat: false,
   open: null, hot: null, busy: null, skip: 0,
-  timer: null, say: null, cats: new Map(), stepsOpen: new Set(), addOpts: false, spheres: new Map(), sphCol: null, tab: 'cal', selSphere: null, sphereSel: ls.get(KEYS.sphere, ''), guide: ls.get(KEYS.guide, true) !== false
+  timer: null, say: null, series: new Map(), rep: {k: 'none', d: [0, 2, 4]}, mins: 0, timeFor: null, cats: new Map(), stepsOpen: new Set(), addOpts: false, spheres: new Map(), sphCol: null, tab: 'cal', selSphere: null, sphereSel: ls.get(KEYS.sphere, ''), guide: ls.get(KEYS.guide, true) !== false
 };
 /* категории: четыре базовые и свои (хранятся в данных и синхронизируются). Неизвестная, например удалённая «Поиск работы», показывается как «Проекты» */
 const customCats = () => Array.from(S.cats.values()).sort((a, b) => (a.created || 0) - (b.created || 0));
@@ -1249,6 +1292,59 @@ const catKeys = () => Object.keys(BASE_CATS).concat(customCats().map(c => c.id))
 const catOK = k => !!(BASE_CATS[k] || S.cats.has(k));
 const catName = k => BASE_CATS[k] || (S.cats.get(k) || {}).name || BASE_CATS.proj;
 const catCls = k => BASE_CATS[k] ? 'c-' + k : S.cats.has(k) ? 'cc cc' + ((S.cats.get(k).hue || 0) % 10) : 'c-proj';
+/* время на задачу (необязательно) и регулярные дела: серия порождает обычные дела на 60 дней вперёд, у каждого свой id, так что отметки, календарь и синхронизация работают как раньше */
+const MINS = [15, 30, 45, 60];
+const minsLabel = m => m >= 60 ? Math.floor(m / 60) + ' ч' + (m % 60 ? ' ' + (m % 60) + ' мин' : '') : m + ' мин';
+const clampMins = v => { v = Math.round(+v); return v >= 1 ? Math.min(480, v) : 0; };
+function ruleText(r) {
+  if (!r) return 'повтор';
+  if (r.k === 'every') return 'каждые ' + r.n + ' ' + plural(r.n, ['день', 'дня', 'дней']);
+  const d = (r.d || []).slice().sort((a, b) => a - b);
+  return d.length === 7 ? 'каждый день' : d.map(i => WD_SHORT[i]).join(' ');
+}
+function repRule() {
+  if (S.rep.k === 'week') return {k: 'week', d: S.rep.d.slice().sort((a, b) => a - b)};
+  if (S.rep.k === 'every') { const n = Math.round(+$('#repEvery').value) || 2; return {k: 'every', n: Math.min(60, Math.max(1, n))}; }
+  return null;
+}
+function topUpSeries() {
+  const today = todayStr(), hor = addDays(today, 60), back = addDays(today, -14); let made = false;
+  S.series.forEach(ser => {
+    if (!ser.rule) return;
+    const from = ser.from < back ? back : ser.from, end = ser.until && ser.until < hor ? ser.until : hor;
+    for (let d = from; d <= end; d = addDays(d, 1)) {
+      const k = diffDays(d, ser.from);
+      const hit = ser.rule.k === 'every' ? (k >= 0 && k % Math.max(1, ser.rule.n || 1) === 0) : (ser.rule.d || []).indexOf(dowMon(parse(d))) >= 0;
+      if (!hit) continue;
+      const id = 'r' + ser.id + '-' + d;
+      if (S.tasks.has(id) || S.tomb.tasks[id]) continue;
+      const t = {id, title: ser.title, date: d, cat: ser.cat, done: false, doneAt: null, main: false, big: false, rat: false, steps: [], series: ser.id, created: ser.created || 0, updatedAt: 1};
+      if (ser.sphere) t.sphere = ser.sphere;
+      if (ser.mins) t.mins = ser.mins;
+      S.tasks.set(id, t); made = true;
+    }
+  });
+  return made;
+}
+function addSeries(p) {
+  const rule = repRule(); if (!rule) return null;
+  const un = $('#repUntil').value || '', until = (/^\d{4}-\d{2}-\d{2}$/.test(un) && un >= S.sel) ? un : '';
+  const id = 'q' + Date.now().toString(36) + Math.random().toString(36).slice(2, 4);
+  const ser = {id, title: p.title, cat: p.cat, rule, from: S.sel, until, created: Date.now()};
+  if (p.sphere) ser.sphere = p.sphere;
+  if (p.mins) ser.mins = p.mins;
+  stamp(ser); S.series.set(id, ser); topUpSeries();
+  if (!Array.from(S.tasks.values()).some(t => t.series === id)) { S.series.delete(id); return null; }
+  saveAll(); renderAll(); return ser;
+}
+function removeSeries(id) {
+  const today = todayStr(); if (!S.series.has(id)) return;
+  S.series.delete(id); S.tomb.series[id] = Date.now();
+  let n = 0;
+  S.tasks.forEach((t, tid) => { if (t.series === id && !t.done && t.date > today) { S.tasks.delete(tid); S.tomb.tasks[tid] = Date.now(); n++; } });
+  saveAll(); renderAll();
+  toast('Повторы остановлены, будущих дел убрано: ' + n);
+}
 S.sCat = S.cat; S.sStar = false; S.sBig = false; S.sRat = false; S.sDate = '';
 let byDate = new Map();
 const Q = new Map();
@@ -1264,9 +1360,9 @@ const el = {
 };
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.4';
+const APP_VERSION = '2026-11-07.5';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
-S.tomb = {tasks: {}, spheres: {}, cats: {}};
+S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
 let syncTimer = 0, syncing = false, syncAgain = false;
 const stamp = o => { o.updatedAt = Date.now(); return o; };
@@ -1282,15 +1378,16 @@ function loadAll() {
   S.tasks = new Map((d.tasks || []).filter(t => t && t.id).map(t => [t.id, t]));
   S.spheres = new Map((d.spheres || []).filter(x => x && x.id).map(x => [x.id, x]));
   S.cats = new Map((d.cats || []).filter(x => x && x.id).map(x => [x.id, x]));
-  S.tomb = {tasks: (d.tomb && d.tomb.tasks) || {}, spheres: (d.tomb && d.tomb.spheres) || {}, cats: (d.tomb && d.tomb.cats) || {}};
+  S.series = new Map((d.series || []).filter(x => x && x.id).map(x => [x.id, x]));
+  S.tomb = {tasks: (d.tomb && d.tomb.tasks) || {}, spheres: (d.tomb && d.tomb.spheres) || {}, cats: (d.tomb && d.tomb.cats) || {}, series: (d.tomb && d.tomb.series) || {}};
   if (!catOK(S.cat)) S.cat = 'proj';
   if (!catOK(S.sCat)) S.sCat = S.cat;
   S.mode = 'local'; S.loading = false;
 }
 function snapshotData() {
   const old = Date.now() - 90 * 86400000;
-  ['tasks', 'spheres', 'cats'].forEach(k => Object.keys(S.tomb[k]).forEach(id => { if (S.tomb[k][id] < old) delete S.tomb[k][id]; }));
-  return {v: 1, tasks: Array.from(S.tasks.values()).sort(byId), spheres: Array.from(S.spheres.values()).sort(byId), cats: Array.from(S.cats.values()).sort(byId), tomb: S.tomb};
+  ['tasks', 'spheres', 'cats', 'series'].forEach(k => Object.keys(S.tomb[k]).forEach(id => { if (S.tomb[k][id] < old) delete S.tomb[k][id]; }));
+  return {v: 1, tasks: Array.from(S.tasks.values()).sort(byId), spheres: Array.from(S.spheres.values()).sort(byId), cats: Array.from(S.cats.values()).sort(byId), series: Array.from(S.series.values()).sort(byId), tomb: S.tomb};
 }
 function saveAll(push) { ls.set(DATA_KEY, snapshotData()); if (push !== false) scheduleSync(); }
 function persist(t) { stamp(t); delete S.tomb.tasks[t.id]; S.tasks.set(t.id, t); saveAll(); renderAll(); }
@@ -1309,7 +1406,7 @@ function removeTask(id) {
 /* слияние: у каждой записи своя метка updatedAt, побеждает более новая; удаления помнятся как «надгробия» */
 function mergeData(remote) {
   let changed = false;
-  ['tasks', 'spheres', 'cats'].forEach(kind => {
+  ['tasks', 'spheres', 'cats', 'series'].forEach(kind => {
     const local = S[kind], rmap = new Map((remote[kind] || []).filter(x => x && x.id).map(x => [x.id, x]));
     const rtomb = (remote.tomb && remote.tomb[kind]) || {}, ltomb = S.tomb[kind];
     const ids = new Set([...local.keys(), ...rmap.keys(), ...Object.keys(rtomb), ...Object.keys(ltomb)]);
@@ -1324,7 +1421,7 @@ function mergeData(remote) {
   if (!catOK(S.cat)) S.cat = 'proj';
   return changed;
 }
-const dataSig = d => stable({t: (d.tasks || []).slice().sort(byId), s: (d.spheres || []).slice().sort(byId), c: (d.cats || []).slice().sort(byId), x: d.tomb || {}});
+const dataSig = d => stable({t: (d.tasks || []).slice().sort(byId), s: (d.spheres || []).slice().sort(byId), c: (d.cats || []).slice().sort(byId), e: (d.series || []).slice().sort(byId), x: d.tomb || {}});
 
 async function ghFetch(cfg, path, opts) {
   opts = opts || {};
@@ -1363,8 +1460,8 @@ async function syncNow() {
     if (!cfg.gistId) { cfg.gistId = await findGist(cfg) || await createGist(cfg); ls.set(SYNC_KEY, cfg); }
     let remote;
     try { remote = await readGist(cfg); } catch (e) { if (e.status === 404) { cfg.gistId = await findGist(cfg) || await createGist(cfg); ls.set(SYNC_KEY, cfg); remote = await readGist(cfg); } else throw e; }
-    const changed = mergeData(remote);
-    if (changed) { saveAll(false); renderAll(); }
+    const changed = mergeData(remote), made = topUpSeries();
+    if (changed || made) { saveAll(false); renderAll(); }
     if (dataSig(snapshotData()) !== dataSig(remote)) await writeGist(cfg);
     S.sync = {state: 'ok', last: Date.now(), msg: ''};
   } catch (e) {
@@ -1464,15 +1561,35 @@ function spherePillsHTML(sel, act) {
   return '<button type="button" class="cat-b plain" data-act="' + act + '" data-sp="" aria-pressed="' + (!sel) + '">Без сферы</button>' +
     sphereList().map(sp => '<button type="button" class="cat-b sp s' + ((sp.hue || 0) % SPH_N) + '" data-act="' + act + '" data-sp="' + sp.id + '" aria-pressed="' + (sel === sp.id) + '"><i class="dot"></i>' + esc(sp.name) + '</button>').join('');
 }
+function minsPillsHTML(sel, act) {
+  return '<button type="button" class="cat-b plain" data-act="' + act + '" data-min="0" aria-pressed="' + (!sel) + '">Без времени</button>' +
+    MINS.map(m => '<button type="button" class="cat-b plain" data-act="' + act + '" data-min="' + m + '" aria-pressed="' + (sel === m) + '">' + minsLabel(m) + '</button>').join('');
+}
+function renderMinsRep() {
+  $('#minsPills').innerHTML = minsPillsHTML(S.mins, 'mins');
+  $('#repPills').innerHTML = [['none', 'Не повторять'], ['week', 'По дням недели'], ['every', 'Через N дней']].map(x => '<button type="button" class="cat-b plain" data-act="rep" data-k="' + x[0] + '" aria-pressed="' + (S.rep.k === x[0]) + '">' + x[1] + '</button>').join('');
+  const week = S.rep.k === 'week';
+  $('#repBox').hidden = S.rep.k === 'none'; $('#repDays').hidden = !week; $('#repEvBox').hidden = S.rep.k !== 'every';
+  $('#repDays').innerHTML = WD_SHORT.map((n, i) => '<button type="button" class="cat-b plain day" data-act="rep-day" data-d="' + i + '" aria-pressed="' + (S.rep.d.indexOf(i) >= 0) + '">' + n + '</button>').join('') + '<button type="button" class="cat-b plain addc" data-act="rep-all">Каждый день</button>';
+  const un = $('#repUntil').value;
+  $('#repFrom').textContent = 'Начиная с ' + shortDate(S.sel) + (un ? ', до ' + shortDate(un) : '') + '. Дела появятся: ' + ruleText(repRule()) + '.';
+}
+function timePickHTML(t) {
+  return '<div class="tpick"><span class="ol">Сколько минут на это дело?</span><div class="pills">' + [5, 10, 15, 25, 45, 60].map(m => '<button type="button" class="cat-b plain" data-act="time-go" data-min="' + m + '">' + minsLabel(m) + '</button>').join('') + '</div>' +
+    '<form class="tform" autocomplete="off"><input type="number" class="sel mini" min="1" max="480" inputmode="numeric" placeholder="Своё, минут" aria-label="Своё время в минутах"><button type="submit" class="pill">Начать</button></form>' +
+    '<p class="flag-hint">Время ставить не обязательно: дело можно просто отметить готовым. Чтобы время запоминалось за делом, поставь его в «⋯».</p></div>';
+}
 function renderAddForm() {
   el.cats.innerHTML = catPillsHTML(S.cat, 'cat', {add: true, del: true});
-  renderSphereSelect();
+  renderSphereSelect(); renderMinsRep();
   const sp = S.spheres.get(S.sphereSel), parts = [];
   if (S.cat !== 'proj') parts.push('<span class="' + catCls(S.cat) + '"><i class="dot"></i>' + esc(catName(S.cat)) + '</span>');
   if (sp) parts.push('<span><i class="dot" style="--c:var(--sp' + ((sp.hue || 0) % SPH_N) + ')"></i>' + esc(sp.name) + '</span>');
   if (S.star) parts.push('<span>' + ICON.star + 'Главное</span>');
   if (S.big) parts.push('<span>' + ICON.boar + 'Кабан</span>');
   if (S.rat) parts.push('<span>' + ICON.rat + 'Крыса</span>');
+  if (S.mins) parts.push('<span>' + ICON.alarm + minsLabel(S.mins) + '</span>');
+  if (S.rep.k !== 'none') parts.push('<span>' + ICON.repeat + ruleText(repRule()) + '</span>');
   const sum = $('#addSum'), ob = $('#optBtn'), box = $('#addOpts');
   box.hidden = !S.addOpts; ob.setAttribute('aria-expanded', String(S.addOpts)); ob.classList.toggle('has', parts.length > 0 && !S.addOpts);
   sum.hidden = S.addOpts || !parts.length; sum.innerHTML = parts.join('');
@@ -1513,13 +1630,16 @@ function rowHTML(t, ctx) {
     (!t.date ? '<span class="tag">без даты</span>' : '') +
     (t.big ? '<span class="tag boar" title="Большая задача, режем на стейки">' + ICON.boar + 'кабан</span>' : '') +
     (t.rat ? '<span class="tag rat" title="Мелкая и неприятная задача">' + ICON.rat + 'крыса</span>' : '') +
+    (t.mins ? '<span class="tag time" title="Время на задачу">' + ICON.alarm + minsLabel(t.mins) + '</span>' : '') +
+    (t.series ? '<span class="tag rep" title="Регулярное дело">' + ICON.repeat + esc(ruleText((S.series.get(t.series) || {}).rule)) + '</span>' : '') +
     (steps.length ? '<button type="button" class="stp" data-act="steps" aria-expanded="' + sOpen + '">стейки ' + sd + '/' + steps.length + ICON.chev + '</button>' : (t.big && !t.done ? '<button type="button" class="stp" data-act="more">+ стейки</button>' : '')) +
     (!t.date && !t.done ? '<button type="button" class="stp go" data-act="mv" data-to="' + S.sel + '">' + (S.sel === today ? 'На сегодня' : 'На ' + shortDate(S.sel)) + '</button>' : '');
   let h = '<li class="task ' + catCls(t.cat) + (t.main ? ' main' : '') + (t.done ? ' done' : '') + (S.hot === t.id ? ' hot' : '') + '" data-id="' + t.id + '">' +
     '<button type="button" class="chk" role="checkbox" aria-checked="' + !!t.done + '" aria-label="Готово: ' + esc(t.title) + '" data-act="toggle">' + ICON.check + '</button>' +
     '<div class="tb"><div class="ttl">' + (t.main ? '<span class="star" title="Главное">' + ICON.star + '</span>' : '') + esc(t.title) + (t.example ? '<span class="tag">пример</span>' : '') + '</div><div class="meta">' + chips + '</div></div>' +
-    '<div class="tr">' + (t.done ? '' : '<button type="button" class="ib play" data-act="start" aria-label="Начать на 5 минут" title="Начать · 5 мин">' + ICON.play + '</button>') +
+    '<div class="tr">' + (t.done ? '' : '<button type="button" class="ib play" data-act="time" aria-expanded="' + (S.timeFor === t.id) + '" aria-label="' + (t.mins ? 'Начать на ' + minsLabel(t.mins) : 'Выбрать время и начать') + '" title="' + (t.mins ? 'Начать · ' + minsLabel(t.mins) : 'Выбрать время и начать') + '">' + ICON.alarm + '</button>') +
     '<button type="button" class="ib" data-act="more" aria-expanded="' + open + '" aria-label="' + (open ? 'Свернуть' : 'Ещё') + '" title="Ещё">' + ICON.dots + '</button></div>';
+  if (S.timeFor === t.id && !t.done) h += timePickHTML(t);
   if (steps.length && sOpen) h += '<ul class="steps">' + steps.map((s, i) => stepHTML(t, s, i, ctx)).join('') + '</ul>';
   if (busy) h += '<div class="busy">Шагыч режет кабана на стейки…</div>';
   if (open) {
@@ -1528,11 +1648,13 @@ function rowHTML(t, ctx) {
       '<button type="button" class="pill' + (t.main ? ' on' : '') + '" data-act="main">' + ICON.star + (t.main ? 'Не главное' : 'Главное') + '</button>' +
       '<button type="button" class="pill' + (t.big ? ' on' : '') + '" data-act="bigtoggle">' + ICON.boar + (t.big ? 'Не кабан' : 'Это кабан') + '</button>' +
       '<button type="button" class="pill' + (t.rat ? ' on' : '') + '" data-act="rattoggle">' + ICON.rat + (t.rat ? 'Не крыса' : 'Это крыса') + '</button>' +
+      (t.series && S.series.has(t.series) ? '<button type="button" class="pill" data-act="series-stop">' + ICON.repeat + 'Прекратить повторы</button>' : '') +
       (t.date !== today ? '<button type="button" class="pill" data-act="mv" data-to="' + today + '">На сегодня</button>' : '') +
       (t.date !== tomorrow ? '<button type="button" class="pill" data-act="mv" data-to="' + tomorrow + '">На завтра</button>' : '') +
       (S.sel && S.sel !== today && S.sel !== tomorrow && t.date !== S.sel ? '<button type="button" class="pill" data-act="mv" data-to="' + S.sel + '">На ' + shortDate(S.sel) + '</button>' : '') +
       (t.date ? '<button type="button" class="pill" data-act="mv" data-to="">Без даты</button>' : '') +
       '<button type="button" class="pill" data-act="del">Удалить</button></div>' +
+      '<div class="og"><span class="ol">Время на задачу</span><div class="pills">' + minsPillsHTML(t.mins || 0, 'task-mins') + '</div><input type="number" class="sel mini" min="1" max="480" inputmode="numeric" data-task-mins placeholder="Своё, минут" aria-label="Своё время в минутах" value="' + (t.mins && MINS.indexOf(t.mins) < 0 ? t.mins : '') + '"></div>' +
       '<div class="og"><span class="ol">Категория</span><div class="pills">' + catPillsHTML(t.cat, 'task-cat') + '</div></div>' +
       '<div class="og"><span class="ol">Сфера</span><div class="pills">' + spherePillsHTML(t.sphere || '', 'task-sphere') + '</div></div>' +
       '<div class="og"><label class="ol" for="dt-' + ctx + '-' + t.id + '">Дата</label><input type="date" class="sel" id="dt-' + ctx + '-' + t.id + '" data-task-date value="' + esc(t.date || '') + '"></div>' +
@@ -1630,7 +1752,7 @@ function nextPose() {
   poseT = setTimeout(nextPose, 3800 + Math.random() * 3200);
 }
 function hop() { if (!el.bot) return; el.bot.classList.remove('hop'); void el.bot.getBoundingClientRect(); el.bot.classList.add('hop'); }
-const isNight = () => { const h = new Date().getHours(); return h >= 23 || h < 5; };
+const isNight = () => { const h = new Date().getHours(); return h >= 23 || h < 7; };
 
 function ctxLine() {
   const today = todayStr(), t = byDate.get(today) || [], done = t.filter(x => x.done).length, open = t.length - done, seed = parse(today).getDate() + done;
@@ -1638,7 +1760,7 @@ function ctxLine() {
   const T = S.timer;
   if (T && !T.finished) return T.phase === 'focus' ? 'Фокус, бро. Телефон в сторону, я рядом.' : 'Перерыв. Встань, попей воды, потянись.';
   if (T && T.finished) return 'Время! Получилось сдвинуться? Решай, что дальше.';
-  if (isNight()) return 'Ночь на дворе. Остальное подождёт до завтра, ну его.';
+  if (isNight()) return pick(['Хррр… Шагыч дремлет на стуле и пыхтит косяком. Дела подождут до утра, бро.', 'Тсс, он спит в дыму. До семи утра никто никуда не спешит.', 'Ночь. Шагыч на стуле, косяк тлеет. Остальное завтра, ну его.'], parse(today).getDate());
   if (overdue().length && !open) return 'Со вчера остались хвосты. Перенесём на сегодня или отпустим, без драмы.';
   if (!t.length) return pick(['На сегодня пусто. Закинь одно дело, бро, и поехали.', 'Давай выберем одно дело на сегодня. Только одно.'], seed);
   if (!open) return 'Чётко. Всё закрыто, можно выдохнуть и ловить вайб.';
@@ -1648,7 +1770,8 @@ function ctxLine() {
 function curMood() {
   const s = activeSay(); if (s && s.mood) return s.mood;
   if (S.timer) return S.timer.finished ? 'happy' : (S.timer.phase === 'focus' ? 'focus' : 'idle');
-  /* по его просьбе Шагыч не засыпает ночью: всегда живой, улыбается и меняет позы */
+  /* с 23 до 7 Шагыч спит на стуле и дымит (его просьба); днём живой, улыбается и меняет позы */
+  if (isNight()) return 'sleepy';
   const t = byDate.get(todayStr()) || [];
   if (t.length && t.every(x => x.done)) return 'happy';
   return 'idle';
@@ -1714,7 +1837,7 @@ function renderAgent() {
   const s = activeSay();
   el.say.textContent = s ? s.text : ctxLine();
   el.sayAct.innerHTML = s && s.action ? '<button type="button" class="chip go" data-act="' + s.action.act + '" data-id="' + (s.action.id || '') + '">' + esc(s.action.label) + '</button>' : '';
-  if (el.bot) el.bot.dataset.mood = curMood();
+  if (el.bot) { el.bot.dataset.mood = curMood(); if (el.bot.dataset.mood === 'sleepy') el.bot.classList.remove('smile'); }
   /* таймер живёт в окне «Синьор помидор», в углу видна только кнопка с обратным отсчётом */
   if (!S.timer) { el.aActions.innerHTML = nextHTML(); renderFocusBtn(); return; }
   el.aActions.innerHTML = timerHTML();
@@ -1757,7 +1880,7 @@ function startTimer(o) {
   else if (ph === 'long') say('Длинный перерыв ' + o.min + ' минут. Ты заслужил, прогуляйся.', {mood: 'happy', ms: 6000});
   else if (o.hunt) say('Охота на крыс началась. ' + o.min + ' минут, ловим мелкие и противные дела одно за другим.', {mood: 'focus', ms: 7000});
   else if (o.kind === 'pomo') say('Помодоро пошло. ' + o.min + ' минут' + (t ? ' на «' + t.title + '»' : '') + '. Телефон в сторону.', {mood: 'focus', ms: 6000});
-  else say(t ? 'Поехали! 5 минут на «' + t.title + '». Потом решишь, продолжать ли.' : o.min + ' минут. Просто начни, остальное потом.', {mood: 'focus', ms: 6000});
+  else say(t ? 'Поехали! ' + minsLabel(o.min) + ' на «' + t.title + '». Потом решишь, продолжать ли.' : o.min + ' минут. Просто начни, остальное потом.', {mood: 'focus', ms: 6000});
 }
 function finishTimer() {
   const T = S.timer; if (!T || T.finished) return;
@@ -1966,6 +2089,14 @@ document.addEventListener('click', e => {
     case 'task-sphere': { const sp = b.dataset.sp; edit(id, x => { if (sp) x.sphere = sp; else delete x.sphere; }); } break;
     case 'step-cat': { const si = +b.dataset.i, c = b.dataset.cat; edit(id, x => { const st = x.steps[si]; if (st) { if (c && catOK(c)) st.cat = c; else delete st.cat; } }); } break;
     case 'steps': if (S.stepsOpen.has(id)) S.stepsOpen.delete(id); else S.stepsOpen.add(id); renderAll(); break;
+    case 'time': { const cur = S.tasks.get(id); if (!cur) break; if (cur.mins) startTimer({min: cur.mins, taskId: id, kind: 'quick'}); else { S.timeFor = S.timeFor === id ? null : id; renderAll(); } } break;
+    case 'time-go': startTimer({min: +b.dataset.min, taskId: id, kind: 'quick'}); S.timeFor = null; renderAll(); break;
+    case 'mins': { S.mins = clampMins(b.dataset.min); const mc = $('#minsCustom'); if (mc) mc.value = ''; renderAddForm(); } break;
+    case 'task-mins': { const m = clampMins(b.dataset.min); edit(id, x => { if (m) x.mins = m; else delete x.mins; }); } break;
+    case 'rep': S.rep.k = b.dataset.k; renderAddForm(); break;
+    case 'rep-day': { const i = +b.dataset.d, a = S.rep.d, ix = a.indexOf(i); if (ix >= 0) { if (a.length > 1) a.splice(ix, 1); } else a.push(i); renderAddForm(); } break;
+    case 'rep-all': S.rep.d = [0, 1, 2, 3, 4, 5, 6]; renderAddForm(); break;
+    case 'series-stop': { const cur = S.tasks.get(id); if (cur && cur.series) removeSeries(cur.series); } break;
     case 'focus-open': openFocus(); break;
     case 'focus-close': closeFocus(); break;
     case 'close-modal': if (e.target === b) b.hidden = true; break;
@@ -2055,10 +2186,22 @@ document.addEventListener('submit', e => {
     const v = el.title.value.trim(); if (!v) { el.title.focus(); return; }
     const mc = (byDate.get(S.sel) || []).filter(t => t.main).length, main = S.star && mc < MAX_MAIN;
     const wasBig = S.big, wasRat = S.rat;
-    addTask({title: v.slice(0, 160), date: S.sel, cat: S.cat, main, big: wasBig, rat: wasRat, sphere: S.sphereSel || undefined});
-    el.title.value = ''; S.star = false; S.big = false; S.rat = false; renderDay();
+    const mins = clampMins(S.mins) || undefined;
+    if (S.rep.k !== 'none') {
+      const ser = addSeries({title: v.slice(0, 160), cat: S.cat, sphere: S.sphereSel || undefined, mins});
+      if (ser) { el.title.value = ''; S.star = false; S.big = false; S.rat = false; S.mins = 0; S.rep.k = 'none'; $('#minsCustom').value = ''; $('#repUntil').value = ''; renderAll(); say('Регулярное дело поставил: ' + ruleText(ser.rule) + '. Ближайшие даты уже в календаре.', {ms: 6000}); }
+      else toast('Подходящих дат не нашлось. Проверь дни и дату «до».');
+      el.title.focus(); return;
+    }
+    addTask({title: v.slice(0, 160), date: S.sel, cat: S.cat, main, big: wasBig, rat: wasRat, mins, sphere: S.sphereSel || undefined});
+    el.title.value = ''; S.star = false; S.big = false; S.rat = false; S.mins = 0; $('#minsCustom').value = ''; renderDay();
     say(wasRat ? 'Крыса в списке. Когда их станет несколько, устроим охоту.' : wasBig ? 'Кабан в списке. Открой «Ещё» и добавь стейки.' : pick(['Записал. Не хочется начинать? Поставь таймер на 5 минут.', 'Принято. Если дело большое, назови его кабаном и добавь стейки.', 'Закинул в список. Одно дело за раз, бро.'], Date.now() % 31), {ms: 6000});
     el.title.focus();
+  } else if (f.classList && f.classList.contains('tform')) {
+    e.preventDefault();
+    const inp = f.querySelector('input'), m = clampMins(inp.value), li = f.closest('li[data-id]');
+    if (!m || !li) { inp.focus(); return; }
+    startTimer({min: m, taskId: li.dataset.id, kind: 'quick'}); S.timeFor = null; renderAll();
   } else if (f.classList && f.classList.contains('stepform')) {
     e.preventDefault();
     const inp = f.querySelector('input'), v = inp.value.trim(), li = f.closest('li[data-id]');
@@ -2069,10 +2212,16 @@ document.addEventListener('submit', e => {
     const again = document.getElementById(inputId); if (again) again.focus();
   }
 });
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'minsCustom') { S.mins = clampMins(t.value); renderAddForm(); }
+  else if (t.id === 'repEvery' || t.id === 'repUntil') renderAddForm();
+});
 document.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'sphereDate') { if (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value)) { S.sDate = t.value; renderSphereDetail(); } }
   else if (t.matches && t.matches('input[data-step-date]')) { const li = t.closest('li[data-id]'); const si = +t.dataset.i; if (li && (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value))) edit(li.dataset.id, x => { const s = x.steps[si]; if (s) { if (t.value) s.date = t.value; else delete s.date; } }); }
+  else if (t.matches && t.matches('input[data-task-mins]')) { const li = t.closest('li[data-id]'); if (li) edit(li.dataset.id, x => { const m = clampMins(t.value); if (m) x.mins = m; else delete x.mins; }); }
   else if (t.matches && t.matches('input[data-task-date]')) { const li = t.closest('li[data-id]'); if (li && (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value))) edit(li.dataset.id, x => { x.date = t.value; }); }
 });
 document.addEventListener('keydown', e => {
@@ -2095,10 +2244,11 @@ addEventListener('pointermove', e => {
 /* новый день: Шагыч переодевается */
 function checkNewDay() {
   const t = todayStr(); if (t === S.day) return;
-  S.day = t; mountBot(); renderAll();
+  S.day = t; if (topUpSeries()) saveAll(); mountBot(); renderAll();
   say('Новый день, новый образ. ' + lookFor(t).line, {mood: isNight() ? null : 'happy', ms: 9000});
 }
 setInterval(checkNewDay, 60000);
+setInterval(() => { if (el.bot) { const m = curMood(); if (el.bot.dataset.mood !== m) { el.bot.dataset.mood = m; if (m === 'sleepy') el.bot.classList.remove('smile'); renderAgent(); } } }, 60000);
 
 /* ---------- запуск ---------- */
 /* без Т9: у всех текстовых полей выключены автоисправление, подсказки слов и проверка орфографии */
@@ -2125,7 +2275,7 @@ async function checkUpdate() {
 }
 function boot() {
   noT9();
-  restoreTimer(); loadAll(); renderGuide(); mountBot(); renderAll();
+  restoreTimer(); loadAll(); if (topUpSeries()) saveAll(); renderGuide(); mountBot(); renderAll();
   say('Йоу! Я Шагыч, OG пёс. ' + curLook().line, {mood: isNight() ? null : 'happy', ms: 9000});
   syncNow();
   poseT = setTimeout(nextPose, 3500); setTimeout(() => smile(2800), 1800);
