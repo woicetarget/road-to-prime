@@ -716,6 +716,9 @@ const star5 = (cx, cy, r, f, c) => { let d = ''; for (let i = 0; i < 10; i++) { 
 const spark = (cx, cy, r, f) => Pth('M' + cx + ' ' + (cy - r) + ' Q' + (cx + r * .18) + ' ' + (cy - r * .18) + ' ' + (cx + r) + ' ' + cy + ' Q' + (cx + r * .18) + ' ' + (cy + r * .18) + ' ' + cx + ' ' + (cy + r) + ' Q' + (cx - r * .18) + ' ' + (cy + r * .18) + ' ' + (cx - r) + ' ' + cy + ' Q' + (cx - r * .18) + ' ' + (cy - r * .18) + ' ' + cx + ' ' + (cy - r) + 'Z', f, 'n');
 const chain = (d, w, dash, metal) => '<path d="' + d + '" fill="none" stroke="' + INK + '" stroke-width="' + (w + 3.5) + '" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="' + metal + '" stroke-width="' + w + '" stroke-linecap="round"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/>';
 
+/* мех: короткие штрихи темнее и светлее по заданным точкам, чтобы ворс читался, а не заливка */
+const furHair = (pts, dk, lt) => pts.map((p, i) => '<path d="M' + p[0] + ' ' + p[1] + ' l' + (i % 2 ? 1.6 : -1.6) + ' ' + (4 + i % 3) + '" fill="none" stroke="' + (i % 3 === 1 ? lt : dk) + '" stroke-width="1.6" stroke-linecap="round"/>').join('');
+
 /* --- штаны --- */
 const BOTTOMS = {
   baggy: P => Pth('M50 150 H79 L80 182 H42 Z', P.pants) + Pth('M81 150 H110 L118 182 H80 Z', P.pants) + Pth('M43 173 H79', 'none', 'o2') + Pth('M81 173 H117', 'none', 'o2'),
@@ -750,6 +753,18 @@ const TOPS = {
   furcoat: {name: 'пальто с меховым воротником', sl: P => P.c1, gloves: true,
     body: P => R(42, 106, 76, 56, 22, P.c1) + Pth('M66 106 L80 134 L94 106Z', P.shirt, 'o2') + Pth('M77 117 L83 117 L85 142 L80 148 L75 142Z', P.tie, 'o2') + Ln(77.4, 127, 83.6, 123.5, P.shirt, 1.6) + Ln(77.1, 134, 84, 130.5, P.shirt, 1.6) + Pth('M60 106 L78 134 L59 142Z', light(P.c1, .12), 'o2') + Pth('M100 106 L82 134 L101 142Z', light(P.c1, .12), 'o2'),
     front: P => [[48, 113], [55, 108], [62, 106], [98, 106], [105, 108], [112, 113]].map(c => C(c[0], c[1], 8.5, P.c2)).join('') + [[51, 108], [58, 104], [102, 104], [109, 108]].map(c => C(c[0], c[1], 6.5, light(P.c2, .15))).join('')},
+  /* вторая шуба из клипа «Провод»: длинная серо-бурая, нараспашку, светлая меховая подкладка спереди, пышный воротник и манжеты */
+  foxcoat: {name: 'длинная шуба', sl: P => P.c1,
+    arm: (P, cx) => R(cx - 10.5, 139, 21, 13, 6.5, P.c2) + [-6, 0, 6].map(d => C(cx + d, 152, 5, P.c2)).join('') + R(cx - 9, 140, 18, 9, 4, P.c2, 'n') +
+      furHair([[cx - 5, 143], [cx + 3, 144], [cx - 1, 148]], dark(P.c2, .4), '#fff') +
+      furHair([[cx - 4, 120], [cx + 3, 126], [cx - 2, 132]], dark(P.c1, .4), light(P.c1, .38)),
+    body: P => Pth('M43 112 Q39 104 52 104 H108 Q121 104 117 112 L123 154 Q125 163 118 162 Q116 172 108 166 Q104 176 97 167 Q92 177 85 168 Q80 178 73 168 Q68 177 62 167 Q56 176 52 166 Q44 172 43 162 Q35 163 37 154Z', P.c1) +
+      Pth('M70 118 Q68 142 72 162 Q75 170 80 172 Q85 170 88 162 Q92 142 90 118Z', P.c2, 'o2') +
+      furHair([[75, 130], [84, 134], [78, 148], [86, 152], [80, 160]], dark(P.c2, .4), '#fff') +
+      furHair([[50, 124], [58, 138], [47, 146], [56, 156], [108, 124], [102, 138], [113, 146], [104, 156], [64, 128], [96, 130]], dark(P.c1, .4), light(P.c1, .38)),
+    front: P => [[46, 112, 10.5], [53, 105, 11], [63, 101, 11], [97, 101, 11], [107, 105, 11], [114, 112, 10.5], [70, 119, 9], [90, 119, 9], [80, 122, 9]].map(c => C(c[0], c[1], c[2], P.c2)).join('') +
+      '<path d="M50 108 Q80 96 110 108 L106 118 Q80 126 54 118Z" fill="' + P.c2 + '" class="n"/>' +
+      furHair([[44, 112], [52, 108], [60, 104], [100, 104], [108, 108], [116, 112], [74, 124], [86, 124]], dark(P.c2, .4), '#fff')},
   sweat: {name: 'свитшот', sl: P => P.c1, cuff: P => P.c2,
     body: P => R(42, 106, 76, 56, 24, P.c1) + '<path d="M64 108 Q80 121 96 108" fill="none" stroke="' + P.c2 + '" stroke-width="6" stroke-linecap="round"/>' + R(46, 151, 68, 10, 5, P.c2, 'o2') + Tx(80, 141, 22, P.c2, 'Ш')}
 };
@@ -769,6 +784,7 @@ function armSVG(side, tp, P, L) {
   if (tp.zip) s += Ln(cx, 121, cx, 146, P.metal, 2.2);
   if (tp.cuff) s += R(cx - 9.5, 144, 19, 8, 4, tp.cuff(P), 'o2');
   if (tp.fur) s += C(cx - 4, 149, 6.5, P.c1) + C(cx + 4, 149, 6.5, P.c1);
+  if (tp.arm) s += tp.arm(P, cx);
   if (!left && PROPS_HAND[L.prop]) s += PROPS_HAND[L.prop](P);
   if (tp.gloves) s += '<circle cx="' + cx + '" cy="156" r="8.5" fill="#17131A" class="o"/>' + Ln(cx - 2.6, 158, cx - 2.6, 161, '#4A4252', 1.4) + Ln(cx + 2.6, 158, cx + 2.6, 161, '#4A4252', 1.4);
   else s += '<circle cx="' + cx + '" cy="156" r="8.5" class="dog o"/>' + Ln(cx - 2.6, 158, cx - 2.6, 161, INK, 1.4) + Ln(cx + 2.6, 158, cx + 2.6, 161, INK, 1.4);
@@ -797,6 +813,32 @@ const HEADS = {
       for (let x = 38; x <= 122; x += 11) s += C(x, 52, 8, P.c3);
       s += R(36, 46, 88, 13, 6, P.c3, 'n');
       s += '<path d="M52 28 Q60 23 69 25 M92 25 Q101 23 108 29 M60 40 Q80 35 100 40 M30 70 V92 M130 70 V92" fill="none" stroke="#6A5E66" stroke-width="3" stroke-linecap="round"/>';
+      return s;
+    }},
+  /* большая меховая ушанка из второго образа клипа: пушистый купол, меховой «валик» над бровями, длинные клапаны по щекам и завязки */
+  furHat: {n: 'меховая ушанка',
+    f: P => {
+      const dk = dark(P.c3, .38), lt = light(P.c3, .32), roll = light(P.c3, .1);
+      const strap = P.strap || '#7E8794';
+      let s = '';
+      /* клапаны: цельные капли с лохматым низом, а не столбик из кружков */
+      [0, 1].forEach(k => {
+        const X = x => k ? 160 - x : x;
+        s += '<path d="M' + X(20) + ' 60 Q' + X(20) + ' 46 ' + X(33) + ' 46 Q' + X(46) + ' 46 ' + X(46) + ' 60 L' + X(46) + ' 104 Q' + X(46) + ' 124 ' + X(33) + ' 126 Q' + X(20) + ' 124 ' + X(20) + ' 104Z" fill="' + P.c3 + '" class="o"/>';
+        [[26, 124, 6.5], [34, 128, 7], [41, 123, 6]].forEach(c => { s += C(X(c[0]), c[1], c[2], P.c3); });
+        s += R(k ? 117 : 23, 70, 20, 48, 9, P.c3, 'n');
+        s += furHair([[24, 70], [30, 82], [26, 96], [36, 108], [28, 116], [39, 90], [40, 72]].map(p => [X(p[0]), p[1]]), dk, lt);
+        /* кожаная завязка с пряжкой, свисает с клапана */
+        s += R(k ? 123 : 30, 124, 7, 26, 3, strap) + R(k ? 121.5 : 28.5, 136, 10, 6, 2, P.metal, 'o2');
+      });
+      /* купол: венец из клочьев, сверху гладкая заливка без внутренних линий */
+      for (let a = 0, i = 0; a <= 180; a += 15, i++) { const r = a * Math.PI / 180, k = 1 + (i % 3) * .03; s += C(80 - 49 * k * Math.cos(r), 56 - 43 * k * Math.sin(r), 8.5 + (i % 2) * 1.4, P.c3); }
+      s += Pth('M34 58 Q31 8 80 6 Q129 8 126 58Z', P.c3, 'n');
+      /* меховой валик над бровями */
+      for (let x = 38; x <= 122; x += 9.5) s += C(x, 55, 7.5, roll);
+      s += R(36, 48, 88, 13, 6, roll, 'n');
+      s += furHair([[42, 22], [56, 14], [70, 10], [86, 11], [102, 15], [116, 24], [48, 34], [64, 28], [80, 22], [96, 28], [112, 36], [58, 44], [74, 40], [90, 42], [106, 46]], dk, lt);
+      s += '<path d="M52 22 Q64 17 76 19 M92 19 Q106 18 117 27 M44 38 Q80 31 118 40" fill="none" stroke="' + lt + '" stroke-width="2.4" stroke-linecap="round" opacity=".5"/>';
       return s;
     }},
   snapback: {n: 'кепка', f: P => Pth('M38 56 Q38 24 80 24 Q122 24 122 56 Z', P.c3) + '<ellipse cx="80" cy="55" rx="50" ry="8" fill="' + dark(P.c3, .16) + '" class="o"/>' + star5(80, 42, 6.5, P.c2)},
@@ -872,6 +914,9 @@ function bgSVG(kind, P, uid) {
     [[24, 30], [128, 24], [140, 98], [18, 122], [112, 160], [40, 172]].forEach((p, i) => { b += '<path d="M' + p[0] + ' ' + p[1] + ' l10 10 -10 22 -10 -22z" fill="' + P.bg2 + '" opacity=".5"/>' + spark(p[0] + (i % 2 ? 14 : -14), p[1] + 6, 6, '#fff'); });
   } else if (kind === 'redroom') {
     b = '<rect width="160" height="200" fill="#A3121C"/><path d="M0 0 L26 24 L26 142 L0 176Z" fill="#7C0C14"/><path d="M160 0 L134 24 L134 142 L160 176Z" fill="#7C0C14"/><path d="M0 0 H160 L134 24 H26Z" fill="#5E080F"/><rect x="26" y="24" width="108" height="118" fill="#CC1B26"/><path d="M26 142 H134 L160 176 V200 H0 V176Z" fill="#930F18"/><path d="M26 142 H134" stroke="#5A080E" stroke-width="2"/>';
+  } else if (kind === 'blackroom') {
+    /* чёрная пустота из кадров с шубой, только тёмно-красное свечение за спиной */
+    b = '<defs><radialGradient id="' + uid + 'g" cx="50%" cy="46%" r="64%"><stop offset="0" stop-color="#4C0E1B"/><stop offset=".55" stop-color="#220810"/><stop offset="1" stop-color="#0A0507"/></radialGradient></defs><rect width="160" height="200" fill="url(#' + uid + 'g)"/><ellipse cx="80" cy="188" rx="64" ry="9" fill="#fff" opacity=".06"/>';
   } else {
     b = base + '<path d="M0 160 Q40 150 80 160 T160 158 V200 H0Z" fill="#fff" opacity=".92"/>';
     [[20, 20], [50, 50], [90, 14], [130, 40], [28, 90], [140, 100], [70, 70], [112, 66], [12, 138], [150, 140]].forEach(p => { b += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (2 + (p[0] % 3)) + '" fill="#fff" opacity=".85"/>'; });
@@ -885,6 +930,10 @@ const THEMES = [
     lines: ['Красная комната, чёрный мех, холодный взгляд.', 'Провод натянут. Дело само не сделается, бро.', 'Шапка на месте, обезьяны нет, зато есть таймер.', 'Тут тихо, красно и ничего не отвлекает.'],
     pal: [{c1: '#1D2A47', c2: '#A58D78', c3: '#1B1517', pants: '#15121A', shoe: '#15111A', metal: '#D5DAE6', bg1: '#8E0E17', bg2: '#B3151F', lens: '#0B0A0C', hair: '#E2C48E', shirt: '#FFFFFF', tie: '#14111A'}],
     head: ['provodHat'], top: ['furcoat'], bottom: ['baggy'], shoes: ['dress'], neck: ['cord'], eye: ['round'], mouth: ['jointGems'], cheek: ['none'], ear: ['none'], prop: ['none'], bg: ['redroom']},
+  {id: 'provod2', name: 'Шуба из «Провода»', tag: 'Второй образ из клипа «Провод»',
+    lines: ['Мех тяжёлый, а шаг лёгкий. Один шаг, бро.', 'Очки не нужны, на задачу смотрю прямо.', 'В шубе тепло, а в деле ещё теплее.', 'Чёрный фон, один таймер, ничего лишнего.'],
+    pal: [{c1: '#8B7B69', c2: '#CFC0A6', c3: '#9A8874', strap: '#7E8794', pants: '#15121A', shoe: '#15111A', metal: '#D5DAE6', bg1: '#1C070D', bg2: '#4C0E1B', lens: '#0B0A0C', shirt: '#FFFFFF', tie: '#14111A'}],
+    head: ['furHat'], top: ['foxcoat'], bottom: ['baggy'], shoes: ['dress'], neck: ['none'], eye: ['none'], mouth: ['jointGems'], cheek: ['none'], ear: ['none'], prop: ['none'], bg: ['blackroom']},
   {id: 'platina', name: 'Пробный образ',
     lines: ['Платиновый режим. Цепь тяжёлая, задачи лёгкие.', 'Блестим только после пяти минут дела.', 'Холодный расчёт, тёплый чай, один шаг.'],
     pal: [{c1: '#F2F5FF', c2: '#8FB0FF', c3: '#EDF1FA', pants: '#7F93C0', shoe: '#FFFFFF', metal: '#E4ECF8', bg1: '#26335F', bg2: '#8FB3FF', lens: '#1B2A5C'}, {c1: '#E8EDFF', c2: '#B6A0FF', c3: '#F3F3FA', pants: '#5F6FA8', shoe: '#F5F5FF', metal: '#DCE5F4', bg1: '#2A2352', bg2: '#B9A8FF', lens: '#2B2160'}],
@@ -943,11 +992,13 @@ const PROP_N = {mic: 'микрофон', can: 'энергетик', phone: 'те
 function rng(seed) { let a = seed | 0; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const dayNum = s => { const p = s.split('-').map(Number); return Math.round((Date.UTC(p[0], p[1] - 1, p[2]) - Date.UTC(2026, 0, 1)) / 86400000); };
 function bagPerm(n, cycle, salt) { const r = rng(cycle * 9973 + salt), a = []; for (let i = 0; i < n; i++) a.push(i); for (let i = n - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-/* Пока включён один образ: «Провод» (по клипу PLOHOYPAREN). Остальные темы лежат в THEMES, включим после его одобрения. */
-const ACTIVE = THEMES.filter(t => t.id === 'provod');
+/* Включены два образа из клипа PLOHOYPAREN «Провод»: пальто с ушанкой и шуба. Остальные темы лежат в THEMES, включим после его одобрения. */
+const ACTIVE = THEMES.filter(t => t.id === 'provod' || t.id === 'provod2');
 const LOCK = {};
 const WARDROBE = ACTIVE.length > 1;
 function themeIndex(day) {
+  /* два образа чередуются строго через день (перемешивание по циклам давало один и тот же образ два дня подряд) */
+  if (ACTIVE.length === 2) return (((day + 1) % 2) + 2) % 2;
   const n = ACTIVE.length, c = Math.floor(day / n), k = ((day % n) + n) % n;
   const a = bagPerm(n, c, 101), prev = bagPerm(n, c - 1, 101);
   if (n > 1 && a[0] === prev[n - 1]) { const t = a[0]; a[0] = a[1]; a[1] = t; }
@@ -1043,7 +1094,7 @@ const el = {
 };
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-06.6';
+const APP_VERSION = '2026-11-07.1';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
