@@ -479,8 +479,8 @@ h1,h2,h3{margin:0;font-family:var(--f-head);font-weight:700;text-transform:upper
 html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 .help.sync i svg{width:15px;height:15px}
 .help.sync.off{border-color:var(--accent)}
-.modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:16px;background:rgba(5,8,16,.62)}
-.modal-card{width:100%;max-width:580px;max-height:calc(100vh - 32px);overflow:auto;padding:22px}
+.modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom,0px));background:rgba(5,8,16,.62);overscroll-behavior:contain;touch-action:none}
+.modal-card{width:100%;max-width:580px;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:22px}
 .sy-state{margin:0 0 12px;font-weight:600}
 .sy-steps{margin:0 0 14px;padding-left:22px;display:grid;gap:8px;font-size:15.5px;line-height:1.5}
 .sy-steps a{color:var(--accent-ink);font-weight:600}
@@ -767,6 +767,26 @@ html.lite.calm .bot,html.lite.calm .bot *{animation-play-state:paused!important}
 .rs-tx small{font-size:12.5px;color:var(--ink2)}
 .rs-bar{display:block;height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin:6px 0 2px}
 .rs-bar i{display:block;height:100%;background:var(--c,var(--accent))}
+.a-btns{display:flex;gap:6px;flex-wrap:wrap}
+.rs-rw{display:block;color:var(--accent-ink)!important;font-weight:600}
+.ach-r{display:block;font-size:12.5px;font-weight:700;margin-top:4px;color:var(--accent-ink)}
+.wd-pre{display:grid;gap:6px;margin-bottom:10px}
+.wtabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;scrollbar-width:thin}
+.wtab{flex:none;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:13.5px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.wtab[aria-pressed=true]{background:var(--cta);border-color:var(--cta);color:var(--on-cta)}
+.wd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.wd-card{display:grid;gap:5px;justify-items:center;align-content:start;padding:8px 6px 10px;border:2px solid var(--line);border-radius:16px;background:var(--surface);text-align:center;color:var(--ink)}
+.wd-card .bot{width:86px;height:108px;border-radius:12px;display:block}
+.wd-card b{font-size:13px;line-height:1.2}
+.wd-card small{font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:4px;justify-content:center}
+.wd-card small.on{color:var(--accent-ink);font-weight:700}
+.wd-card small svg{width:12px;height:12px}
+.wd-card.on{border-color:var(--accent);background:var(--accent-soft)}
+.wd-card.lock{opacity:.6}
+.wd-card.lock .bot{filter:grayscale(.85) brightness(.8)}
+html.modal-open,html.modal-open body{overflow:hidden}
+.wtabs{touch-action:pan-x;overscroll-behavior-x:contain}
+@media (max-width:620px){.modal{padding:10px}.modal-card{padding:16px 14px;max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px)}}
 </style>
 </head>
 <body>
@@ -838,7 +858,7 @@ html.lite.calm .bot,html.lite.calm .bot *{animation-play-state:paused!important}
             <div class="say-act" id="sayAct"></div>
           </div>
           <div class="a-foot"><div class="look" id="lookBox"></div>
-            <button type="button" class="respect-btn" id="respectBtn" data-act="respect-open" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="5.5"/><path d="M8.8 13.6L7.2 21l4.8-2.6 4.8 2.6-1.6-7.4"/></svg>Респект улиц <span class="rc" id="respectCount"></span><i class="rdot" id="respectDot" hidden></i></button></div>
+            <div class="a-btns"><button type="button" class="respect-btn" id="respectBtn" data-act="respect-open" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="5.5"/><path d="M8.8 13.6L7.2 21l4.8-2.6 4.8 2.6-1.6-7.4"/></svg>Респект улиц <span class="rc" id="respectCount"></span><i class="rdot" id="respectDot" hidden></i></button><button type="button" class="respect-btn" id="wardBtn" data-act="ward-open" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 4L3 7l2 4 2.5-1.2V20h9V9.8L19 11l2-4-5.5-3a3.6 3.6 0 01-7 0z"/></svg>Гардероб<i class="rdot" id="wardDot" hidden></i></button></div></div>
         </div>
       </div>
     </section>
@@ -917,6 +937,12 @@ html.lite.calm .bot,html.lite.calm .bot *{animation-play-state:paused!important}
   <div class="modal-card card">
     <div class="g-head"><h2 id="respectTitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="5.5"/><path d="M8.8 13.6L7.2 21l4.8-2.6 4.8 2.6-1.6-7.4"/></svg>Респект улиц</h2><button type="button" class="chip" data-act="respect-close">Закрыть</button></div>
     <div id="respectBody"></div>
+  </div>
+</div>
+<div class="modal" id="wardModal" role="dialog" aria-modal="true" aria-labelledby="wardTitle" data-act="close-modal" hidden>
+  <div class="modal-card card">
+    <div class="g-head"><h2 id="wardTitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 4L3 7l2 4 2.5-1.2V20h9V9.8L19 11l2-4-5.5-3a3.6 3.6 0 01-7 0z"/></svg>Гардероб</h2><button type="button" class="chip" data-act="ward-close">Закрыть</button></div>
+    <div id="wardBody"></div>
   </div>
 </div>
 <div class="modal" id="syncModal" data-act="close-modal" role="dialog" aria-modal="true" aria-labelledby="syncTitle" hidden>
@@ -1040,21 +1066,18 @@ const TOPS = {
     body: P => R(46, 106, 68, 54, 22, P.c1) + Tx(80, 143, 14, P.c2, 'ШАГ')},
   leather: {name: 'косуха', sl: P => P.c1, zip: true,
     body: P => R(46, 106, 68, 54, 20, P.c1) + Pth('M70 106 L80 128 L90 106Z', P.c2, 'o2') + Pth('M62 106 L76 126 L58 138Z', light(P.c1, .18), 'o2') + Pth('M98 106 L84 126 L102 138Z', light(P.c1, .18), 'o2') + Ln(78, 130, 60, 158, P.metal, 2.4) + C(58, 111, 2.2, P.metal, 'n') + C(102, 111, 2.2, P.metal, 'n')},
-  furcoat: {name: 'пальто с меховым воротником', sl: P => P.c1, gloves: true,
-    body: P => R(42, 106, 76, 56, 22, P.c1) + Pth('M66 106 L80 134 L94 106Z', P.shirt, 'o2') + Pth('M77 117 L83 117 L85 142 L80 148 L75 142Z', P.tie, 'o2') + Ln(77.4, 127, 83.6, 123.5, P.shirt, 1.6) + Ln(77.1, 134, 84, 130.5, P.shirt, 1.6) + Pth('M60 106 L78 134 L59 142Z', light(P.c1, .12), 'o2') + Pth('M100 106 L82 134 L101 142Z', light(P.c1, .12), 'o2'),
+  furcoat: {name: 'пальто с меховым воротником', sl: P => P.c1, gloves: true, neck: 'cord',
+    /* нараспашку: в треугольном вырезе видна футболка из своего слоя */
+    body: P => '<path fill-rule="evenodd" d="M64 106 H96 Q118 106 118 128 V140 Q118 162 96 162 H64 Q42 162 42 140 V128 Q42 106 64 106Z M64 106 L80 142 L96 106Z" fill="' + P.c1 + '" class="o"/>' + Pth('M60 106 L78 138 L59 144Z', light(P.c1, .12), 'o2') + Pth('M100 106 L82 138 L101 144Z', light(P.c1, .12), 'o2'),
     front: P => [[48, 113], [55, 108], [62, 106], [98, 106], [105, 108], [112, 113]].map(c => C(c[0], c[1], 8.5, P.c2)).join('') + [[51, 108], [58, 104], [102, 104], [109, 108]].map(c => C(c[0], c[1], 6.5, light(P.c2, .15))).join('')},
   /* вторая шуба из клипа «Провод»: длинная серо-бурая, нараспашку, светлая меховая подкладка спереди, пышный воротник и манжеты */
   foxcoat: {name: 'длинная шуба', sl: P => P.c1,
     arm: (P, cx) => R(cx - 10.5, 139, 21, 13, 6.5, P.c2) + [-6, 0, 6].map(d => C(cx + d, 152, 5, P.c2)).join('') + R(cx - 9, 140, 18, 9, 4, P.c2, 'n') +
       furHair([[cx - 5, 143], [cx + 3, 144], [cx - 1, 148]], dark(P.c2, .4), '#fff') +
       furHair([[cx - 4, 120], [cx + 3, 126], [cx - 2, 132]], dark(P.c1, .4), light(P.c1, .38)),
-    body: P => Pth('M43 112 Q39 104 52 104 H108 Q121 104 117 112 L123 154 Q125 163 118 162 Q116 172 108 166 Q104 176 97 167 Q92 177 85 168 Q80 178 73 168 Q68 177 62 167 Q56 176 52 166 Q44 172 43 162 Q35 163 37 154Z', P.c1) +
-      /* раскрытая шуба: внизу штаны, поверх них пояс трусов в клетку, сверху голый живот с пупком */
-      Pth('M67 150 L65 166 Q72 177 80 172 Q88 177 95 166 L93 150Z', P.pants, 'o2') +
-      R(66, 146, 28, 9, 3, '#fff', 'o2') + [0, 1, 2, 3, 4, 5].map(i => R(67 + i * 4.33, i % 2 ? 147.3 : 150.9, 4.33, 3.6, 0, '#4F86E0', 'n')).join('') +
-      '<path d="M69 118 Q65 134 67 148 H93 Q95 134 91 118Z" class="dog o2"/>' +
-      '<ellipse cx="80" cy="133" rx="8" ry="12" fill="#F6D9A8" class="n" opacity=".55"/>' +
-      '<path d="M77.5 138 Q80 141.5 82.5 138" fill="none" stroke="' + INK + '" stroke-width="1.8" stroke-linecap="round"/>' +
+    /* под шубой: штаны в просвете, затем слой футболки, сверху шуба с вырезом */
+    under: P => Pth('M66 150 L65 166 Q72 177 80 172 Q88 177 95 166 L94 150Z', P.pants, 'o2'),
+    body: P => '<path fill-rule="evenodd" d="' + 'M43 112 Q39 104 52 104 H108 Q121 104 117 112 L123 154 Q125 163 118 162 Q116 172 108 166 Q104 176 97 167 Q92 177 85 168 Q80 178 73 168 Q68 177 62 167 Q56 176 52 166 Q44 172 43 162 Q35 163 37 154Z' + ' M69 118 Q65 134 66 150 L65 166 Q72 177 80 172 Q88 177 95 166 L94 150 Q95 134 91 118Z" fill="' + P.c1 + '" class="o"/>' +
       furHair([[50, 124], [58, 138], [47, 146], [56, 156], [108, 124], [102, 138], [113, 146], [104, 156], [64, 128], [96, 130]], dark(P.c1, .4), light(P.c1, .38)),
     front: P => [[46, 112, 10.5], [53, 105, 11], [63, 101, 11], [97, 101, 11], [107, 105, 11], [114, 112, 10.5]].map(c => C(c[0], c[1], c[2], P.c2)).join('') +
       '<path d="M50 108 Q80 96 110 108 L106 114 Q80 108 54 114Z" fill="' + P.c2 + '" class="n"/>' +
@@ -1164,7 +1187,7 @@ const MOUTHS = {
     '<path d="M95 92 L97.5 99.6 M104.5 88 L107 96.8" fill="none" stroke="#6F4521" stroke-width="1.6" stroke-linecap="round"/>' +
     [[91, 97.5, '#5E7A2E'], [99, 94.2, '#7A9A3A'], [102.5, 98.6, '#5E7A2E'], [109, 90.5, '#7A9A3A'], [111.5, 94.8, '#5E7A2E'], [94.5, 99.8, '#7A9A3A']].map(f => '<circle cx="' + f[0] + '" cy="' + f[1] + '" r="1.25" fill="' + f[2] + '"/>').join('') +
     '<path d="M84 96 Q81.5 99 86 102" fill="none" stroke="' + INK + '" stroke-width="2" stroke-linecap="round"/>' +
-    '<ellipse class="b-ember o2" cx="117.3" cy="89.4" rx="3.7" ry="6.4" transform="rotate(-18 117.3 89.4)" fill="#FF6A2B"/><ellipse cx="117.6" cy="89.4" rx="1.6" ry="3.2" transform="rotate(-18 117.6 89.4)" fill="#FFD23F"/>' +
+    '<g transform="rotate(-18 117.3 89.4)"><ellipse class="b-ember o2" cx="117.3" cy="89.4" rx="3.7" ry="6.4" fill="#FF6A2B"/></g><ellipse cx="117.6" cy="89.4" rx="1.6" ry="3.2" transform="rotate(-18 117.6 89.4)" fill="#FFD23F"/>' +
     '<g class="b-smoke"><path d="M120 81 Q114 73 121 67 Q127 61 120 54" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" opacity=".8"/><path d="M125 79 Q133 71 127 63" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".55"/></g>',
   lollipop: P => Ln(88, 101, 112, 119, INK, 6.5) + Ln(88, 101, 112, 119, '#fff', 3.4) + C(116, 122, 10.5, P.c2 || '#FF6B87') + '<circle cx="116" cy="122" r="6" fill="none" stroke="#fff" stroke-width="2"/><circle cx="116" cy="122" r="1.8" fill="#fff"/>'
 };
@@ -1218,97 +1241,115 @@ function bgSVG(kind, P, uid) {
   return '<defs><clipPath id="' + uid + 'c"><rect x="1.5" y="1.5" width="157" height="197" rx="22"/></clipPath></defs><g clip-path="url(#' + uid + 'c)">' + b + '</g>';
 }
 
-/* --- 12 тем, у каждой свои наборы деталей: день за днём собираются новые сочетания --- */
-const THEMES = [
-  {id: 'provod', name: 'Провод', tag: 'Образ из клипа «Провод»',
-    lines: ['Красная комната, чёрный мех, холодный взгляд.', 'Провод натянут. Дело само не сделается, бро.', 'Шапка на месте, обезьяны нет, зато есть таймер.', 'Тут тихо, красно и ничего не отвлекает.'],
-    pal: [{c1: '#1D2A47', c2: '#A58D78', c3: '#1B1517', pants: '#15121A', shoe: '#15111A', metal: '#D5DAE6', bg1: '#8E0E17', bg2: '#B3151F', lens: '#0B0A0C', hair: '#E2C48E', shirt: '#FFFFFF', tie: '#14111A'}],
-    head: ['provodHat'], top: ['furcoat'], bottom: ['baggy'], shoes: ['dress'], neck: ['cord'], eye: ['round'], mouth: ['jointGems'], cheek: ['none'], ear: ['none'], prop: ['none'], bg: ['redroom']},
-  {id: 'provod2', name: 'Шуба из «Провода»', tag: 'Второй образ из клипа «Провод»',
-    lines: ['Мех тяжёлый, а шаг лёгкий. Один шаг, бро.', 'Очки не нужны, на задачу смотрю прямо.', 'В шубе тепло, а в деле ещё теплее.', 'Чёрный фон, один таймер, ничего лишнего.'],
-    pal: [{c1: '#8B7B69', c2: '#CFC0A6', c3: '#9A8874', strap: '#7E8794', pants: '#15121A', shoe: '#15111A', metal: '#D5DAE6', bg1: '#1C070D', bg2: '#4C0E1B', lens: '#0B0A0C', shirt: '#FFFFFF', tie: '#14111A'}],
-    head: ['furHat'], top: ['foxcoat'], bottom: ['baggy'], shoes: ['dress'], neck: ['none'], eye: ['none'], mouth: ['jointGems'], cheek: ['none'], ear: ['none'], prop: ['none'], bg: ['blackroom']},
-  {id: 'platina', name: 'Пробный образ',
-    lines: ['Платиновый режим. Цепь тяжёлая, задачи лёгкие.', 'Блестим только после пяти минут дела.', 'Холодный расчёт, тёплый чай, один шаг.'],
-    pal: [{c1: '#F2F5FF', c2: '#8FB0FF', c3: '#EDF1FA', pants: '#7F93C0', shoe: '#FFFFFF', metal: '#E4ECF8', bg1: '#26335F', bg2: '#8FB3FF', lens: '#1B2A5C'}, {c1: '#E8EDFF', c2: '#B6A0FF', c3: '#F3F3FA', pants: '#5F6FA8', shoe: '#F5F5FF', metal: '#DCE5F4', bg1: '#2A2352', bg2: '#B9A8FF', lens: '#2B2160'}],
-    head: ['spikes', 'curls', 'beanie'], top: ['fur', 'puffer', 'track'], bottom: ['baggy', 'track'], shoes: ['chunky', 'hightop'], neck: ['thickSh', 'thick', 'double'], eye: ['none', 'round', 'rect'], mouth: ['grill', 'grill', 'none'], cheek: ['none', 'star'], ear: ['hoop', 'none'], prop: ['none', 'mic', 'phone'], bg: ['diamonds', 'neon', 'snow']},
-  {id: 'badboy', name: 'Плохой парень',
-    lines: ['Плохой парень, но задачу закроет.', 'Вид серьёзный, а чупа-чупс сладкий.', 'Плохой парень делает хорошее дело.'],
-    pal: [{c1: '#2A2A3A', c2: '#FF3D63', c3: '#E02A4F', pants: '#1E1E2C', shoe: '#FF3D63', metal: '#C9CEDD', bg1: '#3A1230', bg2: '#FF3D63', lens: '#101018'}, {c1: '#3A3A4C', c2: '#FFD23F', c3: '#262634', pants: '#15151F', shoe: '#FFD23F', metal: '#FFC83D', bg1: '#1B1B2E', bg2: '#FFD23F', lens: '#101018'}],
-    head: ['bandana', 'hoodUp', 'snapback'], top: ['hoodie', 'leather', 'track'], bottom: ['baggy', 'track'], shoes: ['chunky', 'hightop'], neck: ['thin', 'thick', 'none'], eye: ['rect', 'shield', 'rect'], mouth: ['none', 'lollipop'], cheek: ['plaster', 'none', 'star'], ear: ['hoop', 'none'], prop: ['can', 'none', 'bananka'], bg: ['wall', 'neon', 'panelka']},
-  {id: 'boulevard', name: 'Ночной бульвар',
-    lines: ['Грустный вайб, но таймер включён.', 'Ночь, фонари, пять минут дела.', 'Тихий бульвар, громкий результат.'],
-    pal: [{c1: '#5A4A8F', c2: '#CDBBFF', c3: '#3B2F66', pants: '#2B2450', shoe: '#CDBBFF', metal: '#CBD2E6', bg1: '#1C1840', bg2: '#8F7BFF', lens: '#2B2450'}, {c1: '#33364F', c2: '#9BD1FF', c3: '#24263C', pants: '#1D1F33', shoe: '#9BD1FF', metal: '#D3D9EA', bg1: '#161A33', bg2: '#5CB6FF', lens: '#1D1F33'}],
-    head: ['hoodUp', 'beanie', 'durag'], top: ['hoodie', 'sweat'], bottom: ['baggy'], shoes: ['hightop', 'chunky'], neck: ['thin', 'none'], eye: ['none', 'shield'], mouth: ['none'], cheek: ['plaster', 'star', 'none'], ear: ['none', 'hoop'], prop: ['phone', 'none'], bg: ['panelka', 'neon', 'snow']},
-  {id: 'balaclava', name: 'Балаклава',
-    lines: ['Лица не видно, зато видно, что дело сделано.', 'Балаклава есть, прокрастинации нет.', 'Инкогнито, но с таймером.'],
-    pal: [{c1: '#262633', c2: '#FFFFFF', c3: '#1A1A24', pants: '#1E1E2B', shoe: '#FFFFFF', metal: '#C9CEDD', bg1: '#2D3248', bg2: '#8EA0C8', lens: '#101018'}, {c1: '#2F4B3A', c2: '#E6F5D0', c3: '#1E2E25', pants: '#243A2D', shoe: '#E6F5D0', metal: '#C9D6C6', bg1: '#233B30', bg2: '#8CC8A0', lens: '#101018'}],
-    head: ['balaclava'], top: ['track', 'puffer'], bottom: ['track', 'baggy'], shoes: ['chunky', 'hightop'], neck: ['thin', 'none'], eye: ['none', 'rect'], mouth: ['none', 'lollipop'], cheek: ['none'], ear: ['none'], prop: ['bananka', 'can'], bg: ['wall', 'panelka']},
-  {id: 'ushanka', name: 'Ушанка-дрилл',
-    lines: ['Зима близко, задачи ещё ближе.', 'Ушанка на месте, голова в деле.', 'Тапки с носками и стальной настрой.'],
-    pal: [{c1: '#6E7F95', c2: '#EFE9DE', c3: '#7A5C46', pants: '#2F3A4D', shoe: '#EFE9DE', metal: '#D8DEE9', bg1: '#33496B', bg2: '#BFD6F5', lens: '#1D2638'}, {c1: '#B84B4B', c2: '#F4EDE3', c3: '#5E4636', pants: '#35384A', shoe: '#F4EDE3', metal: '#D8DEE9', bg1: '#3A3F66', bg2: '#C5CCF5', lens: '#1D2638'}],
-    head: ['ushanka'], top: ['puffer', 'fur', 'hoodie'], bottom: ['baggy'], shoes: ['slides', 'hightop'], neck: ['thin', 'none'], eye: ['round', 'none'], mouth: ['none', 'lollipop'], cheek: ['star', 'none'], ear: ['none'], prop: ['can', 'phone', 'none'], bg: ['snow', 'panelka']},
-  {id: 'king', name: 'Король шага',
-    lines: ['Королевский шаг. Всего пять минут.', 'Корона на месте, список дел под контролем.', 'Короли тоже начинают с малого.'],
-    pal: [{c1: '#F4ECFF', c2: '#FFC83D', c3: '#FFC83D', pants: '#5B2BB8', shoe: '#FFC83D', metal: '#FFC83D', bg1: '#4B1FA8', bg2: '#B58CFF', lens: '#2A1066', gem: '#FF3D63'}, {c1: '#2B1B4D', c2: '#FFD76A', c3: '#FFD76A', pants: '#2B1B4D', shoe: '#FFD76A', metal: '#FFD76A', bg1: '#1F123F', bg2: '#C9A6FF', lens: '#2A1066', gem: '#5CE1FF'}],
-    head: ['crown'], top: ['fur', 'leather'], bottom: ['baggy', 'track'], shoes: ['chunky', 'hightop'], neck: ['double', 'thickSh'], eye: ['round', 'shield', 'none'], mouth: ['grill', 'none'], cheek: ['star', 'none'], ear: ['hoop'], prop: ['mic', 'none', 'phone'], bg: ['stage', 'diamonds']},
-  {id: 'studio', name: 'Студия',
-    lines: ['Пишем первый дубль задачи.', 'В наушниках, значит в потоке.', 'Тишина в студии, шаг записывается.'],
-    pal: [{c1: '#FF8A3D', c2: '#1F1F2B', c3: '#2A2A3A', pants: '#2A2A3A', shoe: '#FF8A3D', metal: '#C9CEDD', bg1: '#2B2B40', bg2: '#FF8A3D', lens: '#101018'}, {c1: '#6AD6FF', c2: '#1F1F2B', c3: '#23233A', pants: '#23233A', shoe: '#6AD6FF', metal: '#D8E0F0', bg1: '#1D2440', bg2: '#6AD6FF', lens: '#101018'}],
-    head: ['headphones'], top: ['hoodie', 'sweat', 'tee'], bottom: ['baggy', 'track'], shoes: ['chunky', 'hightop'], neck: ['none', 'thick', 'thin'], eye: ['none', 'rect'], mouth: ['none'], cheek: ['none', 'star'], ear: ['none'], prop: ['mic', 'none', 'phone'], bg: ['studio', 'stage']},
-  {id: 'pink', name: 'Хайп-розовый',
-    lines: ['Розовый, милый, продуктивный.', 'Хайп сегодня в том, чтобы начать.', 'Сладкий образ, дедлайны отменяются.'],
-    pal: [{c1: '#FF7EB6', c2: '#FFFFFF', c3: '#FF9ACB', pants: '#FF5AA5', shoe: '#FFFFFF', metal: '#FFE08A', bg1: '#7B2CBF', bg2: '#FF9ACB', lens: '#FF3D8F'}, {c1: '#FFB3D9', c2: '#7CF2FF', c3: '#7CF2FF', pants: '#FF7EB6', shoe: '#FFFFFF', metal: '#FFFFFF', bg1: '#5A2FA8', bg2: '#7CF2FF', lens: '#8E2FD1'}],
-    head: ['curls', 'bucket', 'snapback'], top: ['track', 'tee', 'fur'], bottom: ['baggy', 'shorts'], shoes: ['chunky'], neck: ['thickSh', 'thin'], eye: ['round', 'shield'], mouth: ['lollipop', 'none'], cheek: ['star', 'none'], ear: ['hoop', 'none'], prop: ['phone', 'none', 'mic'], bg: ['diamonds', 'stage', 'wall']},
-  {id: 'goth', name: 'Готика-лайт',
-    lines: ['Мрачный вайб, лёгкий настрой.', 'Тёмный образ, светлая голова.', 'Готика-лайт: чёрное, но с добрыми намерениями.'],
-    pal: [{c1: '#16161F', c2: '#C5CCE0', c3: '#101018', pants: '#16161F', shoe: '#C5CCE0', metal: '#C5CCE0', bg1: '#2A2140', bg2: '#8F7BFF', lens: '#101018'}, {c1: '#241725', c2: '#FF5C7C', c3: '#15101A', pants: '#1C121F', shoe: '#FF5C7C', metal: '#D8DCE8', bg1: '#2B1230', bg2: '#FF5C7C', lens: '#101018'}],
-    head: ['durag', 'hoodUp', 'bandana'], top: ['leather', 'hoodie'], bottom: ['baggy'], shoes: ['hightop', 'chunky'], neck: ['thick', 'double'], eye: ['shield', 'rect'], mouth: ['none'], cheek: ['star', 'none'], ear: ['hoop', 'none'], prop: ['none', 'can'], bg: ['neon', 'panelka']},
-  {id: 'sport', name: 'Спорт-проспект',
-    lines: ['Присел на пять минут, встал на сорок.', 'Спортивный костюм, спортивный интерес.', 'Во дворе тихо, самое время для дела.'],
-    pal: [{c1: '#2F6BFF', c2: '#FFFFFF', c3: '#E63946', pants: '#2F6BFF', shoe: '#FFFFFF', metal: '#E1E6F0', bg1: '#2D3556', bg2: '#8AA8FF', lens: '#16213E'}, {c1: '#E63946', c2: '#FFFFFF', c3: '#2F6BFF', pants: '#1E2745', shoe: '#FFFFFF', metal: '#E1E6F0', bg1: '#33305A', bg2: '#FF8A94', lens: '#16213E'}],
-    head: ['snapback', 'bucket'], top: ['track', 'jersey', 'tee'], bottom: ['track', 'shorts'], shoes: ['chunky', 'hightop'], neck: ['thin', 'none'], eye: ['rect', 'none'], mouth: ['none', 'lollipop'], cheek: ['none', 'plaster'], ear: ['none'], prop: ['bananka', 'can', 'phone'], bg: ['panelka', 'wall']},
-  {id: 'gold', name: 'Золотая цепь',
-    lines: ['Время деньги, а пять минут копейки.', 'Всё блестит, особенно выполненные дела.', 'Золото на шее, фокус в голове.'],
-    pal: [{c1: '#1F1F2B', c2: '#FFC83D', c3: '#FFC83D', pants: '#2A2A3A', shoe: '#FFC83D', metal: '#FFC83D', bg1: '#2B2438', bg2: '#FFC83D', lens: '#101018'}, {c1: '#FFF3C4', c2: '#1F1F2B', c3: '#1F1F2B', pants: '#3B3326', shoe: '#FFC83D', metal: '#FFC83D', bg1: '#3A2D1A', bg2: '#FFD76A', lens: '#2A1F0E'}],
-    head: ['bucket', 'snapback'], top: ['tee', 'leather', 'puffer'], bottom: ['baggy', 'track'], shoes: ['chunky', 'hightop'], neck: ['double', 'thickSh'], eye: ['round', 'shield'], mouth: ['grill'], cheek: ['none', 'star'], ear: ['hoop'], prop: ['phone', 'mic', 'none'], bg: ['diamonds', 'stage']},
-  {id: 'merch', name: 'Мерч-дроп',
-    lines: ['Новый дроп: список дел на сегодня.', 'Лимитированная серия, только сегодня.', 'Мерч готов, осталось сделать шаг.'],
-    pal: [{c1: '#B8F35B', c2: '#17142E', c3: '#17142E', pants: '#2A2A3A', shoe: '#B8F35B', metal: '#D8DEE9', bg1: '#2B3A2E', bg2: '#B8F35B', lens: '#101018'}, {c1: '#FFFFFF', c2: '#FF3D63', c3: '#FF3D63', pants: '#34364F', shoe: '#FF3D63', metal: '#D8DEE9', bg1: '#2D2F4A', bg2: '#FF3D63', lens: '#101018'}],
-    head: ['beanie', 'snapback', 'headphones'], top: ['tee', 'sweat', 'jersey'], bottom: ['baggy', 'shorts'], shoes: ['chunky', 'hightop'], neck: ['none', 'thin'], eye: ['none', 'round'], mouth: ['none', 'lollipop'], cheek: ['star', 'none'], ear: ['none', 'hoop'], prop: ['can', 'phone', 'none'], bg: ['wall', 'studio']}
+/* ---------- гардероб: элементы по слотам, открываются за достижения («Респект улиц») ---------- */
+const SHIRTS = {
+  bare: {bare: true, body: P => '<rect x="46" y="106" width="68" height="45" rx="20" class="dog o"/><ellipse cx="80" cy="130" rx="9" ry="13" fill="#F6D9A8" class="n" opacity=".55"/><path d="M77.5 138 Q80 141.5 82.5 138" fill="none" stroke="' + INK + '" stroke-width="1.8" stroke-linecap="round"/>' +
+    R(48, 147, 64, 9, 3, '#fff', 'o2') + Array.from({length: 14}, (_, i) => R(49 + i * 4.5, i % 2 ? 147.8 : 151.4, 4.5, 3.6, 0, '#4F86E0', 'n')).join('')},
+  white: {sl: P => P.shirt, body: P => R(46, 106, 68, 54, 22, P.shirt) + Pth('M66 106 L80 124 L94 106Z', P.shirt, 'o2') + Pth('M78 117 L82 117 L83 136 L80 141 L77 136Z', P.tie, 'o2') + Ln(78.4, 127, 81.6, 124.5, P.shirt, 1.4)},
+  tee: TOPS.tee,
+  jersey: TOPS.jersey
+};
+const SLOTS = [
+  {id: 'head', name: 'Головные уборы'}, {id: 'eyes', name: 'Очки'}, {id: 'grill', name: 'Грилзы'}, {id: 'shirt', name: 'Футболки'},
+  {id: 'outer', name: 'Верхняя одежда'}, {id: 'bottom', name: 'Штаны'}, {id: 'shoes', name: 'Ботинки'}, {id: 'bg', name: 'Фон'}
 ];
-const NECK_N = {cord: 'шнурок с кулоном', thin: 'цепочка', thick: 'толстая цепь', thickSh: 'цепь с «Ш»', double: 'две цепи и часы'};
-const EYE_N = {rect: 'тёмные очки', round: 'круглые очки', shield: 'очки-щиток'};
-const MOUTH_N = {grill: 'грилзы', jointGems: 'грилзы с камнями и косяк', joint: 'косяк', lollipop: 'чупа-чупс'};
-const PROP_N = {mic: 'микрофон', can: 'энергетик', phone: 'телефон', bananka: 'бананка'};
+/* нейтральная палитра: каждый элемент переопределяет только свои цвета, у каждого слота своя палитра */
+const BASEPAL = {c1: '#2A2A3A', c2: '#FFFFFF', c3: '#2A2A3A', pants: '#15121A', shoe: '#15111A', metal: '#D5DAE6', bg1: '#1C070D', bg2: '#4C0E1B', lens: '#101018', hair: '#E2C48E', shirt: '#FFFFFF', tie: '#14111A', strap: '#7E8794', gem: '#FF4D6D'};
+const mk = (slot, id, name, kind, pal, ach) => ({slot, id, name, kind, pal: pal || {}, ach: ach || ''});
+const ITEMS = [
+  mk('head', 'h_none', 'Без головного убора', 'none'),
+  mk('head', 'h_provod', 'Чёрная ушанка', 'provodHat', {c3: '#1B1517', hair: '#E2C48E'}),
+  mk('head', 'h_fur', 'Меховая ушанка', 'furHat', {c3: '#9A8874', strap: '#7E8794'}),
+  mk('head', 'h_snap', 'Кепка', 'snapback', {c3: '#E02A4F', c2: '#FFFFFF'}, 'first'),
+  mk('head', 'h_beanie', 'Шапка с помпоном', 'beanie', {c3: '#6AD6FF', c2: '#FFFFFF'}, 'done10'),
+  mk('head', 'h_crown', 'Корона', 'crown', {metal: '#FFC83D', gem: '#FF4D6D'}, 'boar5'),
+  mk('head', 'h_bandana', 'Бандана', 'bandana', {c3: '#FF3D63', c2: '#FFFFFF'}, 'rat5'),
+  mk('head', 'h_phones', 'Большие наушники', 'headphones', {c3: '#FF8A3D', metal: '#D5DAE6'}, 'streak3'),
+  mk('head', 'h_durag', 'Дюраг', 'durag', {c3: '#33364F'}, 'plan1'),
+  mk('head', 'h_spikes', 'Платиновый ёжик', 'spikes', {c3: '#F2F5FF'}, 'focus60'),
+  mk('head', 'h_curls', 'Кудряшки', 'curls', {c3: '#E8EDFF'}, 'sphere100'),
+  mk('head', 'h_bucket', 'Панама', 'bucket', {c3: '#FFC83D', c2: '#FFFFFF'}, 'cat1'),
+  mk('head', 'h_bala', 'Балаклава', 'balaclava', {c3: '#262633'}, 'poke10'),
+  mk('head', 'h_ushdrill', 'Ушанка-дрилл', 'ushanka', {c3: '#6E7F95', c2: '#EFE9DE'}, 'wake'),
+  mk('eyes', 'e_none', 'Без очков', 'none'),
+  mk('eyes', 'e_round', 'Круглые чёрные очки', 'round', {lens: '#0B0A0C'}),
+  mk('eyes', 'e_rect', 'Тёмные очки', 'rect', {lens: '#101018'}, 'slice'),
+  mk('eyes', 'e_shield_red', 'Красный щиток', 'shield', {lens: '#FF4D6D'}, 'rat20'),
+  mk('eyes', 'e_shield_blue', 'Голубой щиток', 'shield', {lens: '#5CB6FF'}, 'pomo4'),
+  mk('eyes', 'e_round_gold', 'Круглые, золотые линзы', 'round', {lens: '#B8861B'}, 'streak7'),
+  mk('eyes', 'e_rect_pink', 'Розовые очки', 'rect', {lens: '#FF3D8F'}, 'early'),
+  mk('grill', 'g_none', 'Без грилзов', 'none'),
+  mk('grill', 'g_gems', 'С камнями', 'gems', {metal: '#D5DAE6'}),
+  mk('grill', 'g_gold', 'Золотые', 'plain', {metal: '#FFC83D'}, 'done100'),
+  mk('grill', 'g_silver', 'Серебряные', 'plain', {metal: '#E4ECF8'}, 'clean'),
+  mk('grill', 'g_rose', 'Розовое золото', 'plain', {metal: '#F4B6A6'}, 'cat1'),
+  mk('grill', 'g_black', 'Чёрные', 'plain', {metal: '#4A4A5C'}, 'boar5'),
+  mk('grill', 'g_gems_gold', 'Золото с камнями', 'gems', {metal: '#FFC83D'}, 'streak30'),
+  mk('shirt', 's_bare', 'Без футболки', 'bare'),
+  mk('shirt', 's_white', 'Белая рубашка с галстуком', 'white', {shirt: '#FFFFFF', tie: '#14111A'}),
+  mk('shirt', 's_tee_white', 'Белая футболка «ШАГ»', 'tee', {c1: '#FFFFFF', c2: '#2A2A3A'}, 'first'),
+  mk('shirt', 's_tee_black', 'Чёрная футболка «ШАГ»', 'tee', {c1: '#1F1F2B', c2: '#FFD23F'}, 'clean'),
+  mk('shirt', 's_tee_red', 'Красная футболка «ШАГ»', 'tee', {c1: '#E63946', c2: '#FFFFFF'}, 'slice'),
+  mk('shirt', 's_tee_lime', 'Лаймовая футболка «ШАГ»', 'tee', {c1: '#B8F35B', c2: '#17142E'}, 'pomo1'),
+  mk('shirt', 's_jersey_blue', 'Синяя майка-джерси', 'jersey', {c1: '#2F6BFF', c2: '#FFFFFF'}, 'rep10'),
+  mk('shirt', 's_jersey_red', 'Красная майка-джерси', 'jersey', {c1: '#E63946', c2: '#FFFFFF'}, 'rep30'),
+  mk('outer', 'o_none', 'Без верхней одежды', 'none'),
+  mk('outer', 'o_furcoat', 'Пальто с меховым воротником', 'furcoat', {c1: '#1D2A47', c2: '#A58D78', metal: '#D5DAE6'}),
+  mk('outer', 'o_foxcoat', 'Длинная шуба', 'foxcoat', {c1: '#8B7B69', c2: '#CFC0A6', c3: '#9A8874', pants: '#15121A'}),
+  mk('outer', 'o_leather', 'Косуха', 'leather', {c1: '#262633', c2: '#C9CEDD', metal: '#D5DAE6'}, 'boar1'),
+  mk('outer', 'o_hoodie', 'Худи', 'hoodie', {c1: '#2A2A3A', c2: '#FF3D63'}, 'rat20'),
+  mk('outer', 'o_track', 'Олимпийка', 'track', {c1: '#2F6BFF', c2: '#FFFFFF'}, 'triple'),
+  mk('outer', 'o_puffer', 'Пуховый жилет', 'puffer', {c1: '#F2F5FF', c2: '#8FB0FF'}, 'done100'),
+  mk('outer', 'o_fur', 'Короткая шуба', 'fur', {c1: '#E8DDF4', c2: '#C9B8E0'}, 'sphere100'),
+  mk('outer', 'o_sweat', 'Свитшот', 'sweat', {c1: '#5A4A8F', c2: '#CDBBFF'}, 'focus60'),
+  mk('bottom', 'b_baggy', 'Чёрные штаны', 'baggy', {pants: '#15121A'}),
+  mk('bottom', 'b_baggy_blue', 'Синие штаны', 'baggy', {pants: '#3B4A7A'}, 'rep10'),
+  mk('bottom', 'b_track_blue', 'Спортивки синие', 'track', {pants: '#2F6BFF', c2: '#FFFFFF'}, 'done10'),
+  mk('bottom', 'b_track_red', 'Спортивки красные', 'track', {pants: '#E63946', c2: '#FFFFFF'}, 'triple'),
+  mk('bottom', 'b_shorts_pink', 'Розовые шорты', 'shorts', {pants: '#FF5AA5', c2: '#FFFFFF'}, 'repweek'),
+  mk('shoes', 'sh_dress', 'Чёрные туфли', 'dress'),
+  mk('shoes', 'sh_chunky_white', 'Белые кроссовки', 'chunky', {shoe: '#FFFFFF'}, 'boar1'),
+  mk('shoes', 'sh_chunky_red', 'Красные кроссовки', 'chunky', {shoe: '#FF3D63'}, 'streak3'),
+  mk('shoes', 'sh_hightop_black', 'Чёрные высокие', 'hightop', {shoe: '#2A2A3A', c2: '#FF3D63'}, 'rat5'),
+  mk('shoes', 'sh_hightop_white', 'Белые высокие', 'hightop', {shoe: '#FFFFFF', c2: '#2F6BFF'}, 'deadline'),
+  mk('shoes', 'sh_slides', 'Тапки с носками', 'slides', {shoe: '#2F6BFF', c2: '#FFFFFF'}, 'repweek'),
+  mk('bg', 'bg_red', 'Красная комната', 'redroom'),
+  mk('bg', 'bg_black', 'Чёрная пустота', 'blackroom'),
+  mk('bg', 'bg_wall', 'Стена с граффити', 'wall', {bg1: '#3A1230', bg2: '#FF3D63'}, 'pomo1'),
+  mk('bg', 'bg_neon', 'Неоновое кольцо', 'neon', {bg1: '#161A33', bg2: '#5CB6FF'}, 'rep30'),
+  mk('bg', 'bg_studio', 'Студия звукозаписи', 'studio', {bg1: '#2B2B40', bg2: '#FF8A3D'}, 'plan1'),
+  mk('bg', 'bg_panelka', 'Ночной район', 'panelka', {bg1: '#161A33', bg2: '#5CB6FF'}, 'deadline'),
+  mk('bg', 'bg_stage', 'Сцена с лучами', 'stage', {bg1: '#4B1FA8', bg2: '#B58CFF'}, 'streak7'),
+  mk('bg', 'bg_diamonds', 'Бриллианты', 'diamonds', {bg1: '#26335F', bg2: '#8FB3FF'}, 'streak30'),
+  mk('bg', 'bg_snow', 'Снег', 'snow', {bg1: '#33496B', bg2: '#BFD6F5'}, 'pomo4')
+];
+const ITEM = {}; ITEMS.forEach(i => ITEM[i.id] = i);
+/* два готовых образа из клипа «Провод»; по умолчанию они чередуются по дням, а то, что выбрано в гардеробе, поверх них остаётся */
+const PRESETS = [
+  {id: 'provod', name: 'Провод', lines: ['Красная комната, чёрный мех, холодный взгляд.', 'Провод натянут. Дело само не сделается, бро.', 'Шапка на месте, обезьяны нет, зато есть таймер.', 'Тут тихо, красно и ничего не отвлекает.'],
+    wear: {head: 'h_provod', eyes: 'e_round', grill: 'g_gems', shirt: 's_white', outer: 'o_furcoat', bottom: 'b_baggy', shoes: 'sh_dress', bg: 'bg_red'}},
+  {id: 'shuba', name: 'Шуба из «Провода»', lines: ['Мех тяжёлый, а шаг лёгкий. Один шаг, бро.', 'Очки не нужны, на задачу смотрю прямо.', 'В шубе тепло, а в деле ещё теплее.', 'Чёрный фон, один таймер, ничего лишнего.'],
+    wear: {head: 'h_fur', eyes: 'e_none', grill: 'g_gems', shirt: 's_bare', outer: 'o_foxcoat', bottom: 'b_baggy', shoes: 'sh_dress', bg: 'bg_black'}}
+];
+const itemOpen = it => !it.ach || S.ach.has(it.ach);
+const rewardsOf = id => ITEMS.filter(i => i.ach === id);
 
 /* --- детерминированный выбор образа по дате --- */
 function rng(seed) { let a = seed | 0; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const dayNum = s => { const p = s.split('-').map(Number); return Math.round((Date.UTC(p[0], p[1] - 1, p[2]) - Date.UTC(2026, 0, 1)) / 86400000); };
 function bagPerm(n, cycle, salt) { const r = rng(cycle * 9973 + salt), a = []; for (let i = 0; i < n; i++) a.push(i); for (let i = n - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-/* Включены два образа из клипа PLOHOYPAREN «Провод»: пальто с ушанкой и шуба. Остальные темы лежат в THEMES, включим после его одобрения. */
-const ACTIVE = THEMES.filter(t => t.id === 'provod' || t.id === 'provod2');
-const LOCK = {};
 function themeIndex(day) {
-  /* два образа чередуются строго через день (перемешивание по циклам давало один и тот же образ два дня подряд) */
-  if (ACTIVE.length === 2) return (((day + 1) % 2) + 2) % 2;
-  const n = ACTIVE.length, c = Math.floor(day / n), k = ((day % n) + n) % n;
-  const a = bagPerm(n, c, 101), prev = bagPerm(n, c - 1, 101);
-  if (n > 1 && a[0] === prev[n - 1]) { const t = a[0]; a[0] = a[1]; a[1] = t; }
-  return a[k];
+  /* два образа чередуются строго через день */
+  return (((day + 1) % 2) + 2) % 2;
 }
 const LOOKS = new Map();
 function lookFor(date) {
   if (LOOKS.has(date)) return LOOKS.get(date);
-  const day = dayNum(date), th = ACTIVE[themeIndex(day)], r = rng(day * 7919 + 31), pk = a => a[Math.floor(r() * a.length)];
-  const L = {theme: th, date, pal: pk(th.pal), head: pk(th.head), top: pk(th.top), bottom: pk(th.bottom), shoes: pk(th.shoes), neck: pk(th.neck), eye: pk(th.eye), mouth: pk(th.mouth), cheek: pk(th.cheek), ear: pk(th.ear), prop: pk(th.prop), bg: pk(th.bg), line: pk(th.lines)};
-  if (LOCK[th.id]) Object.assign(L, LOCK[th.id]);
-  if (L.head === 'hoodUp') L.top = 'hoodie';
+  const day = dayNum(date), pr = PRESETS[themeIndex(day)], r = rng(day * 7919 + 31), it = {};
+  SLOTS.forEach(sl => { const w = ITEM[S.wear[sl.id]]; it[sl.id] = (w && w.slot === sl.id && itemOpen(w)) ? w : ITEM[pr.wear[sl.id]]; });
+  const L = {date, preset: pr, it, line: pr.lines[Math.floor(r() * pr.lines.length)]};
   LOOKS.set(date, L);
   return L;
-}
-function lookItems(L) {
-  return [HEADS[L.head].n, TOPS[L.top].name, EYE_N[L.eye], MOUTH_N[L.mouth], NECK_N[L.neck], PROP_N[L.prop]].filter(Boolean).slice(0, 4).join(' · ');
 }
 
 /* кресло для ночного сна: спинка позади пса, подлокотники и сиденье перед ногами, видны только при mood sleepy */
@@ -1322,24 +1363,26 @@ const PUFFS = '<g class="b-puffs">' + [['-16px', '-36px', 0], ['10px', '-44px', 
 
 /* --- сборка пса --- */
 function botSVG(L, cls, uid) {
-  const P = L.pal, tp = TOPS[L.top];
-  let s = '<svg class="' + cls + (/^(grill|gems|jointGems)$/.test(L.mouth) ? ' has-grill' : '') + '" viewBox="0 0 160 200" data-mood="idle" aria-hidden="true" focusable="false">';
-  s += bgSVG(L.bg, P, uid);
+  const I = L.it, pal = k => Object.assign({}, BASEPAL, I[k].pal);
+  const Ph = pal('head'), Pe = pal('eyes'), Pg = pal('grill'), Psh = pal('shirt'), Po = pal('outer'), Pb = pal('bottom'), Ps = pal('shoes'), Pbg = pal('bg');
+  const outer = I.outer.kind === 'none' ? null : TOPS[I.outer.kind], shirt = SHIRTS[I.shirt.kind], head = HEADS[I.head.kind];
+  let s = '<svg class="' + cls + '" viewBox="0 0 160 200" data-mood="idle" aria-hidden="true" focusable="false">';
+  s += bgSVG(I.bg.kind, Pbg, uid);
   s += '<ellipse cx="80" cy="195" rx="38" ry="4.5" class="b-shadow"/>';
   s += '<g class="b-float">';
   s += CHAIR_BACK;
   /* хвост виляет за туловищем */
   s += '<g class="b-tail"><path d="M110 152 Q142 150 138 116" fill="none" stroke="' + INK + '" stroke-width="13" stroke-linecap="round"/><path d="M110 152 Q142 150 138 116" fill="none" stroke="var(--dog)" stroke-width="7.5" stroke-linecap="round"/></g>';
-  /* уши */
-  s += BOTTOMS[L.bottom](P) + SHOES[L.shoes](P);
-  s += tp.body(P);
-  if (tp.back) s += tp.back(P);
-  if (tp.front && L.head !== 'hoodUp') s += tp.front(P);
-  if (BAGS[L.prop]) s += BAGS[L.prop](P);
-  if (HEADS[L.head].back) s += HEADS[L.head].back(P);
+  /* слои: штаны и ботинки, потом футболка, поверх неё верхняя одежда */
+  s += BOTTOMS[I.bottom.kind](Pb) + SHOES[I.shoes.kind](Ps);
+  if (outer && outer.under) s += outer.under(Pb);
+  s += shirt.body(Psh);
+  if (outer) { s += outer.body(Po); if (outer.back) s += outer.back(Po); if (outer.front) s += outer.front(Po); }
+  if (head.back) s += head.back(Ph);
   s += CHAIR_FRONT;
-  s += armSVG('l', tp, P, L) + armSVG('r', tp, P, L);
-  s += NECKS[L.neck](P);
+  const tp = outer || shirt, Pt = outer ? Po : Psh;
+  s += armSVG('l', tp, Pt, L) + armSVG('r', tp, Pt, L);
+  if (outer && outer.neck) s += NECKS[outer.neck](Po);
   /* голова */
   s += '<g class="b-head">';
   s += '<ellipse cx="80" cy="76" rx="46" ry="42" class="dog o"/>';
@@ -1363,13 +1406,13 @@ function botSVG(L, cls, uid) {
     '<g class="b-mouth m-o"><path d="M80 89 V93"/><circle cx="80" cy="98" r="3"/></g>' +
     '<path class="b-mouth m-wavy" d="M80 89 V93 M70 98 q5 -4 10 0 t10 0"/>' +
     '</g>';
-  const grillish = /^(grill|gems|jointGems)$/.test(L.mouth), mouthSVG = MOUTHS[L.mouth](P);
-  s += EYES[L.eye](P) + (grillish ? '<g class="b-grill">' + mouthSVG + '</g>' : mouthSVG) + CHEEKS[L.cheek](P) + EARS[L.ear](P);
-  s += HEADS[L.head].f(P);
+  const gk = I.grill.kind, grillSVG = gk === 'plain' ? MOUTHS.grill(Pg) : gk === 'gems' ? MOUTHS.gems(Pg) : '';
+  s += EYES[I.eyes.kind](Pe) + (grillSVG ? '<g class="b-grill">' + grillSVG + '</g>' : '');
+  s += head.f(Ph);
   /* стоячие уши овчарки: заливка без нижней обводки, чтобы стояли «из головы» */
   s += '<g class="dg-ear dg-ear-l"><path d="M44 56 L33 4 L74 38Z" class="dog n"/><path d="M45 52 L38 20 L64 40Z" fill="#4A2F24" class="n"/><path d="M45 54 L33 4 L74 38" fill="none" class="o"/></g>' +
        '<g class="dg-ear dg-ear-r"><path d="M116 56 L127 4 L86 38Z" class="dog n"/><path d="M115 52 L122 20 L96 40Z" fill="#4A2F24" class="n"/><path d="M115 54 L127 4 L86 38" fill="none" class="o"/></g>';
-  if (MOUTH_FRONT[L.mouth]) s += MOUTH_FRONT[L.mouth](P);
+  s += MOUTHS.joint(Pg) + PUFFS;
   s += '</g></g>';
   s += '<g class="b-spark">' + spark(22, 46, 8, '#fff') + spark(140, 34, 6, '#FFD84D') + spark(136, 66, 5, '#fff') + '</g>';
   s += '<g class="b-zs"><text x="128" y="40">z</text><text x="141" y="26">z</text></g>';
@@ -1384,7 +1427,7 @@ const S = {
   view: {y: now0.getFullYear(), m: now0.getMonth()}, sel: todayStr(), day: todayStr(),
   cat: ls.get(KEYS.cat, 'proj'), star: false, big: false, rat: false,
   open: null, hot: null, busy: null, skip: 0,
-  timer: null, say: null, ach: new Map(), series: new Map(), rep: {k: 'none', d: [0, 2, 4], dates: []}, mins: 0, timeFor: null, cats: new Map(), stepsOpen: new Set(), addOpts: false, spheres: new Map(), sphCol: null, tab: 'cal', selSphere: null, sphereSel: ls.get(KEYS.sphere, ''), guide: ls.get(KEYS.guide, true) !== false
+  timer: null, say: null, wear: {}, wearAt: 0, wTab: 'head', ach: new Map(), series: new Map(), rep: {k: 'none', d: [0, 2, 4], dates: []}, mins: 0, timeFor: null, cats: new Map(), stepsOpen: new Set(), addOpts: false, spheres: new Map(), sphCol: null, tab: 'cal', selSphere: null, sphereSel: ls.get(KEYS.sphere, ''), guide: ls.get(KEYS.guide, true) !== false
 };
 /* категории: четыре базовые и свои (хранятся в данных и синхронизируются). Неизвестная, например удалённая «Поиск работы», показывается как «Проекты» */
 const customCats = () => Array.from(S.cats.values()).sort((a, b) => (a.created || 0) - (b.created || 0));
@@ -1480,7 +1523,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.8';
+const APP_VERSION = '2026-11-07.9';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -1500,6 +1543,7 @@ function loadAll() {
   S.cats = new Map((d.cats || []).filter(x => x && x.id).map(x => [x.id, x]));
   S.series = new Map((d.series || []).filter(x => x && x.id).map(x => [x.id, x]));
   S.ach = new Map((d.ach || []).filter(x => x && x.id).map(x => [x.id, x]));
+  S.wear = Object.assign({}, d.wear || {}); S.wearAt = S.wear.updatedAt || 0; delete S.wear.updatedAt; LOOKS.clear();
   S.tomb = {tasks: (d.tomb && d.tomb.tasks) || {}, spheres: (d.tomb && d.tomb.spheres) || {}, cats: (d.tomb && d.tomb.cats) || {}, series: (d.tomb && d.tomb.series) || {}, ach: (d.tomb && d.tomb.ach) || {}};
   if (!catOK(S.cat)) S.cat = 'proj';
   if (!catOK(S.sCat)) S.sCat = S.cat;
@@ -1508,7 +1552,7 @@ function loadAll() {
 function snapshotData() {
   const old = Date.now() - 90 * 86400000;
   ['tasks', 'spheres', 'cats', 'series', 'ach'].forEach(k => Object.keys(S.tomb[k]).forEach(id => { if (S.tomb[k][id] < old) delete S.tomb[k][id]; }));
-  return {v: 1, tasks: Array.from(S.tasks.values()).sort(byId), spheres: Array.from(S.spheres.values()).sort(byId), cats: Array.from(S.cats.values()).sort(byId), series: Array.from(S.series.values()).sort(byId), ach: Array.from(S.ach.values()).sort(byId), tomb: S.tomb};
+  return {v: 1, tasks: Array.from(S.tasks.values()).sort(byId), spheres: Array.from(S.spheres.values()).sort(byId), cats: Array.from(S.cats.values()).sort(byId), series: Array.from(S.series.values()).sort(byId), ach: Array.from(S.ach.values()).sort(byId), wear: S.wearAt ? Object.assign({}, S.wear, {updatedAt: S.wearAt}) : undefined, tomb: S.tomb};
 }
 let saveT = 0;
 function flushSave() { if (!saveT) return; clearTimeout(saveT); saveT = 0; ls.set(DATA_KEY, snapshotData()); }
@@ -1543,10 +1587,11 @@ function mergeData(remote) {
       else if (ru > lu) { local.set(id, r); delete ltomb[id]; changed = true; }
     });
   });
+  const rw = remote.wear; if (rw && (rw.updatedAt || 0) > S.wearAt) { S.wear = Object.assign({}, rw); delete S.wear.updatedAt; S.wearAt = rw.updatedAt; LOOKS.clear(); changed = true; }
   if (!catOK(S.cat)) S.cat = 'proj';
   return changed;
 }
-const dataSig = d => stable({t: (d.tasks || []).slice().sort(byId), s: (d.spheres || []).slice().sort(byId), c: (d.cats || []).slice().sort(byId), e: (d.series || []).slice().sort(byId), a: (d.ach || []).slice().sort(byId), x: d.tomb || {}});
+const dataSig = d => stable({t: (d.tasks || []).slice().sort(byId), s: (d.spheres || []).slice().sort(byId), c: (d.cats || []).slice().sort(byId), e: (d.series || []).slice().sort(byId), a: (d.ach || []).slice().sort(byId), w: d.wear || null, x: d.tomb || {}});
 
 async function ghFetch(cfg, path, opts) {
   opts = opts || {};
@@ -1586,7 +1631,7 @@ async function syncNow() {
     let remote;
     try { remote = await readGist(cfg); } catch (e) { if (e.status === 404) { cfg.gistId = await findGist(cfg) || await createGist(cfg); ls.set(SYNC_KEY, cfg); remote = await readGist(cfg); } else throw e; }
     const changed = mergeData(remote), made = topUpSeries();
-    if (changed || made) { checkAch(false); saveAll(false); renderAll(); }
+    if (changed || made) { checkAch(false); saveAll(false); renderAll(); mountBot(); }
     if (dataSig(snapshotData()) !== dataSig(remote)) await writeGist(cfg);
     S.sync = {state: 'ok', last: Date.now(), msg: ''};
   } catch (e) {
@@ -2243,6 +2288,7 @@ const ACH = [
   {id: 'poke10', g: 6, secret: true, col: 'a-secret', ic: 'spark', t: 'Щекотка', d: 'Потрогать Шагыча десять раз подряд', line: 'Хватит, щекотно! Ладно, это было смешно.', event: true},
   {id: 'wake', g: 6, secret: true, col: 'a-secret', ic: 'spark', t: 'Разбудил Шагыча', d: 'Потрогать Шагыча, пока он спит на стуле', line: 'Мм? Я не спал, я думал. С дымом.', event: true},
   {id: 'early', g: 6, secret: true, col: 'a-secret', ic: 'flame', t: 'Утренняя птица', d: 'Закрыть дело до девяти утра', line: 'Рань, а дело уже сделано. Жаворонок!', test: a => a.early},
+  {id: 'wear5', g: 6, secret: true, col: 'a-secret', ic: 'spark', t: 'Модник', d: 'Сменить вещи в гардеробе пять раз', line: 'Свэг на максимум. Сегодня я в тренде, бро.', event: true},
   {id: 'burst5', g: 6, secret: true, col: 'a-secret', ic: 'flame', t: 'Одним махом', d: 'Закрыть пять дел за один час', line: 'Пять дел за час! Не руки, а вентилятор.', test: a => a.burst}
 ];
 const ACH_BY = {}; ACH.forEach(d => ACH_BY[d.id] = d);
@@ -2283,14 +2329,14 @@ function checkAch(loud) {
     const ok = def.test ? def.test(a) : (def.goal && def.cur(a) >= def.goal);
     if (ok) { n++; unlockAch(def.id, loud, true); }
   });
-  if (n) { saveAll(); renderRespect(); }
+  if (n) { saveAll(); renderRespect(); wearDot(); }
   /* первый запуск с уже сделанными делами: без салюта, просто тихо открываем и один раз говорим об этом */
   if (!loud && wasEmpty && n && !ls.get('rtp.ach.intro', false)) { ls.set('rtp.ach.intro', true); ls.set(SEEN_KEY, Array.from(S.ach.keys())); renderRespect(); setTimeout(() => toast('Респект улиц: уже открыто ' + n + ', смотри рядом с Шагычем', 'Смотреть', openRespect), 1200); }
 }
 function unlockAch(id, loud, batch) {
   const def = ACH_BY[id]; if (!def || S.ach.has(id)) return;
   const rec = {id, at: Date.now()}; stamp(rec); S.ach.set(id, rec);
-  if (!batch) { saveAll(); renderRespect(); }
+  if (!batch) { saveAll(); renderRespect(); wearDot(); }
   if (loud) queueAch(def);
 }
 let achQ = [], achShowing = false, achHide = 0;
@@ -2301,7 +2347,7 @@ function nextAch() {
   const b = $('#achBanner');
   const cf = Array.from({length: 16}, (_, i) => '<i class="cf" style="--x:' + Math.round(Math.cos(i / 16 * 6.283) * (90 + (i % 3) * 40)) + 'px;--y:' + Math.round(Math.sin(i / 16 * 6.283) * 60 - 20) + 'px;--r:' + (i * 53 % 360) + 'deg;--c:var(--cf' + (i % 5) + ')"></i>').join('');
   b.innerHTML = '<div class="ach-conf" aria-hidden="true">' + cf + '</div><div class="ach-dog" aria-hidden="true">' + botSVG(curLook(), 'bot mini', 'ab') + '</div>' +
-    '<div class="ach-tx"><span class="ach-k">Респект улиц' + (def.secret ? ' · секретная' : '') + '</span><b>' + def.t + '</b><span class="ach-d">' + def.d + '</span><i class="ach-line">«' + def.line + '»</i></div>' +
+    '<div class="ach-tx"><span class="ach-k">Респект улиц' + (def.secret ? ' · секретная' : '') + '</span><b>' + def.t + '</b><span class="ach-d">' + def.d + '</span><i class="ach-line">«' + def.line + '»</i>' + (rewardsOf(def.id).length ? '<span class="ach-r">В гардеробе новое: ' + rewardsOf(def.id).map(i => esc(i.name)).join(', ') + '</span>' : '') + '</div>' +
     '<span class="ach-badge ' + def.col + '">' + BADGE[def.ic] + '</span>';
   const sv = b.querySelector('svg'); if (sv) sv.dataset.mood = 'happy';
   b.hidden = false; b.classList.remove('in'); void b.offsetWidth; b.classList.add('in');
@@ -2322,14 +2368,52 @@ function renderRespect() {
     h += '<div class="rs-g">' + g + '</div><div class="rs-grid">' + list.map(d => {
       const has = S.ach.get(d.id), hide = d.secret && !has;
       const cur = d.cur ? Math.min(d.cur(a), d.goal) : 0;
-      const tail = has ? '<small>' + shortDate(ymd(new Date(has.at))) + (d.secret ? ', секретная' : '') + '</small>' : hide ? '' : (d.goal > 1 ? '<span class="rs-bar"><i style="width:' + Math.round(cur / d.goal * 100) + '%"></i></span><small>' + cur + ' из ' + d.goal + '</small>' : '');
+      const rw = rewardsOf(d.id), rtx = (!hide && rw.length) ? '<small class="rs-rw">Награда: ' + rw.map(i => esc(i.name)).join(', ') + '</small>' : '';
+      const tail = rtx + (has ? '<small>' + shortDate(ymd(new Date(has.at))) + (d.secret ? ', секретная' : '') + '</small>' : hide ? '' : (d.goal > 1 ? '<span class="rs-bar"><i style="width:' + Math.round(cur / d.goal * 100) + '%"></i></span><small>' + cur + ' из ' + d.goal + '</small>' : ''));
       return '<div class="rs-card ' + (hide ? 'a-secret' : d.col) + (has ? ' got' : ' lock') + '"><span class="rs-badge">' + (hide ? ICON.lock : BADGE[d.ic]) + '</span><div class="rs-tx"><b>' + (hide ? 'Секретная' : d.t) + '</b><span>' + (hide ? 'Откроется сама, подсказки нет' : d.d) + '</span>' + tail + '</div></div>';
     }).join('') + '</div>';
   });
   $('#respectBody').innerHTML = h;
 }
-function openRespect() { ls.set(SEEN_KEY, Array.from(S.ach.keys())); const m = $('#respectModal'); m.hidden = false; closeFocus(); renderRespect(); }
+function openRespect() { ls.set(SEEN_KEY, Array.from(S.ach.keys())); const m = $('#respectModal'); m.hidden = false; closeFocus(); closeWardrobe(); renderRespect(); }
 function closeRespect() { const m = $('#respectModal'); if (m.hidden) return; m.hidden = true; renderRespect(); }
+
+/* ---------- гардероб: окно, примерка и надевание ---------- */
+const WSEEN = 'rtp.wear.seen';
+function lookWith(id) {
+  const L = lookFor(todayStr()), it = ITEM[id], L2 = Object.assign({}, L, {it: Object.assign({}, L.it)});
+  L2.it[it.slot] = it; return L2;
+}
+function wearDot() {
+  const seen = ls.get(WSEEN, null), dot = $('#wardDot'); if (!dot) return;
+  if (seen === null) { ls.set(WSEEN, ITEMS.filter(i => itemOpen(i)).map(i => i.id)); dot.hidden = true; return; }
+  dot.hidden = !ITEMS.some(i => itemOpen(i) && seen.indexOf(i.id) < 0);
+}
+function renderWardrobe() {
+  wearDot();
+  const m = $('#wardModal'); if (!m || m.hidden) return;
+  const L = lookFor(todayStr()), sl = S.wTab;
+  let h = '<div class="wd-pre"><span class="ol">Готовые образы</span><div class="pills">' + PRESETS.map(p => '<button type="button" class="cat-b plain" data-act="w-preset" data-id="' + p.id + '">' + esc(p.name) + '</button>').join('') + '<button type="button" class="cat-b plain addc" data-act="w-reset">Образ дня</button></div></div>';
+  h += '<div class="wtabs" role="tablist">' + SLOTS.map(x => '<button type="button" class="wtab" role="tab" data-act="w-tab" data-slot="' + x.id + '" aria-pressed="' + (x.id === sl) + '">' + x.name + '</button>').join('') + '</div>';
+  h += '<div class="wd-grid">' + ITEMS.filter(i => i.slot === sl).map((it, n) => {
+    const open = itemOpen(it), on = L.it[sl] === it;
+    let svg = botSVG(lookWith(it.id), 'bot mini', 'wv' + n);
+    if (sl === 'grill') svg = svg.replace('data-mood="idle"', 'data-mood="happy"');
+    const a = it.ach && ACH_BY[it.ach], tail = on ? '<small class="on">Надето</small>' : open ? '<small>Надеть</small>' : '<small class="lk">' + ICON.lock + (a && a.secret ? 'Секретная ачивка' : 'Откроется: ' + (a ? a.t : '')) + '</small>';
+    return '<button type="button" class="wd-card' + (on ? ' on' : '') + (open ? '' : ' lock') + '" data-act="w-equip" data-id="' + it.id + '" aria-pressed="' + on + '"' + (open ? '' : ' aria-disabled="true"') + '>' + svg + '<b>' + esc(it.name) + '</b>' + tail + '</button>';
+  }).join('') + '</div>';
+  $('#wardBody').innerHTML = h;
+}
+function openWardrobe() { closeFocus(); closeRespect(); const m = $('#wardModal'); m.hidden = false; ls.set(WSEEN, ITEMS.filter(i => itemOpen(i)).map(i => i.id)); renderWardrobe(); }
+function closeWardrobe() { const m = $('#wardModal'); if (m.hidden) return; m.hidden = true; renderWardrobe(); }
+function wearChanged() { LOOKS.clear(); S.wearAt = Date.now(); saveAll(); mountBot(); renderWardrobe(); hop(); }
+function equipItem(id) {
+  const it = ITEM[id]; if (!it) return;
+  if (!itemOpen(it)) { const a = ACH_BY[it.ach]; toast(a && a.secret ? 'Эта вещь открывается секретной ачивкой' : 'Откроется за ачивку «' + (a ? a.t : '') + '»'); return; }
+  S.wear[it.slot] = id;
+  const n = (ls.get('rtp.wear.n', 0) || 0) + 1; ls.set('rtp.wear.n', n); if (n >= 5) unlockAch('wear5', true);
+  wearChanged();
+}
 
 /* ---------- события ---------- */
 document.addEventListener('click', e => {
@@ -2397,6 +2481,12 @@ document.addEventListener('click', e => {
     case 'rep-day': { const i = +b.dataset.d, a = S.rep.d, ix = a.indexOf(i); if (ix >= 0) { if (a.length > 1) a.splice(ix, 1); } else a.push(i); renderAddForm(); } break;
     case 'rep-all': S.rep.d = [0, 1, 2, 3, 4, 5, 6]; renderAddForm(); break;
     case 'series-stop': { const cur = S.tasks.get(id); if (cur && cur.series) removeSeries(cur.series); } break;
+    case 'ward-open': openWardrobe(); break;
+    case 'ward-close': closeWardrobe(); break;
+    case 'w-tab': S.wTab = b.dataset.slot; renderWardrobe(); break;
+    case 'w-equip': equipItem(b.dataset.id); break;
+    case 'w-preset': { const pr = PRESETS.find(x => x.id === b.dataset.id); if (pr) { S.wear = Object.assign({}, pr.wear); wearChanged(); } } break;
+    case 'w-reset': S.wear = {}; wearChanged(); break;
     case 'respect-open': openRespect(); break;
     case 'respect-close': closeRespect(); break;
     case 'ach-open': hideAch(); openRespect(); break;
@@ -2534,7 +2624,7 @@ document.addEventListener('change', e => {
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target && e.target.id === 'repDateAdd') { e.preventDefault(); const b = document.querySelector('[data-act=rep-date-add]'); if (b) b.click(); return; }
   if (e.key === 'Enter' && e.target && e.target.id === 'newCat') { e.preventDefault(); const b = document.querySelector('[data-act=cat-create]'); if (b) b.click(); return; }
-  if (e.key === 'Escape') { const r = $('#respectModal'); if (r && !r.hidden) { closeRespect(); return; } const f = $('#focusModal'); if (f && !f.hidden) { closeFocus(); return; } const m = document.getElementById('syncModal'); if (m && !m.hidden) { m.hidden = true; return; } if (S.open) { S.open = null; renderAll(); } }
+  if (e.key === 'Escape') { const w = $('#wardModal'); if (w && !w.hidden) { closeWardrobe(); return; } const r = $('#respectModal'); if (r && !r.hidden) { closeRespect(); return; } const f = $('#focusModal'); if (f && !f.hidden) { closeFocus(); return; } const m = document.getElementById('syncModal'); if (m && !m.hidden) { m.hidden = true; return; } if (S.open) { S.open = null; renderAll(); } }
 });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkNewDay(); syncNow(); checkUpdate(); if (S.timer && !S.timer.paused && !S.timer.finished) { ensureTick(); tick(); } renderAll(); } });
 
@@ -2550,6 +2640,11 @@ function burst(cls, ms) {
 }
 (function loopBlink() { setTimeout(() => { if (isLite() && el.bot && el.bot.dataset.mood !== 'sleepy') burst('bl', 320); loopBlink(); }, 3000 + Math.random() * 3500); })();
 (function loopEars() { setTimeout(() => { if (isLite() && el.bot && el.bot.dataset.mood === 'idle') burst('ew', 650); loopEars(); }, 6000 + Math.random() * 6000); })();
+/* когда открыто любое окно, страница позади не прокручивается (на iPhone иначе листается фон) */
+(function () {
+  const ms = Array.from(document.querySelectorAll('.modal')), sync = () => document.documentElement.classList.toggle('modal-open', ms.some(m => !m.hidden));
+  const mo = new MutationObserver(sync); ms.forEach(m => mo.observe(m, {attributes: true, attributeFilter: ['hidden']})); sync();
+})();
 let calmT = 0, calmOn = false;
 function calm() { if (!isLite()) return; if (!calmOn) { calmOn = true; document.documentElement.classList.add('calm'); } clearTimeout(calmT); calmT = setTimeout(() => { calmOn = false; document.documentElement.classList.remove('calm'); }, 650); }
 ['pointerdown', 'touchstart', 'keydown', 'scroll'].forEach(ev => addEventListener(ev, calm, {passive: true, capture: true}));
@@ -2598,7 +2693,7 @@ async function checkUpdate() {
 }
 function boot() {
   noT9();
-  restoreTimer(); loadAll(); if (topUpSeries()) saveAll(); checkAch(false); renderGuide(); mountBot(); renderAll(); renderRespect();
+  restoreTimer(); loadAll(); if (topUpSeries()) saveAll(); checkAch(false); renderGuide(); mountBot(); renderAll(); renderRespect(); wearDot();
   say('Йоу! Я Шагыч, OG пёс. ' + curLook().line, {mood: isNight() ? null : 'happy', ms: 9000});
   syncNow();
   poseT = setTimeout(nextPose, 3500); setTimeout(() => smile(2800), 1800);
