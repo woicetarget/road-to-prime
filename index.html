@@ -1245,8 +1245,8 @@ function bgSVG(kind, P, uid) {
 const SI_PATCH = (cx, cy, k) => '<g transform="translate(' + cx + ' ' + cy + ') scale(' + (k || 1) + ')"><rect x="-8" y="-6.5" width="16" height="13" rx="2" fill="#0F0F10" stroke="#C9CCD1" stroke-width="1.2"/><path d="M0 -4.6 L1.5 0 L0 4.6 L-1.5 0Z M-4.6 0 L0 1.5 L4.6 0 L0 -1.5Z" fill="#fff"/><circle r="1.1" fill="#0F0F10"/></g>';
 const CP_LENS = (cx, cy, r, c) => C(cx, cy, r + 2.6, '#1A1A1C') + C(cx, cy, r, c, 'n') + '<path d="M' + (cx - r * .6) + ' ' + (cy - r * .55) + ' Q' + (cx - r * .1) + ' ' + (cy - r * 1.05) + ' ' + (cx + r * .55) + ' ' + (cy - r * .7) + '" fill="none" stroke="#fff" stroke-width="' + Math.max(1.4, r * .26) + '" stroke-linecap="round" opacity=".75"/>';
 HEADS.goggleHood = {n: 'худи с гогглами CP Company', f: P => '<path fill-rule="evenodd" d="M26 82 Q26 22 80 22 Q134 22 134 82 L134 112 Q134 130 112 130 L48 130 Q26 130 26 112 Z M40 54 Q40 46 52 46 L108 46 Q120 46 120 54 L120 108 Q120 116 108 116 L52 116 Q40 116 40 108 Z" fill="' + P.c1 + '" class="o"/>' +
-  R(40, 41, 80, 9, 4, dark(P.c1, .38), 'o2') + CP_LENS(80, 46, 8.2, P.lens) + Ln(60, 126, 58, 142, light(P.c1, .2), 2.4) + C(58, 144, 2.4, light(P.c1, .2), 'n')};
-HEADS.cpCap = {n: 'кепка CP Company', f: P => Pth('M38 56 Q38 24 80 24 Q122 24 122 56 Z', P.c3) + '<ellipse cx="80" cy="55" rx="50" ry="8" fill="' + dark(P.c3, .2) + '" class="o"/>' + CP_LENS(80, 40, 6.6, P.lens)};
+  EYES.goggles(P) + Ln(60, 126, 58, 142, light(P.c1, .2), 2.4) + C(58, 144, 2.4, light(P.c1, .2), 'n')};
+HEADS.cpCap = {n: 'кепка с гогглами CP Company', f: P => Pth('M38 56 Q38 24 80 24 Q122 24 122 56 Z', P.c3) + '<ellipse cx="80" cy="55" rx="50" ry="8" fill="' + dark(P.c3, .2) + '" class="o"/>' + EYES.goggles(P)};
 HEADS.siBeanie = {n: 'шапка Stone Island', f: P => HEADS.beanie.f(P) + SI_PATCH(101, 48, 1)};
 HEADS.siBucket = {n: 'панама Stone Island', f: P => HEADS.bucket.f(P) + SI_PATCH(80, 36, 1.15)};
 EYES.goggles = P => Ln(48, 66, 35, 62, '#1A1A1C', 3.4) + Ln(112, 66, 125, 62, '#1A1A1C', 3.4) + CP_LENS(62, 70, 10.2, P.lens) + CP_LENS(98, 70, 10.2, P.lens) + '<path d="M75 69 Q80 64 85 69" fill="none" stroke="#1A1A1C" stroke-width="3.6" stroke-linecap="round"/>';
@@ -1321,7 +1321,7 @@ const ITEMS = [
   mk('head', 'cp_hood', 'CP Company: худи с гогглами', 'goggleHood', {c1: '#3A4636', lens: '#E8A23A'}, 'streak30'),
   mk('head', 'si_beanie', 'Stone Island: шапка с компасом', 'siBeanie', {c3: '#2B2F2A', c2: '#3E443C'}, 'boar5'),
   mk('head', 'si_bucket', 'Stone Island: панама', 'siBucket', {c3: '#4B5A3A', c2: '#2B2F2A'}, 'deadline'),
-  mk('head', 'cp_cap', 'CP Company: кепка с линзой', 'cpCap', {c3: '#3E4A36', lens: '#E8A23A'}, 'sphere100'),
+  mk('head', 'cp_cap', 'CP Company: кепка с гогглами', 'cpCap', {c3: '#3E4A36', lens: '#E8A23A'}, 'sphere100'),
   mk('eyes', 'cp_goggles', 'CP Company: гогглы', 'goggles', {lens: '#E8A23A'}, 'early'),
   mk('shirt', 'cp_tee', 'CP Company: футболка с линзой', 'cpTee', {c1: '#1F1F2B', lens: '#E8A23A'}, 'pomo1'),
   mk('shirt', 'si_tee', 'Stone Island: футболка с компасом', 'siTee', {c1: '#E9E5DA'}, 'slice'),
@@ -1543,7 +1543,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.10';
+const APP_VERSION = '2026-11-07.11';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
