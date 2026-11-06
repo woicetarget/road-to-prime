@@ -1043,6 +1043,7 @@ const el = {
 };
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
+const APP_VERSION = '2026-11-06.6';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -1326,7 +1327,7 @@ function renderNote() {
   else if (S.sync.state === 'err') n = 'Синхронизация не удалась: ' + S.sync.msg + '. Данные на этом устройстве целы.';
   else if (S.sync.last) n = 'Синхронизировано в ' + hhmm(S.sync.last) + '.';
   else n = 'Синхронизация подключена.';
-  el.note.textContent = n;
+  el.note.textContent = n + ' Версия ' + APP_VERSION + '.';
   renderSync();
 }
 function renderGuide() {
@@ -1777,7 +1778,7 @@ document.addEventListener('change', e => {
   else if (t.matches && t.matches('select[data-task-sphere]')) { const li = t.closest('li[data-id]'); if (li) edit(li.dataset.id, x => { if (t.value) x.sphere = t.value; else delete x.sphere; }); }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { const m = document.getElementById('syncModal'); if (m && !m.hidden) { m.hidden = true; return; } if (S.open) { S.open = null; renderAll(); } } });
-document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkNewDay(); syncNow(); if (S.timer && !S.timer.paused && !S.timer.finished) { ensureTick(); tick(); } renderAll(); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkNewDay(); syncNow(); checkUpdate(); if (S.timer && !S.timer.paused && !S.timer.finished) { ensureTick(); tick(); } renderAll(); } });
 
 let raf = 0;
 addEventListener('pointermove', e => {
@@ -1807,6 +1808,20 @@ function noT9() {
 }
 let t9Raf = 0;
 new MutationObserver(() => { if (!t9Raf) t9Raf = setTimeout(() => { t9Raf = 0; noT9(); }, 20); }).observe(document.body, {childList: true, subtree: true});
+/* обновления: приложение само сверяет версию с сайтом и один раз перезагружается, если вышла новая */
+async function checkUpdate() {
+  if (!/^https?:$/.test(location.protocol)) return;
+  try {
+    const r = await fetch('index.html?v=' + Date.now(), {cache: 'no-store'});
+    const m = (await r.text()).match(/const APP_VERSION = '([^']+)'/);
+    if (!m || m[1] === APP_VERSION) return;
+    let seen = ''; try { seen = sessionStorage.getItem('rtp.reloaded') || ''; } catch (e) {}
+    if (seen === m[1]) return;
+    try { sessionStorage.setItem('rtp.reloaded', m[1]); } catch (e) {}
+    toast('Вышла новая версия, обновляю…');
+    setTimeout(() => location.reload(), 900);
+  } catch (e) {}
+}
 function boot() {
   noT9();
   restoreTimer(); loadAll(); renderLegend(); renderGuide(); mountBot(); renderWardrobe(); renderAll();
@@ -1814,7 +1829,11 @@ function boot() {
   syncNow();
   setInterval(() => { if (!document.hidden) syncNow(); }, 60000);
   addEventListener('online', syncNow);
-  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register('sw.js').then(reg => { reg.update(); addEventListener('focus', () => reg.update()); }).catch(() => {});
+    setTimeout(checkUpdate, 3000); setInterval(checkUpdate, 300000);
+    addEventListener('focus', checkUpdate);
+  }
 }
 boot();
 })();

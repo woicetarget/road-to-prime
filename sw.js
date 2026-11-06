@@ -1,5 +1,5 @@
-/* Road to Prime: сервис-воркер. Оболочка приложения лежит в кэше, обновления подтягиваются из сети при каждом открытии. */
-const CACHE = 'rtp-v1';
+/* Road to Prime: сервис-воркер. Оболочка лежит в кэше для работы без интернета, но при наличии сети всегда берётся свежая версия. */
+const CACHE = 'rtp-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './dog.png'];
 
 self.addEventListener('install', e => {
@@ -21,6 +21,10 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (url.origin === location.origin) {
-    e.respondWith(fetch(req).then(r => { const copy = r.clone(); caches.open(CACHE).then(c => c.put(req, copy)); return r; }).catch(() => caches.match(req).then(hit => hit || caches.match('./index.html'))));
+    /* сначала сеть с обязательной проверкой на сервере (в обход кэша браузера, он держит страницу до 10 минут), без сети берётся копия */
+    e.respondWith(fetch(req, {cache: 'no-cache'}).then(r => {
+      if (r.ok && !url.search) { const copy = r.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
+      return r;
+    }).catch(() => caches.match(req, {ignoreSearch: true}).then(hit => hit || caches.match('./index.html'))));
   }
 });
