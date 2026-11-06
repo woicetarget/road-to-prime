@@ -778,7 +778,7 @@ const MOUTHS = {
   none: () => '',
   grill: P => R(69, 97, 22, 9, 3.5, P.metal, 'o2') + [74.5, 80, 85.5].map(x => Ln(x, 97, x, 106, INK, 1.2)).join('') + Ln(72, 99.5, 77, 99.5, '#fff', 1.6),
   gems: P => R(69, 97, 22, 9, 3.5, P.metal, 'o2') + [[74.5, '#3D7BFF'], [80, '#FF3D63'], [85.5, '#2BC48A']].map(g => C(g[0], 101.5, 2.2, g[1], 'n')).join('') + Ln(72, 99, 77, 99, '#fff', 1.4),
-  jointGems: P => MOUTHS.gems(P) + MOUTHS.joint(P),
+  jointGems: P => MOUTHS.gems(P),
   joint: () => '<path d="M84 96 L114.1 83.3 L117.9 95.1 L86 102Z" fill="#9A6532" class="o"/>' +
     '<path d="M95 92 L97.5 99.6 M104.5 88 L107 96.8" fill="none" stroke="#6F4521" stroke-width="1.6" stroke-linecap="round"/>' +
     [[91, 97.5, '#5E7A2E'], [99, 94.2, '#7A9A3A'], [102.5, 98.6, '#5E7A2E'], [109, 90.5, '#7A9A3A'], [111.5, 94.8, '#5E7A2E'], [94.5, 99.8, '#7A9A3A']].map(f => '<circle cx="' + f[0] + '" cy="' + f[1] + '" r="1.25" fill="' + f[2] + '"/>').join('') +
@@ -787,6 +787,8 @@ const MOUTHS = {
     '<g class="b-smoke"><path d="M120 81 Q114 73 121 67 Q127 61 120 54" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" opacity=".8"/><path d="M125 79 Q133 71 127 63" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".55"/></g>',
   lollipop: P => Ln(88, 101, 112, 119, INK, 6.5) + Ln(88, 101, 112, 119, '#fff', 3.4) + C(116, 122, 10.5, P.c2 || '#FF6B87') + '<circle cx="116" cy="122" r="6" fill="none" stroke="#fff" stroke-width="2"/><circle cx="116" cy="122" r="1.8" fill="#fff"/>'
 };
+/* косяк рисуется поверх шапки, иначе клапан ушанки закрывает кончик и дым */
+const MOUTH_FRONT = {jointGems: P => MOUTHS.joint(P)};
 const CHEEKS = {
   none: () => '',
   plaster: () => '<g transform="rotate(-32 50 92)">' + R(39, 88, 22, 8, 3, '#F3D5B5', 'o2') + '</g><g transform="rotate(32 50 92)">' + R(39, 88, 22, 8, 3, '#F3D5B5', 'o2') + '</g>',
@@ -963,6 +965,7 @@ function botSVG(L, cls, uid) {
   /* стоячие уши овчарки: заливка без нижней обводки, чтобы стояли «из головы» */
   s += '<g class="dg-ear dg-ear-l"><path d="M44 56 L33 4 L74 38Z" class="dog n"/><path d="M45 52 L38 20 L64 40Z" fill="#4A2F24" class="n"/><path d="M45 54 L33 4 L74 38" fill="none" class="o"/></g>' +
        '<g class="dg-ear dg-ear-r"><path d="M116 56 L127 4 L86 38Z" class="dog n"/><path d="M115 52 L122 20 L96 40Z" fill="#4A2F24" class="n"/><path d="M115 54 L127 4 L86 38" fill="none" class="o"/></g>';
+  if (MOUTH_FRONT[L.mouth]) s += MOUTH_FRONT[L.mouth](P);
   s += '</g>';
   s += '<g class="b-spark">' + spark(22, 46, 8, '#fff') + spark(140, 34, 6, '#FFD84D') + spark(136, 66, 5, '#fff') + '</g>';
   s += '<g class="b-zs"><text x="128" y="40">z</text><text x="141" y="26">z</text></g>';
