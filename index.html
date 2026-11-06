@@ -723,6 +723,50 @@ html.lite.calm .bot,html.lite.calm .bot *{animation-play-state:paused!important}
 .sp-dl-note.soon{color:var(--c-home)}
 .sp-dl-note.over{color:var(--sp1)}
 @media (max-width:620px){.dlrow2{grid-template-columns:minmax(0,1fr) minmax(0,.8fr)}.dlrow2 .ol,.dlrow2 .pill{grid-column:1 / -1}}
+.a-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.respect-btn{position:relative;display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface2);border-radius:999px;padding:3px 11px 3px 8px;font-size:12.5px;font-weight:700;color:var(--ink);transition:border-color .12s}
+.respect-btn:hover{border-color:var(--ink2)}
+.respect-btn svg{width:16px;height:16px;color:var(--accent-ink)}
+.rc{color:var(--ink2);font-variant-numeric:tabular-nums;font-weight:600}
+.rdot{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#E2412E;box-shadow:0 0 0 2px var(--surface);animation:pulse 1.2s ease-in-out infinite}
+.a-green{--c:#4E9F6B}.a-boar{--c:#B8643A}.a-rat{--c:#7B6AB3}.a-star{--c:#D49A12}.a-flame{--c:#E8743B}.a-alarm{--c:#2C8FA8}.a-teal{--c:#1F9E9E}.a-secret{--c:#8A5CC4}
+/* оповещение: крупное, сверху, с Шагычем, конфетти и свечением */
+.ach{--cf0:#FFB347;--cf1:#80AEE8;--cf2:#6FD3A0;--cf3:#F08AB8;--cf4:#F2CB57;position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:60;width:min(94vw,480px);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border-radius:22px;background:var(--cta);color:var(--on-cta);box-shadow:0 0 0 3px var(--accent),0 22px 44px -12px rgba(0,0,0,.65);cursor:pointer}
+.ach.in{animation:achIn .55s cubic-bezier(.2,1.5,.4,1) both,achGlow 1.6s ease-in-out 3}
+.ach-dog .bot{width:62px;height:78px;border-radius:14px;display:block}
+.ach-k{display:block;font:700 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+.ach-tx b{display:block;font:700 22px/1.1 var(--f-head);letter-spacing:.02em;text-transform:uppercase;margin:1px 0}
+.ach-d{display:block;font-size:13.5px;opacity:.85}
+.ach-line{display:block;font-size:13.5px;font-style:normal;margin-top:3px}
+.ach-badge{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--c,var(--accent));color:#fff;flex:none}
+.ach-badge svg{width:26px;height:26px}
+.ach-conf{position:absolute;left:50%;top:26px;width:0;height:0;pointer-events:none}
+.cf{position:absolute;left:-4px;top:-4px;width:8px;height:12px;border-radius:2px;background:var(--c);opacity:0}
+.ach.in .cf{animation:cf 1.5s ease-out .15s 1 forwards}
+@keyframes achIn{0%{transform:translate(-50%,-150%) scale(.9);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
+@keyframes achGlow{0%,100%{box-shadow:0 0 0 3px var(--accent),0 22px 44px -12px rgba(0,0,0,.65)}50%{box-shadow:0 0 0 6px var(--accent),0 0 40px 8px var(--accent)}}
+@keyframes cf{0%{opacity:0;transform:translate(0,0) scale(.3) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),calc(var(--y) + 70px)) scale(1) rotate(var(--r))}}
+/* окно достижений */
+.rs-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px;padding:12px 14px;border-radius:16px;background:var(--surface2)}
+.rs-streak{display:flex;align-items:center;gap:8px}
+.rs-streak svg{width:26px;height:26px;color:#E8743B}
+.rs-streak b{font:700 30px/1 var(--f-head)}
+.rs-streak span{font-weight:600;color:var(--ink2)}
+.rs-sum{text-align:right;font-weight:700}
+.rs-sum small{display:block;font-weight:500;color:var(--ink2)}
+.rs-g{font:700 13px var(--f-head);letter-spacing:.09em;text-transform:uppercase;color:var(--ink2);margin:14px 2px 6px}
+.rs-grid{display:grid;gap:8px}
+.rs-card{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;padding:10px 12px;border:1.5px solid var(--line);border-radius:16px;background:var(--surface)}
+.rs-card.got{border-color:var(--c)}
+.rs-card.lock{opacity:.72}
+.rs-card.lock .rs-badge{filter:grayscale(1);opacity:.6}
+.rs-badge{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--c,var(--accent));color:#fff}
+.rs-badge svg{width:24px;height:24px}
+.rs-tx b{display:block;font-size:15.5px}
+.rs-tx span{display:block;font-size:13px;color:var(--ink2)}
+.rs-tx small{font-size:12.5px;color:var(--ink2)}
+.rs-bar{display:block;height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin:6px 0 2px}
+.rs-bar i{display:block;height:100%;background:var(--c,var(--accent))}
 </style>
 </head>
 <body>
@@ -793,7 +837,8 @@ html.lite.calm .bot,html.lite.calm .bot *{animation-play-state:paused!important}
             <p id="say" aria-live="polite">Йоу! Я Шагыч, OG пёс. Помогу сдвинуться с места.</p>
             <div class="say-act" id="sayAct"></div>
           </div>
-          <div class="look" id="lookBox"></div>
+          <div class="a-foot"><div class="look" id="lookBox"></div>
+            <button type="button" class="respect-btn" id="respectBtn" data-act="respect-open" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="5.5"/><path d="M8.8 13.6L7.2 21l4.8-2.6 4.8 2.6-1.6-7.4"/></svg>Респект улиц <span class="rc" id="respectCount"></span><i class="rdot" id="respectDot" hidden></i></button></div>
         </div>
       </div>
     </section>
@@ -860,11 +905,18 @@ html.lite.calm .bot,html.lite.calm .bot *{animation-play-state:paused!important}
 
   <p class="note" id="note"></p>
 </main>
+<div class="ach" id="achBanner" role="status" aria-live="assertive" data-act="ach-open" hidden></div>
 <div class="toast" id="toast" role="status" hidden></div>
 <div class="modal" id="focusModal" role="dialog" aria-modal="true" aria-labelledby="focusTitle" data-act="close-modal" hidden>
   <div class="modal-card card">
     <div class="g-head"><h2 id="focusTitle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7.2c-4.6 0-8 2.7-8 6.9C4 18.3 7.7 21 12 21s8-2.7 8-6.9c0-4.2-3.4-6.9-8-6.9z" fill="#E2412E"/><path d="M12 8.2c-1.9.1-3.4-.7-4.2-2 1.6-.5 3 0 4.2 1.1 1.2-1.1 2.6-1.6 4.2-1.1-.8 1.3-2.3 2.1-4.2 2z" fill="#4E9F3D"/><path d="M12 7.6V4.6" stroke="#4E9F3D" stroke-width="1.8" stroke-linecap="round"/></svg>Синьор помидор</h2><button type="button" class="chip" data-act="focus-close">Закрыть</button></div>
     <div id="aActions"></div>
+  </div>
+</div>
+<div class="modal" id="respectModal" role="dialog" aria-modal="true" aria-labelledby="respectTitle" data-act="close-modal" hidden>
+  <div class="modal-card card">
+    <div class="g-head"><h2 id="respectTitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="5.5"/><path d="M8.8 13.6L7.2 21l4.8-2.6 4.8 2.6-1.6-7.4"/></svg>Респект улиц</h2><button type="button" class="chip" data-act="respect-close">Закрыть</button></div>
+    <div id="respectBody"></div>
   </div>
 </div>
 <div class="modal" id="syncModal" data-act="close-modal" role="dialog" aria-modal="true" aria-labelledby="syncTitle" hidden>
@@ -907,6 +959,9 @@ const ICON = {
   play:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.6v12.8a.8.8 0 001.2.7l10.2-6.4a.8.8 0 000-1.4L9.2 4.9A.8.8 0 008 5.6z"/></svg>',
   alarm:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="7.4"/><path d="M12 9v4.3l2.9 1.8"/><path d="M4.2 5.6L7.4 3M19.8 5.6L16.6 3"/></svg>',
   repeat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l3 3-3 3"/><path d="M4 11V9a3 3 0 013-3h13"/><path d="M7 21l-3-3 3-3"/><path d="M20 13v2a3 3 0 01-3 3H4"/></svg>',
+  flame:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5c.4 3-1.8 4.4-3.4 6.4C7.2 10.6 6.5 12 6.5 13.8A5.5 5.5 0 0012 19.3a5.5 5.5 0 005.5-5.5c0-2.6-1.6-4.2-2.6-5.6-.4 1.1-1 1.8-1.9 2.2.5-2.7-.2-6-1-7.9z"/></svg>',
+  slices:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M4 12h16M5 17h14"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>',
   chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
   dots:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.5" cy="12" r="1.9"/></svg>',
   star:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2 6.3 20.3l1.2-6.4L2.8 9.5l6.4-.8z"/></svg>',
@@ -1329,7 +1384,7 @@ const S = {
   view: {y: now0.getFullYear(), m: now0.getMonth()}, sel: todayStr(), day: todayStr(),
   cat: ls.get(KEYS.cat, 'proj'), star: false, big: false, rat: false,
   open: null, hot: null, busy: null, skip: 0,
-  timer: null, say: null, series: new Map(), rep: {k: 'none', d: [0, 2, 4], dates: []}, mins: 0, timeFor: null, cats: new Map(), stepsOpen: new Set(), addOpts: false, spheres: new Map(), sphCol: null, tab: 'cal', selSphere: null, sphereSel: ls.get(KEYS.sphere, ''), guide: ls.get(KEYS.guide, true) !== false
+  timer: null, say: null, ach: new Map(), series: new Map(), rep: {k: 'none', d: [0, 2, 4], dates: []}, mins: 0, timeFor: null, cats: new Map(), stepsOpen: new Set(), addOpts: false, spheres: new Map(), sphCol: null, tab: 'cal', selSphere: null, sphereSel: ls.get(KEYS.sphere, ''), guide: ls.get(KEYS.guide, true) !== false
 };
 /* категории: четыре базовые и свои (хранятся в данных и синхронизируются). Неизвестная, например удалённая «Поиск работы», показывается как «Проекты» */
 const customCats = () => Array.from(S.cats.values()).sort((a, b) => (a.created || 0) - (b.created || 0));
@@ -1425,9 +1480,9 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.7';
+const APP_VERSION = '2026-11-07.8';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
-S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}};
+S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
 let syncTimer = 0, syncing = false, syncAgain = false;
 const stamp = o => { o.updatedAt = Date.now(); return o; };
@@ -1444,22 +1499,23 @@ function loadAll() {
   S.spheres = new Map((d.spheres || []).filter(x => x && x.id).map(x => [x.id, x]));
   S.cats = new Map((d.cats || []).filter(x => x && x.id).map(x => [x.id, x]));
   S.series = new Map((d.series || []).filter(x => x && x.id).map(x => [x.id, x]));
-  S.tomb = {tasks: (d.tomb && d.tomb.tasks) || {}, spheres: (d.tomb && d.tomb.spheres) || {}, cats: (d.tomb && d.tomb.cats) || {}, series: (d.tomb && d.tomb.series) || {}};
+  S.ach = new Map((d.ach || []).filter(x => x && x.id).map(x => [x.id, x]));
+  S.tomb = {tasks: (d.tomb && d.tomb.tasks) || {}, spheres: (d.tomb && d.tomb.spheres) || {}, cats: (d.tomb && d.tomb.cats) || {}, series: (d.tomb && d.tomb.series) || {}, ach: (d.tomb && d.tomb.ach) || {}};
   if (!catOK(S.cat)) S.cat = 'proj';
   if (!catOK(S.sCat)) S.sCat = S.cat;
   S.mode = 'local'; S.loading = false;
 }
 function snapshotData() {
   const old = Date.now() - 90 * 86400000;
-  ['tasks', 'spheres', 'cats', 'series'].forEach(k => Object.keys(S.tomb[k]).forEach(id => { if (S.tomb[k][id] < old) delete S.tomb[k][id]; }));
-  return {v: 1, tasks: Array.from(S.tasks.values()).sort(byId), spheres: Array.from(S.spheres.values()).sort(byId), cats: Array.from(S.cats.values()).sort(byId), series: Array.from(S.series.values()).sort(byId), tomb: S.tomb};
+  ['tasks', 'spheres', 'cats', 'series', 'ach'].forEach(k => Object.keys(S.tomb[k]).forEach(id => { if (S.tomb[k][id] < old) delete S.tomb[k][id]; }));
+  return {v: 1, tasks: Array.from(S.tasks.values()).sort(byId), spheres: Array.from(S.spheres.values()).sort(byId), cats: Array.from(S.cats.values()).sort(byId), series: Array.from(S.series.values()).sort(byId), ach: Array.from(S.ach.values()).sort(byId), tomb: S.tomb};
 }
 let saveT = 0;
 function flushSave() { if (!saveT) return; clearTimeout(saveT); saveT = 0; ls.set(DATA_KEY, snapshotData()); }
 function saveAll(push) { if (!saveT) saveT = setTimeout(flushSave, 250); if (push !== false) scheduleSync(); }
 addEventListener('pagehide', flushSave);
 document.addEventListener('visibilitychange', () => { if (document.hidden) flushSave(); });
-function persist(t) { stamp(t); delete S.tomb.tasks[t.id]; S.tasks.set(t.id, t); saveAll(); renderAll(); }
+function persist(t) { stamp(t); delete S.tomb.tasks[t.id]; S.tasks.set(t.id, t); saveAll(); renderAll(); scheduleAch(); }
 function edit(id, fn) {
   const cur = S.tasks.get(id); if (!cur) return null;
   const t = JSON.parse(JSON.stringify(cur)); fn(t); persist(t); return t;
@@ -1475,7 +1531,7 @@ function removeTask(id) {
 /* слияние: у каждой записи своя метка updatedAt, побеждает более новая; удаления помнятся как «надгробия» */
 function mergeData(remote) {
   let changed = false;
-  ['tasks', 'spheres', 'cats', 'series'].forEach(kind => {
+  ['tasks', 'spheres', 'cats', 'series', 'ach'].forEach(kind => {
     const local = S[kind], rmap = new Map((remote[kind] || []).filter(x => x && x.id).map(x => [x.id, x]));
     const rtomb = (remote.tomb && remote.tomb[kind]) || {}, ltomb = S.tomb[kind];
     const ids = new Set([...local.keys(), ...rmap.keys(), ...Object.keys(rtomb), ...Object.keys(ltomb)]);
@@ -1490,7 +1546,7 @@ function mergeData(remote) {
   if (!catOK(S.cat)) S.cat = 'proj';
   return changed;
 }
-const dataSig = d => stable({t: (d.tasks || []).slice().sort(byId), s: (d.spheres || []).slice().sort(byId), c: (d.cats || []).slice().sort(byId), e: (d.series || []).slice().sort(byId), x: d.tomb || {}});
+const dataSig = d => stable({t: (d.tasks || []).slice().sort(byId), s: (d.spheres || []).slice().sort(byId), c: (d.cats || []).slice().sort(byId), e: (d.series || []).slice().sort(byId), a: (d.ach || []).slice().sort(byId), x: d.tomb || {}});
 
 async function ghFetch(cfg, path, opts) {
   opts = opts || {};
@@ -1530,7 +1586,7 @@ async function syncNow() {
     let remote;
     try { remote = await readGist(cfg); } catch (e) { if (e.status === 404) { cfg.gistId = await findGist(cfg) || await createGist(cfg); ls.set(SYNC_KEY, cfg); remote = await readGist(cfg); } else throw e; }
     const changed = mergeData(remote), made = topUpSeries();
-    if (changed || made) { saveAll(false); renderAll(); }
+    if (changed || made) { checkAch(false); saveAll(false); renderAll(); }
     if (dataSig(snapshotData()) !== dataSig(remote)) await writeGist(cfg);
     S.sync = {state: 'ok', last: Date.now(), msg: ''};
   } catch (e) {
@@ -1831,6 +1887,12 @@ function nextPose() {
   if (lastPose === 'bounce' || lastPose === 'handsup' || lastPose === 'point') smile(2600 + Math.random() * 1400);
   poseT = setTimeout(nextPose, 3800 + Math.random() * 3200);
 }
+let pokes = [];
+function pokeAch() {
+  const t = Date.now(); pokes = pokes.filter(x => t - x < 12000); pokes.push(t);
+  if (el.bot && el.bot.dataset.mood === 'sleepy') unlockAch('wake', true);
+  if (pokes.length >= 10) { pokes = []; unlockAch('poke10', true); }
+}
 function hop() { if (!el.bot) return; el.bot.classList.remove('hop'); void el.bot.getBoundingClientRect(); el.bot.classList.add('hop'); }
 const isNight = () => { const h = new Date().getHours(); return h >= 23 || h < 7; };
 
@@ -1969,7 +2031,7 @@ function finishTimer() {
   T.finished = true; T.left = 0; stopTick();
   if (T.phase === 'focus') addFocus(T.total / 60000);
   if (T.kind === 'pomo') {
-    if (T.phase === 'focus') { const p = pomoState(); p.count++; p.cycle++; ls.set(KEYS.pomo, p); T.next = (p.cycle % POMO.setLen === 0) ? 'long' : 'short'; }
+    if (T.phase === 'focus') { const p = pomoState(); p.count++; p.cycle++; ls.set(KEYS.pomo, p); unlockAch('pomo1', true); if (p.count >= 4) unlockAch('pomo4', true); T.next = (p.cycle % POMO.setLen === 0) ? 'long' : 'short'; }
     else T.next = 'focus';
   }
   saveTimer(); chime(T.phase === 'focus' ? 2 : 1); hop();
@@ -2151,6 +2213,124 @@ function renderSphereDetail() {
   if (inp && keep) { inp.value = keep; if (hadFocus) inp.focus(); }
 }
 
+/* ---------- «Респект улиц»: достижения. Открываются от дел, стейков, крыс, серий, сроков; Шагыч радуется, а оповещение заметное ---------- */
+const BADGE = {boar: ICON.boar, rat: ICON.rat, star: ICON.star, flame: ICON.flame, alarm: ICON.alarm, check: ICON.check, slices: ICON.slices, repeat: ICON.repeat, spark: ICON.spark, lock: ICON.lock};
+const ACH_G = ['Старт', 'Кабан, стейки, крысы', 'Главное', 'Серии', 'Повторы и время', 'Сферы', 'Секретные'];
+const ACH = [
+  {id: 'first', g: 0, col: 'a-green', ic: 'check', t: 'Первый шаг', d: 'Закрыть своё первое дело', line: 'Первое дело в кармане. Респект, бро.', goal: 1, cur: a => a.done},
+  {id: 'done10', g: 0, col: 'a-green', ic: 'check', t: 'Десятка', d: 'Закрыть 10 дел', line: 'Десять дел позади. Это уже не случайность.', goal: 10, cur: a => a.done},
+  {id: 'done100', g: 0, col: 'a-green', ic: 'check', t: 'Сотня', d: 'Закрыть 100 дел', line: 'Сто дел! Район тебя знает, бро.', goal: 100, cur: a => a.done},
+  {id: 'boar1', g: 1, col: 'a-boar', ic: 'boar', t: 'Кабан съеден', d: 'Съесть все стейки большого дела', line: 'Целый кабан, и ни косточки не осталось. Уважуха!', goal: 1, cur: a => a.boars},
+  {id: 'boar5', g: 1, col: 'a-boar', ic: 'boar', t: 'Кабаний король', d: 'Съесть 5 кабанов', line: 'Пять кабанов! Район уже шепчется про тебя.', goal: 5, cur: a => a.boars},
+  {id: 'slice', g: 1, col: 'a-boar', ic: 'slices', t: 'Нарезка', d: 'Нарезать кабана минимум на 5 стейков', line: 'Нож острый, стейки ровные. Мясник на связи.', goal: 5, cur: a => a.maxSteps},
+  {id: 'rat5', g: 1, col: 'a-rat', ic: 'rat', t: 'Охотник на крыс', d: 'Поймать 5 крыс: мелких неприятных дел', line: 'Пять крыс позади. В подвале чище, бро.', goal: 5, cur: a => a.rats},
+  {id: 'rat20', g: 1, col: 'a-rat', ic: 'rat', t: 'Крысолов', d: 'Поймать 20 крыс', line: 'Двадцать крыс! Теперь они тебя обходят стороной.', goal: 20, cur: a => a.rats},
+  {id: 'clean', g: 1, col: 'a-rat', ic: 'rat', t: 'Чистая охота', d: 'Закончить охоту на крыс, когда все пойманы', line: 'Ни одной крысы не ушло. Чистая работа!', event: true},
+  {id: 'triple', g: 2, col: 'a-star', ic: 'star', t: 'Тройка', d: 'Закрыть все три главных дела за один день', line: 'Тройка закрыта! Это день как с обложки.', goal: 1, cur: a => a.triple},
+  {id: 'streak3', g: 3, col: 'a-flame', ic: 'flame', t: 'Три дня подряд', d: 'Закрывать хотя бы одно дело три дня подряд', line: 'Три дня подряд. Ритм пошёл, бро.', goal: 3, cur: a => a.best},
+  {id: 'streak7', g: 3, col: 'a-flame', ic: 'flame', t: 'Неделя подряд', d: 'Семь дней подряд', line: 'Неделя без пропусков. Это уже стиль.', goal: 7, cur: a => a.best},
+  {id: 'streak30', g: 3, col: 'a-flame', ic: 'flame', t: 'Месяц подряд', d: 'Тридцать дней подряд', line: 'Месяц подряд! Легенда района.', goal: 30, cur: a => a.best},
+  {id: 'rep10', g: 4, col: 'a-alarm', ic: 'repeat', t: 'Режим включён', d: 'Выполнить 10 регулярных дел', line: 'Десять повторов закрыто. Режим пошёл.', goal: 10, cur: a => a.repDone},
+  {id: 'rep30', g: 4, col: 'a-alarm', ic: 'repeat', t: 'Железный график', d: 'Выполнить 30 регулярных дел', line: 'Тридцать раз по графику. Железный человек!', goal: 30, cur: a => a.repDone},
+  {id: 'repweek', g: 4, col: 'a-alarm', ic: 'repeat', t: 'Неделя без пропусков', d: 'Закрыть все повторы серии за неделю, их должно быть не меньше трёх', line: 'Все тренировки недели на месте. Красава!', test: a => a.repWeek},
+  {id: 'plan1', g: 4, col: 'a-alarm', ic: 'alarm', t: 'По часам', d: 'Довести до конца дело, на которое поставил время', line: 'Время вышло, дело готово. Всё по часам, бро.', event: true},
+  {id: 'pomo1', g: 4, col: 'a-alarm', ic: 'alarm', t: 'Синьор помидор', d: 'Закончить первое помодоро', line: 'Первый помидор созрел. Так держать!', event: true},
+  {id: 'pomo4', g: 4, col: 'a-alarm', ic: 'alarm', t: 'Четыре подряд', d: 'Закончить четыре помодоро за один день', line: 'Четыре помидора за день. Фокус как у снайпера.', event: true},
+  {id: 'focus60', g: 4, col: 'a-alarm', ic: 'alarm', t: 'Час в фокусе', d: 'Набрать 60 минут фокуса за один день', line: 'Целый час в фокусе. Лапы в деле, голова на месте.', goal: 60, cur: a => a.focusBest},
+  {id: 'deadline', g: 5, col: 'a-teal', ic: 'alarm', t: 'Успел до дедлайна', d: 'Закрыть все дела сферы до её срока', line: 'Успел до срока. Железные нервы, бро!', test: a => a.deadlineOk},
+  {id: 'sphere100', g: 5, col: 'a-teal', ic: 'check', t: 'Сфера закрыта', d: 'Закрыть все дела в любой сфере', line: 'Сфера зачищена под ноль. Чисто!', test: a => a.sphereDone},
+  {id: 'cat1', g: 5, col: 'a-teal', ic: 'spark', t: 'Своя категория', d: 'Создать свою категорию дел', line: 'Своя категория, свои правила. Красиво.', goal: 1, cur: a => a.cats},
+  {id: 'poke10', g: 6, secret: true, col: 'a-secret', ic: 'spark', t: 'Щекотка', d: 'Потрогать Шагыча десять раз подряд', line: 'Хватит, щекотно! Ладно, это было смешно.', event: true},
+  {id: 'wake', g: 6, secret: true, col: 'a-secret', ic: 'spark', t: 'Разбудил Шагыча', d: 'Потрогать Шагыча, пока он спит на стуле', line: 'Мм? Я не спал, я думал. С дымом.', event: true},
+  {id: 'early', g: 6, secret: true, col: 'a-secret', ic: 'flame', t: 'Утренняя птица', d: 'Закрыть дело до девяти утра', line: 'Рань, а дело уже сделано. Жаворонок!', test: a => a.early},
+  {id: 'burst5', g: 6, secret: true, col: 'a-secret', ic: 'flame', t: 'Одним махом', d: 'Закрыть пять дел за один час', line: 'Пять дел за час! Не руки, а вентилятор.', test: a => a.burst}
+];
+const ACH_BY = {}; ACH.forEach(d => ACH_BY[d.id] = d);
+const SEEN_KEY = 'rtp.ach.seen';
+function achStats() {
+  let done = 0, boars = 0, maxSteps = 0, rats = 0, repDone = 0;
+  const mains = new Map(), weeks = new Map(), days = new Set(), stamps = []; let early = false;
+  S.tasks.forEach(t => {
+    const st = t.steps || [];
+    if (t.done) { done++; const dd = doneDay(t); if (dd) days.add(dd); if (t.doneAt) { stamps.push(t.doneAt); const h = new Date(t.doneAt).getHours(); if (h >= 5 && h < 9) early = true; } if (t.series) repDone++; }
+    if (t.big && st.length) { if (t.done) boars++; if (st.length > maxSteps) maxSteps = st.length; }
+    if (t.done && t.rat) rats++;
+    st.forEach(x => { if (x.rat && x.d) rats++; });
+    if (t.main && t.date) { const m = mains.get(t.date) || {n: 0, ok: 0}; m.n++; if (t.done) m.ok++; mains.set(t.date, m); }
+    if (t.series && t.date) { const k = t.series + '|' + addDays(t.date, -dowMon(parse(t.date))), w = weeks.get(k) || {n: 0, ok: 0}; w.n++; if (t.done) w.ok++; weeks.set(k, w); }
+  });
+  let triple = 0; mains.forEach(m => { if (m.n >= MAX_MAIN && m.ok >= m.n) triple++; });
+  let repWeek = false; weeks.forEach(w => { if (w.n >= 3 && w.ok >= w.n) repWeek = true; });
+  const sorted = Array.from(days).sort(); let best = 0, run = 0, prev = '';
+  sorted.forEach(d => { run = (prev && diffDays(d, prev) === 1) ? run + 1 : 1; if (run > best) best = run; prev = d; });
+  stamps.sort((a, b) => a - b); let burst = false;
+  for (let i = 4; i < stamps.length; i++) if (stamps[i] - stamps[i - 4] <= 3600000) { burst = true; break; }
+  const focus = ls.get(KEYS.focus, {}); let focusBest = 0; Object.keys(focus).forEach(k => { if (focus[k] > focusBest) focusBest = focus[k]; });
+  let deadlineOk = false, sphereDone = false;
+  S.spheres.forEach(sp => {
+    const st = sphereStats(sp.id); if (!st.list.length || st.open.length) return;
+    sphereDone = true;
+    if (sp.deadline) { const end = new Date(sp.deadline + 'T' + (sp.dlTime || '23:59') + ':00').getTime(); if (st.list.every(t => (t.doneAt || 0) <= end)) deadlineOk = true; }
+  });
+  return {done, boars, maxSteps, rats, repDone, triple, repWeek, best, burst, early, focusBest, deadlineOk, sphereDone, cats: S.cats.size};
+}
+let achT = 0;
+function scheduleAch() { clearTimeout(achT); achT = setTimeout(() => checkAch(true), 60); }
+function checkAch(loud) {
+  const a = achStats(), wasEmpty = S.ach.size === 0; let n = 0;
+  ACH.forEach(def => {
+    if (S.ach.has(def.id) || def.event) return;
+    const ok = def.test ? def.test(a) : (def.goal && def.cur(a) >= def.goal);
+    if (ok) { n++; unlockAch(def.id, loud, true); }
+  });
+  if (n) { saveAll(); renderRespect(); }
+  /* первый запуск с уже сделанными делами: без салюта, просто тихо открываем и один раз говорим об этом */
+  if (!loud && wasEmpty && n && !ls.get('rtp.ach.intro', false)) { ls.set('rtp.ach.intro', true); ls.set(SEEN_KEY, Array.from(S.ach.keys())); renderRespect(); setTimeout(() => toast('Респект улиц: уже открыто ' + n + ', смотри рядом с Шагычем', 'Смотреть', openRespect), 1200); }
+}
+function unlockAch(id, loud, batch) {
+  const def = ACH_BY[id]; if (!def || S.ach.has(id)) return;
+  const rec = {id, at: Date.now()}; stamp(rec); S.ach.set(id, rec);
+  if (!batch) { saveAll(); renderRespect(); }
+  if (loud) queueAch(def);
+}
+let achQ = [], achShowing = false, achHide = 0;
+function queueAch(def) { achQ.push(def); if (!achShowing) nextAch(); }
+function nextAch() {
+  const def = achQ.shift(); if (!def) { achShowing = false; return; }
+  achShowing = true;
+  const b = $('#achBanner');
+  const cf = Array.from({length: 16}, (_, i) => '<i class="cf" style="--x:' + Math.round(Math.cos(i / 16 * 6.283) * (90 + (i % 3) * 40)) + 'px;--y:' + Math.round(Math.sin(i / 16 * 6.283) * 60 - 20) + 'px;--r:' + (i * 53 % 360) + 'deg;--c:var(--cf' + (i % 5) + ')"></i>').join('');
+  b.innerHTML = '<div class="ach-conf" aria-hidden="true">' + cf + '</div><div class="ach-dog" aria-hidden="true">' + botSVG(curLook(), 'bot mini', 'ab') + '</div>' +
+    '<div class="ach-tx"><span class="ach-k">Респект улиц' + (def.secret ? ' · секретная' : '') + '</span><b>' + def.t + '</b><span class="ach-d">' + def.d + '</span><i class="ach-line">«' + def.line + '»</i></div>' +
+    '<span class="ach-badge ' + def.col + '">' + BADGE[def.ic] + '</span>';
+  const sv = b.querySelector('svg'); if (sv) sv.dataset.mood = 'happy';
+  b.hidden = false; b.classList.remove('in'); void b.offsetWidth; b.classList.add('in');
+  chime(2); try { navigator.vibrate && navigator.vibrate([70, 40, 70]); } catch (e) {}
+  say(def.line, {mood: 'happy', ms: 7000}); hop();
+  clearTimeout(achHide); achHide = setTimeout(hideAch, 6500);
+}
+function hideAch() { const b = $('#achBanner'); b.hidden = true; b.classList.remove('in'); achShowing = false; clearTimeout(achHide); if (achQ.length) setTimeout(nextAch, 400); }
+function renderRespect() {
+  const got = ACH.filter(d => S.ach.has(d.id)).length;
+  const c = $('#respectCount'); if (c) c.textContent = got + '/' + ACH.length;
+  const seen = ls.get(SEEN_KEY, []), dot = $('#respectDot'); if (dot) dot.hidden = !Array.from(S.ach.keys()).some(id => seen.indexOf(id) < 0);
+  const m = $('#respectModal'); if (!m || m.hidden) return;
+  const a = achStats(), st = stats();
+  let h = '<div class="rs-top"><div class="rs-streak">' + ICON.flame + '<b>' + st.streak + '</b><span>' + plural(st.streak, ['день', 'дня', 'дней']) + ' подряд</span></div><div class="rs-sum">Открыто ' + got + ' из ' + ACH.length + '<small>лучшая серия: ' + a.best + ' ' + plural(a.best, ['день', 'дня', 'дней']) + '</small></div></div>';
+  ACH_G.forEach((g, gi) => {
+    const list = ACH.filter(d => d.g === gi); if (!list.length) return;
+    h += '<div class="rs-g">' + g + '</div><div class="rs-grid">' + list.map(d => {
+      const has = S.ach.get(d.id), hide = d.secret && !has;
+      const cur = d.cur ? Math.min(d.cur(a), d.goal) : 0;
+      const tail = has ? '<small>' + shortDate(ymd(new Date(has.at))) + (d.secret ? ', секретная' : '') + '</small>' : hide ? '' : (d.goal > 1 ? '<span class="rs-bar"><i style="width:' + Math.round(cur / d.goal * 100) + '%"></i></span><small>' + cur + ' из ' + d.goal + '</small>' : '');
+      return '<div class="rs-card ' + (hide ? 'a-secret' : d.col) + (has ? ' got' : ' lock') + '"><span class="rs-badge">' + (hide ? ICON.lock : BADGE[d.ic]) + '</span><div class="rs-tx"><b>' + (hide ? 'Секретная' : d.t) + '</b><span>' + (hide ? 'Откроется сама, подсказки нет' : d.d) + '</span>' + tail + '</div></div>';
+    }).join('') + '</div>';
+  });
+  $('#respectBody').innerHTML = h;
+}
+function openRespect() { ls.set(SEEN_KEY, Array.from(S.ach.keys())); const m = $('#respectModal'); m.hidden = false; closeFocus(); renderRespect(); }
+function closeRespect() { const m = $('#respectModal'); if (m.hidden) return; m.hidden = true; renderRespect(); }
+
 /* ---------- события ---------- */
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
@@ -2217,6 +2397,9 @@ document.addEventListener('click', e => {
     case 'rep-day': { const i = +b.dataset.d, a = S.rep.d, ix = a.indexOf(i); if (ix >= 0) { if (a.length > 1) a.splice(ix, 1); } else a.push(i); renderAddForm(); } break;
     case 'rep-all': S.rep.d = [0, 1, 2, 3, 4, 5, 6]; renderAddForm(); break;
     case 'series-stop': { const cur = S.tasks.get(id); if (cur && cur.series) removeSeries(cur.series); } break;
+    case 'respect-open': openRespect(); break;
+    case 'respect-close': closeRespect(); break;
+    case 'ach-open': hideAch(); openRespect(); break;
     case 'focus-open': openFocus(); break;
     case 'focus-close': closeFocus(); break;
     case 'close-modal': if (e.target === b) b.hidden = true; break;
@@ -2233,9 +2416,10 @@ document.addEventListener('click', e => {
         else { t.done = true; t.doneAt = Date.now(); }
       });
       hop(); const left = openRats().length;
+      if (!left && S.timer && S.timer.hunt) unlockAch('clean', true);
       say(eaten ? 'Крыса поймана, и кабан съеден!' : left ? 'Крыса поймана! Осталось ' + left + ', лови следующую.' : 'Все крысы пойманы! Чисто, бро.', {mood: 'happy', ms: 5000});
     } break;
-    case 'toggle': { const cur = S.tasks.get(id); if (!cur) break; const nowDone = !cur.done; edit(id, t => { t.done = nowDone; t.doneAt = nowDone ? Date.now() : null; }); if (nowDone) celebrate(); } break;
+    case 'toggle': { const cur = S.tasks.get(id); if (!cur) break; const nowDone = !cur.done; if (nowDone && cur.mins && S.timer && S.timer.taskId === id && S.timer.finished) unlockAch('plan1', true); edit(id, t => { t.done = nowDone; t.doneAt = nowDone ? Date.now() : null; }); if (nowDone) celebrate(); } break;
     case 'step': {
       const i = +b.dataset.i; let eaten = false;
       edit(id, t => {
@@ -2267,7 +2451,7 @@ document.addEventListener('click', e => {
     case 'free-pomo': startTimer({min: POMO.focus, kind: 'pomo'}); break;
     case 'other': S.skip++; renderAgent(); break;
     case 'focus-add': closeFocus(); el.title.scrollIntoView({block: 'center', behavior: 'smooth'}); el.title.focus({preventScroll: true}); break;
-    case 'poke': hop(); say(pick(['Гав! Щекотно!', 'Платина не царапается, понял?', 'Я тут, бро. Дело выбрал?', 'Лапы в деле, а твои?', 'Пять минут могут всё изменить.', 'Виляю хвостом за каждый шаг.', 'OG пёс на связи.'], Date.now() % 53), {mood: 'happy', ms: 4500}); break;
+    case 'poke': pokeAch(); hop(); say(pick(['Гав! Щекотно!', 'Платина не царапается, понял?', 'Я тут, бро. Дело выбрал?', 'Лапы в деле, а твои?', 'Пять минут могут всё изменить.', 'Виляю хвостом за каждый шаг.', 'OG пёс на связи.'], Date.now() % 53), {mood: 'happy', ms: 4500}); break;
     case 't-pause': {
       const T = S.timer; if (!T) break;
       if (T.paused) { T.paused = false; T.endAt = Date.now() + T.left; ensureTick(); } else { T.left = Math.max(0, T.endAt - Date.now()); T.paused = true; stopTick(); }
@@ -2278,7 +2462,7 @@ document.addEventListener('click', e => {
     case 't-next': { const T = S.timer; if (T && T.next) startTimer({min: POMO[T.next], taskId: T.next === 'focus' ? T.taskId : null, kind: 'pomo', phase: T.next}); } break;
     case 't-skip': { const T = S.timer, tid = T && T.taskId; if (T) startTimer({min: POMO.focus, taskId: tid, kind: 'pomo'}); } break;
     case 't-done': {
-      const tid = S.timer && S.timer.taskId; stopTimer();
+      const tid = S.timer && S.timer.taskId; { const pt = tid && S.tasks.get(tid); if (pt && pt.mins && S.timer.finished) unlockAch('plan1', true); } stopTimer();
       if (tid && S.tasks.get(tid) && !S.tasks.get(tid).done) { edit(tid, t => { t.done = true; t.doneAt = Date.now(); }); celebrate(); }
     } break;
   }
@@ -2350,7 +2534,7 @@ document.addEventListener('change', e => {
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target && e.target.id === 'repDateAdd') { e.preventDefault(); const b = document.querySelector('[data-act=rep-date-add]'); if (b) b.click(); return; }
   if (e.key === 'Enter' && e.target && e.target.id === 'newCat') { e.preventDefault(); const b = document.querySelector('[data-act=cat-create]'); if (b) b.click(); return; }
-  if (e.key === 'Escape') { const f = $('#focusModal'); if (f && !f.hidden) { closeFocus(); return; } const m = document.getElementById('syncModal'); if (m && !m.hidden) { m.hidden = true; return; } if (S.open) { S.open = null; renderAll(); } }
+  if (e.key === 'Escape') { const r = $('#respectModal'); if (r && !r.hidden) { closeRespect(); return; } const f = $('#focusModal'); if (f && !f.hidden) { closeFocus(); return; } const m = document.getElementById('syncModal'); if (m && !m.hidden) { m.hidden = true; return; } if (S.open) { S.open = null; renderAll(); } }
 });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkNewDay(); syncNow(); checkUpdate(); if (S.timer && !S.timer.paused && !S.timer.finished) { ensureTick(); tick(); } renderAll(); } });
 
@@ -2414,7 +2598,7 @@ async function checkUpdate() {
 }
 function boot() {
   noT9();
-  restoreTimer(); loadAll(); if (topUpSeries()) saveAll(); renderGuide(); mountBot(); renderAll();
+  restoreTimer(); loadAll(); if (topUpSeries()) saveAll(); checkAch(false); renderGuide(); mountBot(); renderAll(); renderRespect();
   say('Йоу! Я Шагыч, OG пёс. ' + curLook().line, {mood: isNight() ? null : 'happy', ms: 9000});
   syncNow();
   poseT = setTimeout(nextPose, 3500); setTimeout(() => smile(2800), 1800);
