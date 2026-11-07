@@ -1147,6 +1147,23 @@ const NECKS = {
   thickSh: P => chain('M58 114 Q80 146 102 114', 6, '7 3', P.metal) + R(69, 134, 22, 22, 7, P.metal) + Tx(80, 151.5, 15, INK, 'Ш', 500) + spark(94, 134, 5, '#fff'),
   double: P => chain('M61 114 Q80 138 99 114', 3.2, '', P.metal) + chain('M55 114 Q80 154 105 114', 5, '6 3', P.metal) + C(80, 146, 9.5, P.metal) + Ln(80, 146, 80, 140, INK, 2) + Ln(80, 146, 85, 146, INK, 2)
 };
+/* --- шарфы: отдельный слот поверх одежды, обвивает шею, концы за затылком закрывает голова --- */
+const SCARVES = {
+  none: () => '',
+  cska: P => {
+    const wrap = 'M55 109 Q80 137 105 109', tail = 'M59 122 L85 122 L86 156 L58 156Z';
+    let s = '<g class="b-scarf">';
+    /* свисающий конец: красный, синяя и белая полосы, надпись, бахрома */
+    s += Pth(tail, P.c1, 'n') + '<rect x="57" y="128.5" width="30" height="4" fill="' + P.c2 + '" class="n"/><rect x="57" y="135.5" width="30" height="13" fill="' + P.c3 + '" class="n"/><rect x="57" y="151.5" width="30" height="4.5" fill="' + P.c2 + '" class="n"/>';
+    s += Tx(72, 144.9, 6.5, P.c2, 'ЦСКА', 700) + Pth(tail, 'none', 'o2');
+    for (let i = 0; i < 6; i++) s += Ln(60.8 + i * 4.9, 156.5, 60.4 + i * 4.9, 161.5, i % 2 ? P.c3 : P.c1, 2.4);
+    /* виток вокруг шеи: красно-синие полосы */
+    s += '<path d="' + wrap + '" fill="none" stroke="' + INK + '" stroke-width="19" stroke-linecap="round"/>' +
+      '<path d="' + wrap + '" fill="none" stroke="' + P.c1 + '" stroke-width="15.5" stroke-linecap="round"/>' +
+      '<path d="' + wrap + '" fill="none" stroke="' + P.c2 + '" stroke-width="15.5" stroke-dasharray="8.2 8.2" stroke-dashoffset="-4.1"/>';
+    return s + '</g>';
+  }
+};
 /* --- головные уборы (f рисуется поверх головы) --- */
 const HEADS = {
   none: {n: '', f: () => ''},
@@ -1305,7 +1322,7 @@ SHIRTS.cpTee = {sl: P => P.c1, short: true, body: P => R(46, 106, 68, 54, 22, P.
 SHIRTS.siTee = {sl: P => P.c1, short: true, body: P => R(46, 106, 68, 54, 22, P.c1) + SI_PATCH(80, 132, 1.7)};
 const SLOTS = [
   {id: 'head', name: 'Головные уборы'}, {id: 'eyes', name: 'Очки'}, {id: 'grill', name: 'Грилзы'}, {id: 'shirt', name: 'Футболки'},
-  {id: 'outer', name: 'Верхняя одежда'}, {id: 'bottom', name: 'Штаны'}, {id: 'shoes', name: 'Ботинки'}, {id: 'bg', name: 'Фон'}
+  {id: 'outer', name: 'Верхняя одежда'}, {id: 'scarf', name: 'Шарфы'}, {id: 'bottom', name: 'Штаны'}, {id: 'shoes', name: 'Ботинки'}, {id: 'bg', name: 'Фон'}
 ];
 /* нейтральная палитра: каждый элемент переопределяет только свои цвета, у каждого слота своя палитра */
 const BASEPAL = {c1: '#2A2A3A', c2: '#FFFFFF', c3: '#2A2A3A', pants: '#15121A', shoe: '#15111A', metal: '#D5DAE6', bg1: '#1C070D', bg2: '#4C0E1B', lens: '#101018', hair: '#E2C48E', shirt: '#FFFFFF', tie: '#14111A', strap: '#7E8794', gem: '#FF4D6D'};
@@ -1369,6 +1386,8 @@ const ITEMS = [
   mk('bottom', 'si_joggers', 'Stone Island: джоггеры', 'track', {pants: '#2A2F2B', c2: '#8A9A5B'}, 'repweek2'),
   mk('shoes', 'si_sneak', 'Stone Island: кроссовки', 'siSneak', {shoe: '#232830'}, 'rat50'),
   mk('shoes', 'cp_boots', 'CP Company: ботинки', 'hightop', {shoe: '#6B6A4F', c2: '#E8A23A'}, 'triple3'),
+  mk('scarf', 'sc_none', 'Без шарфа', 'none'),
+  mk('scarf', 'sc_cska', 'Шарф ЦСКА', 'cska', {c1: '#D7262E', c2: '#1B4D9E', c3: '#FFFFFF'}),
   mk('bg', 'bg_red', 'Красная комната', 'redroom', {}, 'steak250'),
   mk('bg', 'bg_black', 'Чёрная пустота', 'blackroom'),
   mk('bg', 'bg_neon', 'Неоновое кольцо', 'neon', {bg1: '#161A33', bg2: '#5CB6FF'}, 'wear5'),
@@ -1383,9 +1402,9 @@ const ITEM = {}; ITEMS.forEach(i => ITEM[i.id] = i);
 /* два готовых образа из клипа «Провод»; по умолчанию они чередуются по дням, а то, что выбрано в гардеробе, поверх них остаётся */
 const PRESETS = [
   {id: 'provod', name: 'Провод', lines: ['Красная комната, чёрный мех, холодный взгляд.', 'Провод натянут. Дело само не сделается, бро.', 'Шапка на месте, обезьяны нет, зато есть таймер.', 'Тут тихо, красно и ничего не отвлекает.'],
-    wear: {head: 'h_provod', eyes: 'e_round', grill: 'g_gems', shirt: 's_white', outer: 'o_furcoat', bottom: 'b_baggy', shoes: 'sh_dress', bg: 'bg_red'}},
+    wear: {head: 'h_provod', eyes: 'e_round', grill: 'g_gems', shirt: 's_white', outer: 'o_furcoat', scarf: 'sc_cska', bottom: 'b_baggy', shoes: 'sh_dress', bg: 'bg_red'}},
   {id: 'shuba', gift: true, name: 'Шуба из «Провода»', lines: ['Мех тяжёлый, а шаг лёгкий. Один шаг, бро.', 'Очки не нужны, на задачу смотрю прямо.', 'В шубе тепло, а в деле ещё теплее.', 'Чёрный фон, один таймер, ничего лишнего.'],
-    wear: {head: 'h_fur', eyes: 'e_none', grill: 'g_gems', shirt: 's_bare', outer: 'o_foxcoat', bottom: 'b_baggy', shoes: 'sh_dress', bg: 'bg_black'}}
+    wear: {head: 'h_fur', eyes: 'e_none', grill: 'g_gems', shirt: 's_bare', outer: 'o_foxcoat', scarf: 'sc_cska', bottom: 'b_baggy', shoes: 'sh_dress', bg: 'bg_black'}}
 ];
 /* вещи в гардеробе идут по сложности ачивок: сначала открытые сразу, потом за самые лёгкие, в конце за самые трудные */
 const ACH_ORDER = ['first', 'done10', 'cat1', 'boar1', 'mins1', 'slice', 'pomo1', 'rat5', 'streak3', 'perfect1', 'repevery', 'repcustom', 'wear5', 'poke10', 'wake', 'plan1', 'rep10', 'done50', 'early', 'triple', 'steak25', 'perfect3', 'cat3', 'mins10', 'pomo4', 'clean', 'burst5', 'sphere3', 'rep3', 'boar5', 'mains10', 'rat20', 'slice10', 'focus60', 'sphere100', 'perfect7', 'pomo10', 'rat50', 'boar10', 'done100', 'focus120', 'streak7', 'repweek', 'deadline', 'steak100', 'rep50', 'marathon', 'repweek2', 'triple3', 'deadline3', 'done250', 'rep30', 'boar25', 'rat100', 'mains50', 'steak250', 'rep100', 'streak30', 'wear20', 'done500', 'perfect30'];
@@ -1427,7 +1446,7 @@ const PUFFS = '<g class="b-puffs">' + [['-16px', '-36px', 0], ['10px', '-44px', 
 /* --- сборка пса --- */
 function botSVG(L, cls, uid) {
   const I = L.it, pal = k => Object.assign({}, BASEPAL, I[k].pal);
-  const Ph = pal('head'), Pe = pal('eyes'), Pg = pal('grill'), Psh = pal('shirt'), Po = pal('outer'), Pb = pal('bottom'), Ps = pal('shoes'), Pbg = pal('bg');
+  const Ph = pal('head'), Pe = pal('eyes'), Pg = pal('grill'), Psh = pal('shirt'), Po = pal('outer'), Pc = pal('scarf'), Pb = pal('bottom'), Ps = pal('shoes'), Pbg = pal('bg');
   const outer = I.outer.kind === 'none' ? null : TOPS[I.outer.kind], shirt = SHIRTS[I.shirt.kind], head = HEADS[I.head.kind];
   let s = '<svg class="' + cls + '" viewBox="0 0 160 200" data-mood="idle" aria-hidden="true" focusable="false">';
   s += bgSVG(I.bg.kind, Pbg, uid);
@@ -1446,6 +1465,7 @@ function botSVG(L, cls, uid) {
   const tp = outer || shirt, Pt = outer ? Po : Psh;
   s += armSVG('l', tp, Pt, L) + armSVG('r', tp, Pt, L);
   if (outer && outer.neck) s += NECKS[outer.neck](Po);
+  s += SCARVES[I.scarf.kind](Pc);
   /* голова */
   s += '<g class="b-head">';
   s += '<ellipse cx="80" cy="76" rx="46" ry="42" class="dog o"/>';
@@ -1587,7 +1607,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.21';
+const APP_VERSION = '2026-11-07.22';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -2553,6 +2573,8 @@ function closeRespect() { const m = $('#respectModal'); if (m.hidden) return; m.
 
 /* ---------- гардероб: окно, примерка и надевание ---------- */
 const WSEEN = 'rtp.wear.seen';
+/* красная точка только для настоящих новых вещей, «Без шарфа» и прочие пустые варианты её не дают */
+const wFresh = (i, seen) => itemOpen(i) && i.kind !== 'none' && seen.indexOf(i.id) < 0;
 function lookWith(id) {
   const L = lookFor(todayStr()), it = ITEM[id], L2 = Object.assign({}, L, {it: Object.assign({}, L.it)});
   L2.it[it.slot] = it; return L2;
@@ -2560,7 +2582,7 @@ function lookWith(id) {
 function wearDot() {
   const seen = ls.get(WSEEN, null), dot = $('#wardDot'); if (!dot) return;
   if (seen === null) { ls.set(WSEEN, ITEMS.filter(i => itemOpen(i)).map(i => i.id)); dot.hidden = true; return; }
-  const n = ITEMS.filter(i => itemOpen(i) && seen.indexOf(i.id) < 0).length;
+  const n = ITEMS.filter(i => wFresh(i, seen)).length;
   dot.hidden = !n; dot.textContent = n; dot.classList.add('n');
 }
 function markWearSeen(ids) { const l = ls.get(WSEEN, []) || []; ids.forEach(i => { if (l.indexOf(i) < 0) l.push(i); }); ls.set(WSEEN, l); }
@@ -2571,7 +2593,7 @@ function renderWardrobe() {
   let h = '<div class="wd-note"><b>Эксклюзив</b> «Шуба из «Провода»» — самый дорогой образ клипа. Тебе он достался сразу, в подарок.</div>';
   h += '<div class="wd-pre"><span class="ol">Готовые образы</span><div class="pills">' + PRESETS.map(p => '<button type="button" class="cat-b plain' + (presetOpen(p) ? '' : ' lockp') + '" data-act="w-preset" data-id="' + p.id + '">' + (presetOpen(p) ? '' : ICON.lock) + esc(p.name) + (p.gift ? ' <i class="gtag">подарок</i>' : '') + '</button>').join('') + '<button type="button" class="cat-b plain addc" data-act="w-reset">Основной образ</button></div></div>';
   const grid = ITEMS.filter(i => i.slot === sl).sort((x, y) => itemRank(x) - itemRank(y)).map((it, n) => {
-    const open = itemOpen(it), on = L.it[sl] === it, isNew = open && wseen.indexOf(it.id) < 0;
+    const open = itemOpen(it), on = L.it[sl] === it, isNew = wFresh(it, wseen);
     let svg = botSVG(lookWith(it.id), 'bot mini', 'wv' + n);
     if (sl === 'grill') svg = svg.replace('data-mood="idle"', 'data-mood="happy"');
     const a = it.ach && ACH_BY[it.ach], gf = it.gift ? ' · подарок' : '', tail = on ? '<small class="on">Надето' + gf + '</small>' : open ? '<small>Надеть' + gf + '</small>' : '<small class="lk">' + ICON.lock + (a && a.secret ? 'Секретная ачивка' : 'Откроется: ' + (a ? a.t : '')) + '</small>';
@@ -2580,7 +2602,7 @@ function renderWardrobe() {
   const card = m.querySelector('.modal-card'), top = card.scrollTop;
   if (!$('#wardTabs')) $('#wardBody').innerHTML = '<div id="wardTop"></div><div class="wtabs" id="wardTabs" role="tablist">' + SLOTS.map(x => '<button type="button" class="wtab" role="tab" data-act="w-tab" data-slot="' + x.id + '">' + x.name + '</button>').join('') + '</div><div class="wd-grid" id="wardGrid"></div>';
   $('#wardTop').innerHTML = h;
-  document.querySelectorAll('#wardTabs .wtab').forEach(bt => { bt.setAttribute('aria-pressed', String(bt.dataset.slot === sl)); const nu = ITEMS.filter(i => i.slot === bt.dataset.slot && itemOpen(i) && wseen.indexOf(i.id) < 0).length, nm = SLOTS.find(x => x.id === bt.dataset.slot).name, hh = nm + (nu ? '<i class="ndot sm"></i>' : ''); if (bt.innerHTML !== hh) bt.innerHTML = hh; });
+  document.querySelectorAll('#wardTabs .wtab').forEach(bt => { bt.setAttribute('aria-pressed', String(bt.dataset.slot === sl)); const nu = ITEMS.filter(i => i.slot === bt.dataset.slot && wFresh(i, wseen)).length, nm = SLOTS.find(x => x.id === bt.dataset.slot).name, hh = nm + (nu ? '<i class="ndot sm"></i>' : ''); if (bt.innerHTML !== hh) bt.innerHTML = hh; });
   $('#wardGrid').innerHTML = grid;
   card.scrollTop = top;
 }
