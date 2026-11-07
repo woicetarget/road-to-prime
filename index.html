@@ -798,6 +798,15 @@ html.modal-open,html.modal-open body{overflow:hidden}
 .sw{width:30px;height:30px;border-radius:50%;border:2.5px solid transparent;background:var(--c);box-shadow:inset 0 0 0 2.5px var(--surface);transition:transform .12s}
 .sw[aria-pressed=true]{border-color:var(--ink);transform:scale(1.1)}
 #catColorBox{margin-top:8px}
+.ndot{display:inline-block;width:11px;height:11px;border-radius:50%;background:#E2412E;box-shadow:0 0 0 2px var(--surface);animation:pulse 1.2s ease-in-out infinite;flex:none}
+.ndot.sm{width:8px;height:8px;margin-left:6px;vertical-align:middle;box-shadow:none}
+.rdot.n{min-width:17px;height:17px;padding:0 4px;border-radius:9px;font:700 10px/17px var(--f-body);color:#fff;text-align:center;top:-7px;right:-7px}
+button.rs-card{width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.rs-card.new{position:relative;border-color:#E2412E;box-shadow:0 0 0 2px rgba(226,65,46,.22)}
+.rs-card.new .ndot{position:absolute;top:10px;right:10px}
+.wd-card.new{border-color:#E2412E}
+.wd-card .ndot:not(.sm){position:absolute;top:6px;right:6px;z-index:2;width:16px;height:16px;border:2px solid var(--surface)}
+.rs-top{flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -1567,7 +1576,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.15';
+const APP_VERSION = '2026-11-07.16';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -2452,23 +2461,26 @@ function hideAch() { const b = $('#achBanner'); b.hidden = true; b.classList.rem
 function renderRespect() {
   const got = ACH.filter(d => S.ach.has(d.id)).length;
   const c = $('#respectCount'); if (c) c.textContent = got + '/' + ACH.length;
-  const seen = ls.get(SEEN_KEY, []), dot = $('#respectDot'); if (dot) dot.hidden = !Array.from(S.ach.keys()).some(id => seen.indexOf(id) < 0);
+  const seen = ls.get(SEEN_KEY, []) || [], unread = Array.from(S.ach.keys()).filter(id => seen.indexOf(id) < 0), dot = $('#respectDot');
+  if (dot) { dot.hidden = !unread.length; dot.textContent = unread.length; dot.classList.add('n'); }
   const m = $('#respectModal'); if (!m || m.hidden) return;
   const a = achStats(), st = stats();
-  let h = '<div class="rs-top"><div class="rs-streak">' + ICON.flame + '<b>' + st.streak + '</b><span>' + plural(st.streak, ['день', 'дня', 'дней']) + ' подряд</span></div><div class="rs-sum">Открыто ' + got + ' из ' + ACH.length + '<small>лучшая серия: ' + a.best + ' ' + plural(a.best, ['день', 'дня', 'дней']) + '</small><small>чистых дней подряд: ' + a.perfectNow + '</small></div></div>';
+  let h = '<div class="rs-top"><div class="rs-streak">' + ICON.flame + '<b>' + st.streak + '</b><span>' + plural(st.streak, ['день', 'дня', 'дней']) + ' подряд</span></div><div class="rs-sum">Открыто ' + got + ' из ' + ACH.length + '<small>лучшая серия: ' + a.best + ' ' + plural(a.best, ['день', 'дня', 'дней']) + '</small><small>чистых дней подряд: ' + a.perfectNow + '</small></div>' + (unread.length ? '<button type="button" class="chip" data-act="ach-read-all">Прочитать все (' + unread.length + ')</button>' : '') + '</div>';
   ACH_G.forEach((g, gi) => {
     const list = ACH.filter(d => d.g === gi); if (!list.length) return;
-    h += '<div class="rs-g">' + g + '</div><div class="rs-grid">' + list.map(d => {
+    h += '<div class="rs-g">' + g + (list.some(d => S.ach.has(d.id) && seen.indexOf(d.id) < 0) ? '<i class="ndot sm"></i>' : '') + '</div><div class="rs-grid">' + list.map(d => {
       const has = S.ach.get(d.id), hide = d.secret && !has;
       const cur = d.cur ? Math.min(d.cur(a), d.goal) : 0;
       const rw = rewardsOf(d.id), rtx = (!hide && rw.length) ? '<small class="rs-rw">Награда: ' + rw.map(i => esc(i.name)).join(', ') + '</small>' : '';
       const tail = rtx + (has ? '<small>' + shortDate(ymd(new Date(has.at))) + (d.secret ? ', секретная' : '') + '</small>' : hide ? '' : (d.goal > 1 ? '<span class="rs-bar"><i style="width:' + Math.round(cur / d.goal * 100) + '%"></i></span><small>' + cur + ' из ' + d.goal + '</small>' : ''));
-      return '<div class="rs-card ' + (hide ? 'a-secret' : d.col) + (has ? ' got' : ' lock') + '"><span class="rs-badge">' + (hide ? ICON.lock : BADGE[d.ic]) + '</span><div class="rs-tx"><b>' + (hide ? 'Секретная' : d.t) + '</b><span>' + (hide ? 'Откроется сама, подсказки нет' : d.d) + '</span>' + tail + '</div></div>';
+      const isNew = has && seen.indexOf(d.id) < 0;
+      return '<' + (isNew ? 'button type="button" data-act="ach-read" data-id="' + d.id + '"' : 'div') + ' class="rs-card ' + (hide ? 'a-secret' : d.col) + (has ? ' got' : ' lock') + (isNew ? ' new' : '') + '">' + (isNew ? '<i class="ndot"></i>' : '') + '<span class="rs-badge">' + (hide ? ICON.lock : BADGE[d.ic]) + '</span><div class="rs-tx"><b>' + (hide ? 'Секретная' : d.t) + '</b><span>' + (hide ? 'Откроется сама, подсказки нет' : d.d) + '</span>' + tail + '</div></' + (isNew ? 'button' : 'div') + '>';
     }).join('') + '</div>';
   });
   $('#respectBody').innerHTML = h;
 }
-function openRespect() { ls.set(SEEN_KEY, Array.from(S.ach.keys())); const m = $('#respectModal'); m.hidden = false; closeFocus(); closeWardrobe(); renderRespect(); }
+function markAchSeen(ids) { const l = ls.get(SEEN_KEY, []) || []; ids.forEach(i => { if (l.indexOf(i) < 0) l.push(i); }); ls.set(SEEN_KEY, l); }
+function openRespect() { const m = $('#respectModal'); m.hidden = false; closeFocus(); closeWardrobe(); renderRespect(); }
 function closeRespect() { const m = $('#respectModal'); if (m.hidden) return; m.hidden = true; renderRespect(); }
 
 /* ---------- гардероб: окно, примерка и надевание ---------- */
@@ -2480,35 +2492,37 @@ function lookWith(id) {
 function wearDot() {
   const seen = ls.get(WSEEN, null), dot = $('#wardDot'); if (!dot) return;
   if (seen === null) { ls.set(WSEEN, ITEMS.filter(i => itemOpen(i)).map(i => i.id)); dot.hidden = true; return; }
-  dot.hidden = !ITEMS.some(i => itemOpen(i) && seen.indexOf(i.id) < 0);
+  const n = ITEMS.filter(i => itemOpen(i) && seen.indexOf(i.id) < 0).length;
+  dot.hidden = !n; dot.textContent = n; dot.classList.add('n');
 }
+function markWearSeen(ids) { const l = ls.get(WSEEN, []) || []; ids.forEach(i => { if (l.indexOf(i) < 0) l.push(i); }); ls.set(WSEEN, l); }
 function renderWardrobe() {
   wearDot();
   const m = $('#wardModal'); if (!m || m.hidden) return;
-  const L = lookFor(todayStr()), sl = S.wTab;
+  const L = lookFor(todayStr()), sl = S.wTab, wseen = ls.get(WSEEN, []) || [];
   let h = '<div class="wd-note"><b>Эксклюзив</b> «Шуба из «Провода»» — самый дорогой образ клипа. Тебе он достался сразу, в подарок.</div>';
   h += '<div class="wd-pre"><span class="ol">Готовые образы</span><div class="pills">' + PRESETS.map(p => '<button type="button" class="cat-b plain' + (presetOpen(p) ? '' : ' lockp') + '" data-act="w-preset" data-id="' + p.id + '">' + (presetOpen(p) ? '' : ICON.lock) + esc(p.name) + (p.gift ? ' <i class="gtag">подарок</i>' : '') + '</button>').join('') + '<button type="button" class="cat-b plain addc" data-act="w-reset">Основной образ</button></div></div>';
   const grid = ITEMS.filter(i => i.slot === sl).sort((x, y) => itemRank(x) - itemRank(y)).map((it, n) => {
-    const open = itemOpen(it), on = L.it[sl] === it;
+    const open = itemOpen(it), on = L.it[sl] === it, isNew = open && wseen.indexOf(it.id) < 0;
     let svg = botSVG(lookWith(it.id), 'bot mini', 'wv' + n);
     if (sl === 'grill') svg = svg.replace('data-mood="idle"', 'data-mood="happy"');
     const a = it.ach && ACH_BY[it.ach], gf = it.gift ? ' · подарок' : '', tail = on ? '<small class="on">Надето' + gf + '</small>' : open ? '<small>Надеть' + gf + '</small>' : '<small class="lk">' + ICON.lock + (a && a.secret ? 'Секретная ачивка' : 'Откроется: ' + (a ? a.t : '')) + '</small>';
-    return '<button type="button" class="wd-card' + (on ? ' on' : '') + (open ? '' : ' lock') + '" data-act="w-equip" data-id="' + it.id + '" aria-pressed="' + on + '"' + (open ? '' : ' aria-disabled="true"') + '>' + (it.gift ? '<span class="wd-gift">Эксклюзив</span>' : '') + svg + '<b>' + esc(it.name) + '</b>' + tail + '</button>';
+    return '<button type="button" class="wd-card' + (on ? ' on' : '') + (open ? '' : ' lock') + (isNew ? ' new' : '') + '" data-act="w-equip" data-id="' + it.id + '" aria-pressed="' + on + '"' + (open ? '' : ' aria-disabled="true"') + '>' + (isNew ? '<i class="ndot" data-act="w-read" data-id="' + it.id + '" role="button" aria-label="Новое, нажми, чтобы убрать"></i>' : '') + (it.gift ? '<span class="wd-gift">Эксклюзив</span>' : '') + svg + '<b>' + esc(it.name) + '</b>' + tail + '</button>';
   }).join('');
   const card = m.querySelector('.modal-card'), top = card.scrollTop;
   if (!$('#wardTabs')) $('#wardBody').innerHTML = '<div id="wardTop"></div><div class="wtabs" id="wardTabs" role="tablist">' + SLOTS.map(x => '<button type="button" class="wtab" role="tab" data-act="w-tab" data-slot="' + x.id + '">' + x.name + '</button>').join('') + '</div><div class="wd-grid" id="wardGrid"></div>';
   $('#wardTop').innerHTML = h;
-  document.querySelectorAll('#wardTabs .wtab').forEach(bt => bt.setAttribute('aria-pressed', String(bt.dataset.slot === sl)));
+  document.querySelectorAll('#wardTabs .wtab').forEach(bt => { bt.setAttribute('aria-pressed', String(bt.dataset.slot === sl)); const nu = ITEMS.filter(i => i.slot === bt.dataset.slot && itemOpen(i) && wseen.indexOf(i.id) < 0).length, nm = SLOTS.find(x => x.id === bt.dataset.slot).name, hh = nm + (nu ? '<i class="ndot sm"></i>' : ''); if (bt.innerHTML !== hh) bt.innerHTML = hh; });
   $('#wardGrid').innerHTML = grid;
   card.scrollTop = top;
 }
-function openWardrobe() { closeFocus(); closeRespect(); const m = $('#wardModal'); m.hidden = false; ls.set(WSEEN, ITEMS.filter(i => itemOpen(i)).map(i => i.id)); renderWardrobe(); m.querySelector('.modal-card').scrollTop = 0; }
+function openWardrobe() { closeFocus(); closeRespect(); const m = $('#wardModal'); m.hidden = false; renderWardrobe(); m.querySelector('.modal-card').scrollTop = 0; }
 function closeWardrobe() { const m = $('#wardModal'); if (m.hidden) return; m.hidden = true; renderWardrobe(); }
 function wearChanged() { LOOKS.clear(); S.wearAt = Date.now(); saveAll(); mountBot(); renderWardrobe(); hop(); }
 function equipItem(id) {
   const it = ITEM[id]; if (!it) return;
   if (!itemOpen(it)) { const a = ACH_BY[it.ach]; toast(a && a.secret ? 'Эта вещь открывается секретной ачивкой' : 'Откроется за ачивку «' + (a ? a.t : '') + '»'); return; }
-  S.wear[it.slot] = id;
+  S.wear[it.slot] = id; markWearSeen([id]);
   const n = (ls.get('rtp.wear.n', 0) || 0) + 1; ls.set('rtp.wear.n', n); if (n >= 5) unlockAch('wear5', true); if (n >= 20) unlockAch('wear20', true);
   wearChanged();
 }
@@ -2587,6 +2601,9 @@ document.addEventListener('click', e => {
     case 'w-equip': equipItem(b.dataset.id); break;
     case 'w-preset': { const pr = PRESETS.find(x => x.id === b.dataset.id); if (!pr) break; if (!presetOpen(pr)) { toast('Образ откроется за ачивки: ' + presetNeeds(pr).map(x => '«' + x + '»').join(', ')); break; } S.wear = Object.assign({}, pr.wear); wearChanged(); } break;
     case 'w-reset': S.wear = {}; wearChanged(); break;
+    case 'ach-read': markAchSeen([b.dataset.id]); renderRespect(); break;
+    case 'ach-read-all': markAchSeen(Array.from(S.ach.keys())); renderRespect(); break;
+    case 'w-read': markWearSeen([b.dataset.id]); renderWardrobe(); break;
     case 'respect-open': openRespect(); break;
     case 'respect-close': closeRespect(); break;
     case 'ach-open': hideAch(); openRespect(); break;
