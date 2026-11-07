@@ -789,6 +789,11 @@ html.modal-open,html.modal-open body{overflow:hidden}
 @media (max-width:620px){.modal{padding:10px}.modal-card{padding:16px 14px;max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px)}}
 .cat-b.lockp{opacity:.6}
 .cat-b.lockp svg{width:12px;height:12px}
+.wd-card{position:relative}
+.wd-gift{position:absolute;top:6px;left:6px;z-index:1;padding:1px 8px;border-radius:999px;background:linear-gradient(135deg,#F7DA7A,#E8A23A);color:#3A2A00;font:700 10px var(--f-body);letter-spacing:.05em;text-transform:uppercase;box-shadow:0 2px 8px -2px rgba(232,162,58,.7)}
+.wd-note{margin:0 0 10px;padding:10px 12px;border-radius:14px;border:1.5px solid #E8A23A;background:linear-gradient(135deg,rgba(247,218,122,.18),rgba(232,162,58,.1));font-size:13.5px;line-height:1.4}
+.wd-note b{color:#E8A23A;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-right:4px}
+.gtag{font-style:normal;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:0 6px;margin-left:4px;border-radius:999px;background:linear-gradient(135deg,#F7DA7A,#E8A23A);color:#3A2A00}
 </style>
 </head>
 <body>
@@ -1349,11 +1354,13 @@ const ITEMS = [
   mk('bg', 'bg_diamonds', 'Бриллианты', 'diamonds', {bg1: '#26335F', bg2: '#8FB3FF'}, 'pomo4'),
 ];
 const ITEM = {}; ITEMS.forEach(i => ITEM[i.id] = i);
+/* «Шуба из Провода»: образ эксклюзивный и дорогой, но выдан подарком сразу; это видно в гардеробе */
+['h_fur', 'o_foxcoat', 's_bare', 'bg_black'].forEach(id => { ITEM[id].gift = true; });
 /* два готовых образа из клипа «Провод»; по умолчанию они чередуются по дням, а то, что выбрано в гардеробе, поверх них остаётся */
 const PRESETS = [
   {id: 'provod', name: 'Провод', lines: ['Красная комната, чёрный мех, холодный взгляд.', 'Провод натянут. Дело само не сделается, бро.', 'Шапка на месте, обезьяны нет, зато есть таймер.', 'Тут тихо, красно и ничего не отвлекает.'],
     wear: {head: 'h_provod', eyes: 'e_round', grill: 'g_gems', shirt: 's_white', outer: 'o_furcoat', bottom: 'b_baggy', shoes: 'sh_dress', bg: 'bg_red'}},
-  {id: 'shuba', name: 'Шуба из «Провода»', lines: ['Мех тяжёлый, а шаг лёгкий. Один шаг, бро.', 'Очки не нужны, на задачу смотрю прямо.', 'В шубе тепло, а в деле ещё теплее.', 'Чёрный фон, один таймер, ничего лишнего.'],
+  {id: 'shuba', gift: true, name: 'Шуба из «Провода»', lines: ['Мех тяжёлый, а шаг лёгкий. Один шаг, бро.', 'Очки не нужны, на задачу смотрю прямо.', 'В шубе тепло, а в деле ещё теплее.', 'Чёрный фон, один таймер, ничего лишнего.'],
     wear: {head: 'h_fur', eyes: 'e_none', grill: 'g_gems', shirt: 's_bare', outer: 'o_foxcoat', bottom: 'b_baggy', shoes: 'sh_dress', bg: 'bg_black'}}
 ];
 const itemOpen = it => !it.ach || S.ach.has(it.ach);
@@ -1552,7 +1559,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.13';
+const APP_VERSION = '2026-11-07.14';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -2422,14 +2429,15 @@ function renderWardrobe() {
   wearDot();
   const m = $('#wardModal'); if (!m || m.hidden) return;
   const L = lookFor(todayStr()), sl = S.wTab;
-  let h = '<div class="wd-pre"><span class="ol">Готовые образы</span><div class="pills">' + PRESETS.map(p => '<button type="button" class="cat-b plain' + (presetOpen(p) ? '' : ' lockp') + '" data-act="w-preset" data-id="' + p.id + '">' + (presetOpen(p) ? '' : ICON.lock) + esc(p.name) + '</button>').join('') + '<button type="button" class="cat-b plain addc" data-act="w-reset">Основной образ</button></div></div>';
+  let h = '<div class="wd-note"><b>Эксклюзив</b> «Шуба из «Провода»» — самый дорогой образ клипа. Тебе он достался сразу, в подарок.</div>';
+  h += '<div class="wd-pre"><span class="ol">Готовые образы</span><div class="pills">' + PRESETS.map(p => '<button type="button" class="cat-b plain' + (presetOpen(p) ? '' : ' lockp') + '" data-act="w-preset" data-id="' + p.id + '">' + (presetOpen(p) ? '' : ICON.lock) + esc(p.name) + (p.gift ? ' <i class="gtag">подарок</i>' : '') + '</button>').join('') + '<button type="button" class="cat-b plain addc" data-act="w-reset">Основной образ</button></div></div>';
   h += '<div class="wtabs" role="tablist">' + SLOTS.map(x => '<button type="button" class="wtab" role="tab" data-act="w-tab" data-slot="' + x.id + '" aria-pressed="' + (x.id === sl) + '">' + x.name + '</button>').join('') + '</div>';
   h += '<div class="wd-grid">' + ITEMS.filter(i => i.slot === sl).map((it, n) => {
     const open = itemOpen(it), on = L.it[sl] === it;
     let svg = botSVG(lookWith(it.id), 'bot mini', 'wv' + n);
     if (sl === 'grill') svg = svg.replace('data-mood="idle"', 'data-mood="happy"');
-    const a = it.ach && ACH_BY[it.ach], tail = on ? '<small class="on">Надето</small>' : open ? '<small>Надеть</small>' : '<small class="lk">' + ICON.lock + (a && a.secret ? 'Секретная ачивка' : 'Откроется: ' + (a ? a.t : '')) + '</small>';
-    return '<button type="button" class="wd-card' + (on ? ' on' : '') + (open ? '' : ' lock') + '" data-act="w-equip" data-id="' + it.id + '" aria-pressed="' + on + '"' + (open ? '' : ' aria-disabled="true"') + '>' + svg + '<b>' + esc(it.name) + '</b>' + tail + '</button>';
+    const a = it.ach && ACH_BY[it.ach], gf = it.gift ? ' · подарок' : '', tail = on ? '<small class="on">Надето' + gf + '</small>' : open ? '<small>Надеть' + gf + '</small>' : '<small class="lk">' + ICON.lock + (a && a.secret ? 'Секретная ачивка' : 'Откроется: ' + (a ? a.t : '')) + '</small>';
+    return '<button type="button" class="wd-card' + (on ? ' on' : '') + (open ? '' : ' lock') + '" data-act="w-equip" data-id="' + it.id + '" aria-pressed="' + on + '"' + (open ? '' : ' aria-disabled="true"') + '>' + (it.gift ? '<span class="wd-gift">Эксклюзив</span>' : '') + svg + '<b>' + esc(it.name) + '</b>' + tail + '</button>';
   }).join('') + '</div>';
   $('#wardBody').innerHTML = h;
 }
