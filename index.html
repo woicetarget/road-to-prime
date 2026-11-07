@@ -1581,7 +1581,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.18';
+const APP_VERSION = '2026-11-07.19';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -1850,9 +1850,12 @@ function stepHTML(t, s, i, ctx) {
     '<button type="button" class="ib" data-act="sopen" data-i="' + i + '" aria-expanded="' + open + '" aria-label="Характеристики стейка">' + ICON.dots + '</button></div>';
   if (open) {
     const uid = ctx + '-' + t.id + '-' + i;
-    h += '<div class="sopts"><div class="prow">' +
+    h += '<div class="sopts">' +
+      '<div class="og"><label class="ol" for="stt-' + uid + '">Название</label><input type="text" class="sel" id="stt-' + uid + '" maxlength="120" data-step-text data-i="' + i + '" value="' + esc(s.t) + '"></div>' +
+      '<div class="prow">' +
       '<button type="button" class="pill' + (s.main ? ' on' : '') + '" data-act="step-main" data-i="' + i + '">' + ICON.star + (s.main ? 'Не главное' : 'Главное') + '</button>' +
-      '<button type="button" class="pill' + (s.rat ? ' on' : '') + '" data-act="step-rat" data-i="' + i + '">' + ICON.rat + (s.rat ? 'Не крыса' : 'Это крыса') + '</button></div>' +
+      '<button type="button" class="pill' + (s.rat ? ' on' : '') + '" data-act="step-rat" data-i="' + i + '">' + ICON.rat + (s.rat ? 'Не крыса' : 'Это крыса') + '</button>' +
+      '<button type="button" class="pill" data-act="step-del" data-i="' + i + '">Удалить стейк</button></div>' +
       '<div class="og"><span class="ol">Категория</span><div class="pills">' + catPillsHTML(s.cat || '', 'step-cat', {none: 'Как у задачи', extra: ' data-i="' + i + '"'}) + '</div></div>' +
       '<div class="og"><label class="ol" for="sd-' + uid + '">Дата</label><input type="date" class="sel" id="sd-' + uid + '" data-step-date data-i="' + i + '" value="' + esc(s.date || '') + '"></div></div>';
   }
@@ -2549,6 +2552,12 @@ document.addEventListener('click', e => {
     case 'sopen': { const key = id + ':' + b.dataset.i; S.openStep = S.openStep === key ? null : key; renderAll(); } break;
     case 'step-main': { const si = +b.dataset.i; edit(id, t => { if (t.steps[si]) t.steps[si].main = !t.steps[si].main; }); } break;
     case 'step-rat': { const si = +b.dataset.i; edit(id, t => { if (t.steps[si]) t.steps[si].rat = !t.steps[si].rat; }); } break;
+    case 'step-del': {
+      const si = +b.dataset.i, cur = S.tasks.get(id), gone = cur && cur.steps[si] ? JSON.parse(JSON.stringify(cur.steps[si])) : null; if (!gone) break;
+      S.openStep = null; S.stepsOpen.add(id);
+      edit(id, t => { t.steps.splice(si, 1); });
+      toast('Стейк удалён', 'Вернуть', () => { S.stepsOpen.add(id); edit(id, t => { t.steps.splice(Math.min(si, t.steps.length), 0, gone); }); });
+    } break;
     case 'scat': S.sCat = b.dataset.cat; renderSphereDetail(); break;
     case 'sstar': S.sStar = !S.sStar; renderSphereDetail(); break;
     case 'sbig': S.sBig = !S.sBig; if (S.sBig) S.sRat = false; renderSphereDetail(); break;
@@ -2737,6 +2746,12 @@ document.addEventListener('input', e => {
 document.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'sphereDate') { if (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value)) { S.sDate = t.value; renderSphereDetail(); } }
+  else if (t.matches && t.matches('input[data-step-text]')) {
+    const li = t.closest('li[data-id]'), si = +t.dataset.i, v = t.value.trim().slice(0, 120), cur = li && S.tasks.get(li.dataset.id), st = cur && cur.steps[si];
+    if (!st) return;
+    if (!v) { t.value = st.t; return; }
+    if (v !== st.t) edit(li.dataset.id, x => { if (x.steps[si]) x.steps[si].t = v; });
+  }
   else if (t.matches && t.matches('input[data-step-date]')) { const li = t.closest('li[data-id]'); const si = +t.dataset.i; if (li && (t.value === '' || /^\d{4}-\d{2}-\d{2}$/.test(t.value))) edit(li.dataset.id, x => { const s = x.steps[si]; if (s) { if (t.value) s.date = t.value; else delete s.date; } }); }
   else if (t.id === 'sdDate' || t.id === 'sdTime') { const sp = S.spheres.get(S.selSphere), dEl = document.getElementById('sdDate'), tEl = document.getElementById('sdTime'); if (sp) setSphereDeadline(sp, isDate(dEl.value) ? dEl.value : '', tEl.value); }
   else if (t.id === 'repDateAdd') { addRepDate(t.value); t.value = ''; }
