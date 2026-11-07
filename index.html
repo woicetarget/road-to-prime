@@ -1581,7 +1581,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.17';
+const APP_VERSION = '2026-11-07.18';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -2663,7 +2663,7 @@ document.addEventListener('click', e => {
     case 'free-pomo': startTimer({min: POMO.focus, kind: 'pomo'}); break;
     case 'other': S.skip++; renderAgent(); break;
     case 'focus-add': closeFocus(); el.title.scrollIntoView({block: 'center', behavior: 'smooth'}); el.title.focus({preventScroll: true}); break;
-    case 'poke': pokeAch(); hop(); say(pick(['Гав! Щекотно!', 'Платина не царапается, понял?', 'Я тут, бро. Дело выбрал?', 'Лапы в деле, а твои?', 'Пять минут могут всё изменить.', 'Виляю хвостом за каждый шаг.', 'OG пёс на связи.'], Date.now() % 53), {mood: 'happy', ms: 4500}); break;
+    case 'poke': pokeAch(); hop(); say(pick(['Гав! Щекотно!', 'Платина не царапается, понял?', 'Я тут, бро. Дело выбрал?', 'Лапы в деле, а твои?', 'Пять минут могут всё изменить.', 'Виляю хвостом за каждый шаг.', 'OG пёс на связи.', 'Мы заплатили дорого, но это того стоило.'], Date.now() % 53), {mood: 'happy', ms: 4500}); break;
     case 't-pause': {
       const T = S.timer; if (!T) break;
       if (T.paused) { T.paused = false; T.endAt = Date.now() + T.left; ensureTick(); } else { T.left = Math.max(0, T.endAt - Date.now()); T.paused = true; stopTick(); }
