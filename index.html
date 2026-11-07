@@ -258,7 +258,12 @@ h1,h2,h3{margin:0;font-family:var(--f-head);font-weight:700;text-transform:upper
 .sph i{width:10px;height:10px;border-radius:3px;background:var(--s);flex:none}
 .sel{width:100%;background:var(--surface2);border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15.5px;color:var(--ink)}
 .sel:focus{outline:none;border-color:var(--accent)}
-.sd-foot{padding:12px 0 6px}
+.sd-side{display:grid;justify-items:end;gap:6px}
+.sd-del{padding:6px 12px;font-size:13.5px;white-space:nowrap}
+.sd-ask{margin:0 0 14px;padding:14px;border:2px solid var(--line);border-radius:16px;background:var(--surface2);display:grid;gap:12px}
+.sd-ask p{margin:0;font-size:15.5px;font-weight:600;line-height:1.4;color:var(--ink)}
+.sd-ask small{display:block;margin-top:5px;font-size:13.5px;font-weight:500;color:var(--ink2)}
+.sd-ask .btns{display:flex;flex-wrap:wrap;gap:8px}
 .st-lbl{grid-column:2;margin-top:12px;font-size:14px;font-weight:600;color:var(--ink2)}
 .st-lbl + .steps{margin-top:6px}
 
@@ -1560,6 +1565,7 @@ function removeSeries(id) {
   toast('Повторы остановлены, будущих дел убрано: ' + n);
 }
 S.repFromTouched = false;
+S.sphAsk = null;
 S.sCat = S.cat; S.sStar = false; S.sBig = false; S.sRat = false; S.sDate = '';
 let byDate = new Map();
 const Q = new Map();
@@ -1581,7 +1587,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.20';
+const APP_VERSION = '2026-11-07.21';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -2292,11 +2298,30 @@ function addSphere(name, deadline, dlTime) {
   persistSphere(sp);
   return id;
 }
-function removeSphere(id) {
+/* withOpen: вместе со сферой убрать её невыполненные дела и повторы; сделанные остаются всегда, от них считаются серия и ачивки */
+function removeSphere(id, withOpen) {
   const sp = S.spheres.get(id); if (!sp) return;
-  S.spheres.delete(id); S.tomb.spheres[id] = Date.now(); if (S.selSphere === id) S.selSphere = null;
+  const now = Date.now(), tasks = [], sers = [];
+  if (withOpen) {
+    S.tasks.forEach(t => { if (t.sphere === id && !t.done) tasks.push(t); });
+    S.series.forEach(s => { if (s.sphere === id) sers.push(s); });
+    tasks.forEach(t => { S.tasks.delete(t.id); S.tomb.tasks[t.id] = now; if (S.open === t.id) S.open = null; });
+    sers.forEach(s => { S.series.delete(s.id); S.tomb.series[s.id] = now; });
+  }
+  S.spheres.delete(id); S.tomb.spheres[id] = now; S.sphAsk = null; if (S.selSphere === id) S.selSphere = null;
   saveAll(); renderAll();
-  toast('Сфера «' + sp.name + '» удалена, дела остались', 'Вернуть', () => persistSphere(sp));
+  toast('Сфера «' + sp.name + '» удалена' + (withOpen ? ', открытых дел убрано: ' + tasks.length : ', дела остались'), 'Вернуть', () => {
+    tasks.forEach(t => { stamp(t); delete S.tomb.tasks[t.id]; S.tasks.set(t.id, t); });
+    sers.forEach(s => { stamp(s); delete S.tomb.series[s.id]; S.series.set(s.id, s); });
+    persistSphere(sp);
+  });
+}
+function askRemoveSphere(id) {
+  const sp = S.spheres.get(id); if (!sp) return;
+  let any = false; S.tasks.forEach(t => { if (t.sphere === id) any = true; }); S.series.forEach(s => { if (s.sphere === id) any = true; });
+  if (!any) { removeSphere(id, false); return; }
+  S.sphAsk = id; renderSphereDetail();
+  const a = document.querySelector('.sd-ask'); if (a) a.scrollIntoView({block: 'nearest'});
 }
 function renderSpheres() {
   const on = S.tab === 'spheres';
@@ -2336,6 +2361,13 @@ function sdDeadlineHTML(sp, st) {
     (sp.deadline ? '<button type="button" class="pill" data-act="sd-clear">Убрать срок</button>' : '') + '</div>' +
     (i ? '<p class="sp-dl-note ' + i.cls + '">' + ICON.alarm + i.text + ' · ' + i.note + (late ? '. Дел запланировано после срока: ' + late : '') + '</p>' : '');
 }
+function sphereAskHTML(sp, st) {
+  const n = st.list.length, open = st.open.length, b = (mode, cls, txt) => '<button type="button" class="chip ' + cls + '" data-act="sphere-del-go" data-id="' + sp.id + '" data-mode="' + mode + '">' + txt + '</button>';
+  return '<div class="sd-ask" role="group" aria-label="Удаление сферы"><p>Удалить сферу «' + esc(sp.name) + '»?' +
+    (n ? '<small>Дел в ней: ' + n + (open ? ', открытых ' + open : '') + '. Сделанные дела останутся в любом случае: от них считаются серия и ачивки.</small>' : '') + '</p>' +
+    '<div class="btns">' + b('keep', 'go', 'Удалить, дела оставить') + (open ? b('open', '', 'Удалить и убрать открытые дела (' + open + ')') : '') +
+    '<button type="button" class="chip" data-act="sphere-del-no">Не удалять</button></div></div>';
+}
 function renderSphereDetail() {
   const old = document.getElementById('sphereQuickTitle'), keep = old ? old.value : '', hadFocus = old && document.activeElement === old;
   const sp = S.spheres.get(S.selSphere);
@@ -2343,14 +2375,14 @@ function renderSphereDetail() {
   const st = sphereStats(sp.id), done = st.list.filter(t => t.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
   const dated = st.open.filter(t => t.date), undated = st.open.filter(t => !t.date);
   el.sdetail.innerHTML =
-    '<div class="day-head"><div><span class="rel">Сфера</span><h2>' + esc(sp.name) + '</h2></div><div class="prog">' + st.pct + '%</div></div>' +
+    '<div class="day-head"><div><span class="rel">Сфера</span><h2>' + esc(sp.name) + '</h2></div><div class="sd-side"><div class="prog">' + st.pct + '%</div><button type="button" class="chip sd-del" data-act="sphere-del" data-id="' + sp.id + '">Удалить сферу</button></div></div>' +
     '<div class="bar" aria-hidden="true"><i style="--p:' + (st.pct / 100).toFixed(3) + '"></i></div>' +
+    (S.sphAsk === sp.id ? sphereAskHTML(sp, st) : '') +
     sdDeadlineHTML(sp, st) +
     sphereFormHTML() +
     '<ul class="list">' + (dated.length ? '<li class="grp">В работе</li>' + dated.map(x => rowHTML(x, 's')).join('') : (undated.length ? '' : '<li class="empty">Открытых дел нет.</li>')) +
     (undated.length ? '<li class="grp">Без даты<small>привяжи к дню кнопкой справа внизу</small></li>' + undated.map(x => rowHTML(x, 's')).join('') : '') +
-    (done.length ? '<li class="grp">Готово</li>' + done.map(x => rowHTML(x, 's')).join('') : '') + '</ul>' +
-    '<div class="sd-foot"><button type="button" class="chip" data-act="sphere-del" data-id="' + sp.id + '">Удалить сферу</button></div>';
+    (done.length ? '<li class="grp">Готово</li>' + done.map(x => rowHTML(x, 's')).join('') : '') + '</ul>';
   const inp = document.getElementById('sphereQuickTitle');
   if (inp && keep) { inp.value = keep; if (hadFocus) inp.focus(); }
 }
@@ -2573,8 +2605,10 @@ document.addEventListener('click', e => {
       if (S.tab === 'spheres' && !S.selSphere) { const l = sphereList(); if (l.length) S.selSphere = l[0].id; }
       renderAll();
       break;
-    case 'sphere': S.selSphere = id; renderSpheres(); if (innerWidth < 980) el.sdetail.scrollIntoView({block: 'start'}); break;
-    case 'sphere-del': removeSphere(id); break;
+    case 'sphere': S.selSphere = id; S.sphAsk = null; renderSpheres(); if (innerWidth < 980) el.sdetail.scrollIntoView({block: 'start'}); break;
+    case 'sphere-del': askRemoveSphere(id); break;
+    case 'sphere-del-go': removeSphere(id, b.dataset.mode === 'open'); break;
+    case 'sphere-del-no': S.sphAsk = null; renderSphereDetail(); break;
     case 'sdate-clear': S.sDate = ''; renderSphereDetail(); break;
     case 'sd-clear': { const sp = S.spheres.get(S.selSphere); if (sp) setSphereDeadline(sp, '', ''); } break;
     case 'sopen': { const key = id + ':' + b.dataset.i; S.openStep = S.openStep === key ? null : key; renderAll(); } break;
