@@ -1581,7 +1581,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.19';
+const APP_VERSION = '2026-11-07.20';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -2131,6 +2131,7 @@ function startTimer(o) {
   S.timer = {kind: o.kind || 'quick', phase: o.phase || 'focus', taskId: o.taskId || null, total: ms, endAt: Date.now() + ms, left: ms, paused: false, finished: false, next: null, hunt: !!o.hunt};
   saveTimer(); ensureTick();
   const t = o.taskId && S.tasks.get(o.taskId), ph = S.timer.phase;
+  startSound(ph);
   if (ph === 'short') say('Перерыв ' + o.min + ' минут. Встань, попей воды, потянись, бро.', {mood: 'happy', ms: 6000});
   else if (ph === 'long') say('Длинный перерыв ' + o.min + ' минут. Ты заслужил, прогуляйся.', {mood: 'happy', ms: 6000});
   else if (o.hunt) say('Охота на крыс началась. ' + o.min + ' минут, ловим мелкие и противные дела одно за другим.', {mood: 'focus', ms: 7000});
@@ -2146,7 +2147,7 @@ function finishTimer() {
     if (T.phase === 'focus') { const p = pomoState(); p.count++; p.cycle++; ls.set(KEYS.pomo, p); ls.set('rtp.pomo.total', (ls.get('rtp.pomo.total', 0) || 0) + 1); scheduleAch(); unlockAch('pomo1', true); if (p.count >= 4) unlockAch('pomo4', true); T.next = (p.cycle % POMO.setLen === 0) ? 'long' : 'short'; }
     else T.next = 'focus';
   }
-  saveTimer(); chime(T.phase === 'focus' ? 2 : 1); hop();
+  saveTimer(); endSound(T.phase); hop();
   if (T.kind === 'pomo' && T.phase === 'focus') say('Помодоро готово! Лапы в деле, респект. Теперь ' + (T.next === 'long' ? 'длинный перерыв, ' + POMO.long + ' минут' : 'перерыв на ' + POMO.short + ' минут') + '.', {mood: 'happy', ms: 9000});
   else if (T.phase !== 'focus') say('Перерыв закончился. Вернёмся к делу?', {mood: 'happy', ms: 8000});
   else say('Время! Ты просидел ' + Math.round(T.total / 60000) + ' мин над делом. Это уже победа.', {mood: 'happy', ms: 9000});
@@ -2164,18 +2165,45 @@ function restoreTimer() {
   S.timer = r;
   if (!r.paused && !r.finished) ensureTick();
 }
-function chime(n) {
+/* звук: один общий AudioContext; браузер (особенно iPhone) разрешает звук только после касания, поэтому первое касание его открывает, а дальше им играют и таймер, и ачивки */
+let AC = null;
+function audio() {
   try {
-    const A = window.AudioContext || window.webkitAudioContext; if (!A) return;
-    const c = new A(), freqs = n === 2 ? [660, 880, 1040] : [880, 660];
-    freqs.forEach((f, i) => {
-      const o = c.createOscillator(), g = c.createGain(), t0 = c.currentTime + i * 0.2;
-      o.type = 'sine'; o.frequency.value = f;
-      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.18, t0 + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.5);
-      o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0 + 0.55);
+    const A = window.AudioContext || window.webkitAudioContext; if (!A) return null;
+    if (!AC || AC.state === 'closed') AC = new A();
+    if (AC.state !== 'running') { const p = AC.resume(); if (p && p.catch) p.catch(() => {}); }
+    return AC;
+  } catch (e) { return null; }
+}
+function unlockAudio() {
+  if (AC && AC.state === 'running') return;
+  const c = audio(); if (!c) return;
+  try { const s = c.createBufferSource(); s.buffer = c.createBuffer(1, 1, 22050); s.connect(c.destination); s.start(0); } catch (e) {}
+}
+['touchend', 'click', 'keydown'].forEach(ev => addEventListener(ev, unlockAudio, {passive: true, capture: true}));
+function tones(list, vol) {
+  const c = audio(); if (!c) return;
+  try {
+    const now = c.currentTime + 0.02;
+    list.forEach(n => {
+      const o = c.createOscillator(), g = c.createGain(), t0 = now + n[1], dur = n[2];
+      o.type = n[3] || 'sine'; o.frequency.value = n[0];
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0 + dur + 0.05);
     });
-    setTimeout(() => { try { c.close(); } catch (e) {} }, 1800);
   } catch (e) {}
+}
+function chime(n) { tones((n === 2 ? [660, 880, 1040] : [880, 660]).map((f, i) => [f, i * 0.2, 0.5]), 0.18); }
+/* таймер: на старт короткое «бип-буп» вверх (фокус) или вниз (перерыв), на конец арпеджио дважды и вибрация */
+function startSound(phase) {
+  if (phase === 'focus') tones([[523, 0, 0.16, 'triangle'], [784, 0.13, 0.32, 'triangle']], 0.22);
+  else tones([[784, 0, 0.2], [587, 0.16, 0.36]], 0.16);
+}
+function endSound(phase) {
+  const f = phase === 'focus' ? [660, 880, 1040] : [880, 660], list = [];
+  [0, 1.05].forEach(r => f.forEach((fr, i) => list.push([fr, r + i * 0.2, 0.6])));
+  tones(list, 0.28);
+  try { navigator.vibrate && navigator.vibrate(phase === 'focus' ? [200, 100, 200, 100, 400] : [200, 100, 200]); } catch (e) {}
 }
 function focusTask(t) {
   if (!t || !t.date) return;
