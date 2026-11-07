@@ -1398,7 +1398,7 @@ const ITEMS = [
 ];
 const ITEM = {}; ITEMS.forEach(i => ITEM[i.id] = i);
 /* «Шуба из Провода»: образ эксклюзивный и дорогой, но выдан подарком сразу; это видно в гардеробе */
-['h_fur', 'o_foxcoat', 's_bare', 'bg_black'].forEach(id => { ITEM[id].gift = true; });
+['h_fur', 'o_foxcoat', 's_bare', 'bg_black', 'sc_cska'].forEach(id => { ITEM[id].gift = true; });
 /* два готовых образа из клипа «Провод»; по умолчанию они чередуются по дням, а то, что выбрано в гардеробе, поверх них остаётся */
 const PRESETS = [
   {id: 'provod', name: 'Провод', lines: ['Красная комната, чёрный мех, холодный взгляд.', 'Провод натянут. Дело само не сделается, бро.', 'Шапка на месте, обезьяны нет, зато есть таймер.', 'Тут тихо, красно и ничего не отвлекает.'],
@@ -1607,7 +1607,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.22';
+const APP_VERSION = '2026-11-07.23';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -2591,6 +2591,7 @@ function renderWardrobe() {
   const m = $('#wardModal'); if (!m || m.hidden) return;
   const L = lookFor(todayStr()), sl = S.wTab, wseen = ls.get(WSEEN, []) || [];
   let h = '<div class="wd-note"><b>Эксклюзив</b> «Шуба из «Провода»» — самый дорогой образ клипа. Тебе он достался сразу, в подарок.</div>';
+  if (sl === 'scarf') h += '<div class="wd-note"><b>Ивент</b> «Шарф ЦСКА» — эксклюзивный подарок Шагычу. Надет сразу и остаётся, пока сам не снимешь.</div>';
   h += '<div class="wd-pre"><span class="ol">Готовые образы</span><div class="pills">' + PRESETS.map(p => '<button type="button" class="cat-b plain' + (presetOpen(p) ? '' : ' lockp') + '" data-act="w-preset" data-id="' + p.id + '">' + (presetOpen(p) ? '' : ICON.lock) + esc(p.name) + (p.gift ? ' <i class="gtag">подарок</i>' : '') + '</button>').join('') + '<button type="button" class="cat-b plain addc" data-act="w-reset">Основной образ</button></div></div>';
   const grid = ITEMS.filter(i => i.slot === sl).sort((x, y) => itemRank(x) - itemRank(y)).map((it, n) => {
     const open = itemOpen(it), on = L.it[sl] === it, isNew = wFresh(it, wseen);
