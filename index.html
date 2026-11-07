@@ -692,19 +692,24 @@ html{background-color:var(--bg);padding-top:env(safe-area-inset-top,0px);padding
 @keyframes litEarL{0%,100%{transform:rotate(0)}40%{transform:rotate(-9deg)}}
 @keyframes litEarR{0%,100%{transform:rotate(0)}40%{transform:rotate(9deg)}}
 @keyframes litBlink{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.1)}}
-html.lite .b-tail,html.lite .dg-ear-l,html.lite .dg-ear-r,html.lite .b-blink{animation:none}
-html.lite .bot.smile .b-tail,html.lite .bot[data-pose=bounce] .b-tail,html.lite .bot[data-pose=handsup] .b-tail,html.lite .bot[data-pose=point] .b-tail,html.lite .bot[data-pose=swag] .b-tail{animation:wag .9s steps(5) infinite}
-html.lite .bot[data-mood=happy] .b-tail{animation:wag .5s steps(4) infinite}
-html.lite .bot.ew .dg-ear-l{animation:litEarL .55s steps(3) 1}
-html.lite .bot.ew .dg-ear-r{animation:litEarR .55s steps(3) 1}
-html.lite .bot.bl .b-blink{animation:litBlink .28s steps(2) 1}
-html.lite .bot .b-float,html.lite .bot .b-head{animation-timing-function:steps(5)!important}
-html.lite .bot .b-arm-l,html.lite .bot .b-arm-r{animation-timing-function:steps(4)!important}
-html.lite .bot .b-smoke{animation-timing-function:steps(9)!important}
-html.lite .bot .b-ember{animation-timing-function:steps(2)!important}
-html.lite .bot .pf{animation-timing-function:steps(8)!important}
-html.lite .bot .b-spark path,html.lite .bot .b-zs text{animation-timing-function:steps(6)!important}
-html.lite .bot .pf:nth-child(n+4){display:none}
+/* движение идёт шагами меньше пикселя: на глаз плавно, а перерисовок в разы меньше, чем при полной плавности */
+html.lite .dg-ear-l,html.lite .dg-ear-r,html.lite .b-blink{animation:none}
+html.lite .b-tail{animation:wag 2.6s steps(26) infinite}
+html.lite .bot.smile .b-tail,html.lite .bot[data-pose=bounce] .b-tail,html.lite .bot[data-pose=handsup] .b-tail,html.lite .bot[data-pose=point] .b-tail,html.lite .bot[data-pose=swag] .b-tail{animation:wag .9s steps(18) infinite}
+html.lite .bot[data-mood=happy] .b-tail{animation:wag .5s steps(12) infinite}
+html.lite .bot.ew .dg-ear-l{animation:litEarL .55s steps(8) 1}
+html.lite .bot.ew .dg-ear-r{animation:litEarR .55s steps(8) 1}
+html.lite .bot.bl .b-blink{animation:litBlink .28s steps(6) 1}
+html.lite .bot .b-float{animation-timing-function:steps(12)!important}
+html.lite .bot .b-head{animation-timing-function:steps(14)!important}
+html.lite .bot .b-arm-l,html.lite .bot .b-arm-r{animation-timing-function:steps(10)!important}
+html.lite .bot .b-smoke{animation-timing-function:steps(24)!important}
+html.lite .bot .b-ember{animation-timing-function:steps(10)!important}
+html.lite .bot .pf{animation-timing-function:steps(36)!important}
+html.lite .bot .b-spark path{animation-timing-function:steps(16)!important}
+html.lite .bot .b-zs text{animation-timing-function:steps(24)!important}
+html.lite .bot .pf:nth-child(n+5){display:none}
+html.lite .mini .b-tail{animation:none}
 @media (max-width:980px){.cal,.tails{content-visibility:auto;contain-intrinsic-size:auto 640px}}
 html{touch-action:manipulation}
 html.lite.calm .bot,html.lite.calm .bot *{animation-play-state:paused!important}
@@ -1576,7 +1581,7 @@ const cached = node => { Object.defineProperty(node, 'innerHTML', {configurable:
 ['#minsPills', '#repPills', '#repDays', '#repDateChips', '#addSum'].forEach(id => cached($(id)));
 
 /* ---------- хранилище: сначала это устройство, потом общая синхронизация через Gist ---------- */
-const APP_VERSION = '2026-11-07.16';
+const APP_VERSION = '2026-11-07.17';
 const DATA_KEY = 'rtp.data.v1', SYNC_KEY = 'rtp.sync.v1', GIST_FILE = 'road-to-prime.json', GH = 'https://api.github.com';
 S.tomb = {tasks: {}, spheres: {}, cats: {}, series: {}, ach: {}};
 S.sync = {state: 'off', last: 0, msg: ''};
@@ -2756,15 +2761,16 @@ function burst(cls, ms) {
   b.classList.add(cls); setTimeout(() => { if (el.bot) el.bot.classList.remove(cls); }, ms);
 }
 (function loopBlink() { setTimeout(() => { if (isLite() && el.bot && el.bot.dataset.mood !== 'sleepy') burst('bl', 320); loopBlink(); }, 3000 + Math.random() * 3500); })();
-(function loopEars() { setTimeout(() => { if (isLite() && el.bot && el.bot.dataset.mood === 'idle') burst('ew', 650); loopEars(); }, 6000 + Math.random() * 6000); })();
+(function loopEars() { setTimeout(() => { if (isLite() && el.bot && el.bot.dataset.mood === 'idle') burst('ew', 650); loopEars(); }, 4000 + Math.random() * 4000); })();
 /* когда открыто любое окно, страница позади не прокручивается (на iPhone иначе листается фон) */
 (function () {
   const ms = Array.from(document.querySelectorAll('.modal')), sync = () => document.documentElement.classList.toggle('modal-open', ms.some(m => !m.hidden));
   const mo = new MutationObserver(sync); ms.forEach(m => mo.observe(m, {attributes: true, attributeFilter: ['hidden']})); sync();
 })();
 let calmT = 0, calmOn = false;
-function calm() { if (!isLite()) return; if (!calmOn) { calmOn = true; document.documentElement.classList.add('calm'); } clearTimeout(calmT); calmT = setTimeout(() => { calmOn = false; document.documentElement.classList.remove('calm'); }, 650); }
-['pointerdown', 'touchstart', 'keydown', 'scroll'].forEach(ev => addEventListener(ev, calm, {passive: true, capture: true}));
+function calm() { if (!isLite()) return; if (!calmOn) { calmOn = true; document.documentElement.classList.add('calm'); } clearTimeout(calmT); calmT = setTimeout(() => { calmOn = false; document.documentElement.classList.remove('calm'); }, 350); }
+/* пёс замирает, только пока страницу листают, а не на каждое нажатие */
+['touchmove', 'scroll'].forEach(ev => addEventListener(ev, calm, {passive: true, capture: true}));
 let raf = 0;
 addEventListener('pointermove', e => {
   if (raf || e.pointerType === 'touch' || !el.bot) return;
